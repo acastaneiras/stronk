@@ -5,6 +5,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import NotificationAlert from '@/shared/AlertMessage';
 import PendingButton from '@/shared/PendingButton';
+import { handleGoogleSignIn } from '@/utils/authUtils';
 import { supabase } from '@/utils/supabaseClient';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from 'react';
@@ -58,7 +59,7 @@ export default function LoginPage() {
           />
         )}
         <div className='flex flex-col gap-4 '>
-          <Button className='flex w-full justify-center gap-3'>
+          <Button className='flex w-full justify-center gap-3' onClick={() => handleGoogleSignIn(setErrorMessage)}>
             <img src="/google_logo.png" alt="Google logo" width={20} height={20} />
             Continue with Google
           </Button>

@@ -1,8 +1,18 @@
 import { Button } from "@/components/ui/button";
+import { useSession } from "@/context/SessionContext";
 import { LogInIcon } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 function Home() {
+  const { session } = useSession();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (session) {
+      navigate('/training'); //Redirect to the training page if the user is already signed in
+    }
+  }, [session, navigate]);
   return (
     <div className="relative min-h-screen bg-[url('/gym_background.jpg')] bg-cover bg-center">
       <div className="absolute top-0 left-0 w-full h-full bg-black opacity-50"></div>

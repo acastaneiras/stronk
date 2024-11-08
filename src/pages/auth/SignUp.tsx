@@ -4,6 +4,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import NotificationAlert from '@/shared/AlertMessage';
 import PendingButton from '@/shared/PendingButton';
+import { handleGoogleSignIn } from '@/utils/authUtils';
 import { supabase } from '@/utils/supabaseClient';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from 'react';
@@ -33,6 +34,7 @@ export default function SignUpPage() {
   });
 
   const [state, setState] = useState({ success: false, message: '' });
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const signup = async (data: z.infer<typeof schema>) => {
     setState({ success: false, message: '' });
@@ -67,7 +69,14 @@ export default function SignUpPage() {
               success={state.success}
             />
           )}
-          <Button className='flex w-full justify-center gap-3'>
+          {errorMessage && (
+            <NotificationAlert
+              message={errorMessage}
+              success={false}
+              className="mb-4"
+            />
+          )}
+          <Button className='flex w-full justify-center gap-3' onClick={() => handleGoogleSignIn(setErrorMessage)}>
             <img src="/google_logo.png" alt="Google logo" width={20} height={20} />
             Continue with Google
           </Button>
