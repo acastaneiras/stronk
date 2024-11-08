@@ -1,13 +1,14 @@
 'use client'
-import PendingButton from '@/shared/PendingButton'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import NotificationAlert from '@/shared/AlertMessage'
+import PendingButton from '@/shared/PendingButton'
+import { supabase } from '@/utils/supabaseClient'
 import { zodResolver } from "@hookform/resolvers/zod"
-import { TriangleAlert } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { Link } from 'react-router-dom'
 import { z } from 'zod'
 
 const schema = z.object({
@@ -23,8 +24,23 @@ export default function ForgotPasswordPage() {
       email: '',
     }
   });
+  const [state, setState] = useState({ success: false, message: '' });
 
-  const state = { message: '', success: false };
+  const handleForgotPassword = async (data: z.infer<typeof schema>) => {
+    const { email } = data;
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${import.meta.env.VITE_APP_URL}/reset-password`
+    });
+
+    if (error) {
+      setState({ success: false, message: error.message });
+    } else {
+      setState({ success: true, message: 'An email has been sent to reset your password' });
+    }
+  }
+
+
   return (
     <Card className="w-full md:w-1/3">
       <CardHeader>
@@ -34,18 +50,16 @@ export default function ForgotPasswordPage() {
       <CardContent>
         <div className='flex flex-col gap-4'>
           {(state.message) && (
-            <Alert variant={state.success ? `success` : `destructive`}>
-              <TriangleAlert className="h-4 w-4" />
-              <AlertTitle>{state.success ? `Success!` : `Error`}</AlertTitle>
-              <AlertDescription>
-                {state.message}
-              </AlertDescription>
-            </Alert>
+            <NotificationAlert
+              message={state.message}
+              success={state.success}
+              className="mb-4"
+            />
           )}
         </div>
 
         <Form {...form}>
-          <form className="grid w-full items-center gap-4">
+          <form className="grid w-full items-center gap-4" onSubmit={form.handleSubmit(handleForgotPassword)}>
             <FormField
               control={form.control}
               name="email"

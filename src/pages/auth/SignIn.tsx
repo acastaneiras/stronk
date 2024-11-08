@@ -1,15 +1,16 @@
 'use client'
-import { useState } from 'react';
-import PendingButton from '@/shared/PendingButton';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { FormControl, FormField, FormItem, Form, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Link, useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+import NotificationAlert from '@/shared/AlertMessage';
+import PendingButton from '@/shared/PendingButton';
 import { supabase } from '@/utils/supabaseClient';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { Link, useNavigate } from 'react-router-dom';
+import { z } from 'zod';
 
 const schema = z.object({
   email: z.string().email(),
@@ -50,7 +51,11 @@ export default function LoginPage() {
       </CardHeader>
       <CardContent>
         {errorMessage && (
-          <div className="text-red-500 text-sm mb-4">{errorMessage}</div>
+          <NotificationAlert
+            message={errorMessage}
+            success={false}
+            className="mb-4"
+          />
         )}
         <div className='flex flex-col gap-4 '>
           <Button className='flex w-full justify-center gap-3'>
