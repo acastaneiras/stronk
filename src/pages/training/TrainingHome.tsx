@@ -1,17 +1,17 @@
 "use client"
 import { Button } from '@/components/ui/button'
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Drawer, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { PlusCircle, MoreHorizontal } from 'lucide-react'
-import { Link } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { ResponsiveModal } from '@/shared/ResponsiveModal'
 import { supabase } from '@/utils/supabaseClient'
+import { MoreHorizontal, PlusCircle, SaveIcon } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 
 const Welcome = () => {
-	const [isOpen, setIsOpen] = useState(false);
+	const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(false);
 	const [showDropdown, setShowDropdown] = useState<null | number>(null);
 
 	useEffect(() => {
@@ -25,7 +25,7 @@ const Welcome = () => {
 
 	return (
 		<>
-			<div className={`transition-all duration-300 ease-in-out ${isOpen ? "transform scale-[0.97] blur-sm" : ""}`}>
+			<div className={`transition-all duration-300 ease-in-out`}>
 				<h1 className="text-5xl font-bold tracking-tighter ">Training</h1>
 				<div className='flex flex-col py-6 gap-y-4'>
 
@@ -35,7 +35,7 @@ const Welcome = () => {
 
 					<div className='flex flex-col gap-y-4'>
 						<div className='flex flex-row gap-4 items-center'>
-							<h2 className='text-4xl'>My routines</h2>
+							<h1 className='text-4xl'>My routines</h1>
 							<Link to="/training/create-routine">
 								<PlusCircle className='w-8 h-8' />
 							</Link>
@@ -89,66 +89,75 @@ const Welcome = () => {
 					</div>
 				</div>
 			</div>
+			<Button onClick={() => setIsWelcomeModalOpen(true)}>Open Modal</Button>
 
-			<Drawer open={isOpen} onOpenChange={setIsOpen}>
-				<DrawerTrigger asChild>
-					<Button className='text-white' variant={`link`} onClick={() => setIsOpen(true)}>Open</Button>
-				</DrawerTrigger>
-				<DrawerContent>
-					<DrawerHeader>
-						<DrawerTitle><h1 className='text-3xl text-bold text-center'>Welcome!</h1></DrawerTitle>
-						<DrawerDescription>
-							<p className='text-left'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui, praesentium unde voluptates sed rem fugit incidunt quos obcaecati dignissimos repudiandae aliquam, doloremque dolor soluta iste eaque nesciunt. Nesciunt, debitis velit.</p>
-							<div className="grid w-full max-w-xs my-8 text-left gap-4">
-								<div className='flex flex-col gap-2'>
-									<Label htmlFor="firstName">First Name <span className="text-red-600">*</span></Label>
-									<Input id="firstName" type="text" placeholder="Enter your first name" />
-								</div>
-								<div className='flex flex-col gap-2'>
-									<Label htmlFor="lastName">Last Name <span className="text-red-600">*</span></Label>
-									<Input id="lastName" type="text" className='w-full' placeholder="Enter your last name" />
-								</div>
-								<div className='flex flex-col gap-2'>
-									<Label htmlFor="alias">Alias <span className="text-xs text-gray-500">(optional)</span></Label>
-									<Input id="alias" type="text" placeholder="Enter your alias" />
-								</div>
-								<div className='flex flex-col gap-2'>
-									<Label htmlFor="alias">Unit System <span className="text-red-600">*</span></Label>
-									<Tabs defaultValue="account" className="w-[400px]">
-										<TabsList>
-											<TabsTrigger value="account">Kilograms</TabsTrigger>
-											<TabsTrigger value="password">Pounds</TabsTrigger>
-										</TabsList>
-									</Tabs>
-								</div>
-								<div className='flex flex-col gap-2'>
-									<Label htmlFor="alias">Intensity Setting</Label>
-									<Tabs defaultValue="none" className="w-[400px]">
-										<TabsList>
-											<TabsTrigger value="account">RPE</TabsTrigger>
-											<TabsTrigger value="password">RIR</TabsTrigger>
-											<TabsTrigger value="none">None</TabsTrigger>
-										</TabsList>
-									</Tabs>
-								</div>
-								<div className='flex flex-col gap-2'>
-									<Label htmlFor="alias">Theme</Label>
-									<Tabs defaultValue="account" className="w-[400px]">
-										<TabsList>
-											<TabsTrigger value="account">Light</TabsTrigger>
-											<TabsTrigger value="password">Dark</TabsTrigger>
-											<TabsTrigger value="system">System</TabsTrigger>
-										</TabsList>
-									</Tabs>
-								</div>
-							</div>
-						</DrawerDescription>
-					</DrawerHeader>
-					<DrawerFooter>
-						<Button className='w-full'>Save</Button>
-					</DrawerFooter>
-				</DrawerContent>
-			</Drawer>
+			<ResponsiveModal
+				open={isWelcomeModalOpen}
+				onOpenChange={setIsWelcomeModalOpen}
+				dismissable={false}
+				title={`Welcome to Stronk!`}
+				description={`Please fill out the following details to get started.`}
+				footer={
+					<Button className="w-full" onClick={() => setIsWelcomeModalOpen(false)}>
+						<SaveIcon />
+						Save
+					</Button>
+				}
+			>
+				<div className='text-sm text-muted-foreground'>
+					<div className="grid w-full text-left gap-4">
+						<div className="flex flex-col gap-2">
+							<Label htmlFor="firstName">
+								First Name <span className="text-red-600">*</span>
+							</Label>
+							<Input id="firstName" type="text" placeholder="Enter your first name" />
+						</div>
+						<div className="flex flex-col gap-2">
+							<Label htmlFor="lastName">
+								Last Name <span className="text-red-600">*</span>
+							</Label>
+							<Input id="lastName" type="text" placeholder="Enter your last name" />
+						</div>
+						<div className="flex flex-col gap-2">
+							<Label htmlFor="alias">
+								Alias <span className="text-xs text-gray-500">(optional)</span>
+							</Label>
+							<Input id="alias" type="text" placeholder="Enter your alias" />
+						</div>
+						<div className="flex flex-col gap-2">
+							<Label htmlFor="unitSystem">
+								Unit System <span className="text-red-600">*</span>
+							</Label>
+							<Tabs defaultValue="kilograms" className="w-[400px]">
+								<TabsList>
+									<TabsTrigger value="kilograms">Kilograms</TabsTrigger>
+									<TabsTrigger value="pounds">Pounds</TabsTrigger>
+								</TabsList>
+							</Tabs>
+						</div>
+						<div className="flex flex-col gap-2">
+							<Label htmlFor="intensitySetting">Intensity Setting</Label>
+							<Tabs defaultValue="none" className="w-[400px]">
+								<TabsList>
+									<TabsTrigger value="rpe">RPE</TabsTrigger>
+									<TabsTrigger value="rir">RIR</TabsTrigger>
+									<TabsTrigger value="none">None</TabsTrigger>
+								</TabsList>
+							</Tabs>
+						</div>
+						<div className="flex flex-col gap-2">
+							<Label htmlFor="theme">Theme</Label>
+							<Tabs defaultValue="light" className="w-[400px]">
+								<TabsList>
+									<TabsTrigger value="light">Light</TabsTrigger>
+									<TabsTrigger value="dark">Dark</TabsTrigger>
+									<TabsTrigger value="system">System</TabsTrigger>
+								</TabsList>
+							</Tabs>
+						</div>
+					</div>
+				</div>
+			</ResponsiveModal>
 		</>
 	)
 }
