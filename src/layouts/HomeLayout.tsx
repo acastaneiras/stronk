@@ -1,11 +1,12 @@
-import Footer from "@/shared/sections/Footer";
 import { Outlet } from "react-router-dom";
 
 function HomeLayout() {
   return (
-    <div className="grid grid-rows-[1fr_auto] min-h-screen bg-gradient-to-b from-blue-800 to-blue-400">
-      <Outlet />
-      <Footer />
+    <div className="relative h-screen w-screen bg-[url('/home_background.webp')] bg-cover bg-center">
+      <div className="absolute top-0 left-0 w-full h-full bg-black opacity-70 z-0"></div>
+      <div className="container mx-auto p-2 flex h-full w-full flex-col items-center justify-center relative z-10">
+        <Outlet />
+      </div>
     </div>
   );
 }

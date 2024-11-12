@@ -1,4 +1,3 @@
-"use client"
 import { useState } from 'react'
 import { ChevronLeft, ImageIcon, PlusCircle } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
