@@ -1,6 +1,6 @@
+import { del, get, set } from 'idb-keyval';
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import { get, set, del } from 'idb-keyval';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 const indexedDBStorage = {
   getItem: async (name: string): Promise<string | null> => {
@@ -16,7 +16,7 @@ const indexedDBStorage = {
 
 interface UserState {
   user: object | null;
-  isUserSetupComplete: boolean;
+  isUserSetupComplete: boolean | null;
   setUser: (user: object) => void;
   setIsUserSetupComplete: (status: boolean) => void;
 }
@@ -25,7 +25,7 @@ export const useUserStore = create<UserState>()(
   persist(
     (set) => ({
       user: null,
-      isUserSetupComplete: false,
+      isUserSetupComplete: null,
       setUser: (user) => set({ user }),
       setIsUserSetupComplete: (status) => set({ isUserSetupComplete: status }),
     }),

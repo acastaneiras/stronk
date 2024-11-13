@@ -3,21 +3,13 @@ import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/comp
 import WelcomeModal from '@/shared/training/WelcomeModal';
 import { useUserStore } from '@/stores/userStore';
 import { MoreHorizontal, PlusCircle } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-
 
 const Welcome = () => {
 	const { isUserSetupComplete } = useUserStore();
-	const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(false);
 	const [showDropdown, setShowDropdown] = useState<null | number>(null);
 
-
-	useEffect(() => {
-    if (!isUserSetupComplete) {
-      setIsWelcomeModalOpen(true);
-    }
-  }, [isUserSetupComplete]);
 
 	return (
 		<>
@@ -86,8 +78,7 @@ const Welcome = () => {
 			</div>
 						
 			<WelcomeModal
-        isOpen={isWelcomeModalOpen}
-        onClose={() => {/*setIsWelcomeModalOpen(false)*/} }
+        isOpen={isUserSetupComplete === false}
       />
 
 		</>

@@ -1,32 +1,36 @@
-import { useEffect } from 'react';
+import { useTheme } from "@/components/theme-provider";
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useSession } from '@/context/SessionContext';
 import { ResponsiveModal } from '@/shared/ResponsiveModal';
+import { useUserStore } from '@/stores/userStore';
+import { supabase } from '@/utils/supabaseClient';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SaveIcon } from 'lucide-react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from "sonner";
 import { z } from 'zod';
-import { useSession } from '@/context/SessionContext';
 
 const schema = z.object({
   firstName: z.string().min(1, 'First Name is required'),
   lastName: z.string().min(1, 'Last Name is required'),
   alias: z.string().optional(),
-  unitSystem: z.enum(['kilograms', 'pounds']),
+  unitPreference: z.enum(['kilograms', 'pounds']),
   intensitySetting: z.enum(['rpe', 'rir', 'none']),
-  theme: z.enum(['light', 'dark', 'system']),
 });
 
 type UserFormInputs = z.infer<typeof schema>;
 
 interface WelcomeModalProps {
   isOpen: boolean;
-  onClose: () => void;
 }
 
-function WelcomeModal({ isOpen, onClose }: WelcomeModalProps) {
+function WelcomeModal({ isOpen }: WelcomeModalProps) {
+  const { setTheme } = useTheme();
+  const {setIsUserSetupComplete, setUser } = useUserStore();
   const { session } = useSession();
   const form = useForm<UserFormInputs>({
     resolver: zodResolver(schema),
@@ -35,9 +39,8 @@ function WelcomeModal({ isOpen, onClose }: WelcomeModalProps) {
       firstName: '',
       lastName: '',
       alias: '',
-      unitSystem: 'kilograms',
+      unitPreference: 'kilograms',
       intensitySetting: 'none',
-      theme: 'light',
     },
   });
   const { setValue } = form;
@@ -61,16 +64,27 @@ function WelcomeModal({ isOpen, onClose }: WelcomeModalProps) {
     }
   }, [session, setValue]);
 
-  const onSubmit = (data: UserFormInputs) => {
-    console.log('Form Data:', data);
-    onClose();
-    // ToDo: Save user data to the database
+  const onSubmit = async (userData: UserFormInputs) => {
+    if (!session?.user.id) return;
+
+    const { data, error } = await supabase
+      .from('Users')
+      .update({ ...userData })
+      .eq('id', session.user.id).select();
+
+    if (error) {
+      toast.error('An error occurred while saving user details');
+      return;
+    }
+    setIsUserSetupComplete(true);
+    setUser(data?.[0]);
+    form.reset();
+    toast.success('User details saved successfully!');
   };
 
   return (
     <ResponsiveModal
-      open={false}
-      onOpenChange={onClose}
+      open={isOpen}
       dismissable={false}
       title={`Welcome to Stronk!`}
       description={`Please fill out the following details to get started.`}
@@ -128,18 +142,18 @@ function WelcomeModal({ isOpen, onClose }: WelcomeModalProps) {
           />
           <FormField
             control={form.control}
-            name="unitSystem"
+            name="unitPreference"
             render={() => (
               <FormItem className="flex flex-col space-y-1.5">
                 <FormLabel>
                   Unit System <span className="text-red-600">*</span>
                 </FormLabel>
-                <Tabs defaultValue="kilograms" className="w-[400px]">
+                <Tabs defaultValue="kilograms">
                   <TabsList>
-                    <TabsTrigger value="kilograms" onClick={() => form.setValue('unitSystem', 'kilograms')}>
+                    <TabsTrigger value="kilograms" onClick={() => form.setValue('unitPreference', 'kilograms')}>
                       Kilograms
                     </TabsTrigger>
-                    <TabsTrigger value="pounds" onClick={() => form.setValue('unitSystem', 'pounds')}>
+                    <TabsTrigger value="pounds" onClick={() => form.setValue('unitPreference', 'pounds')}>
                       Pounds
                     </TabsTrigger>
                   </TabsList>
@@ -154,7 +168,7 @@ function WelcomeModal({ isOpen, onClose }: WelcomeModalProps) {
             render={() => (
               <FormItem className="flex flex-col space-y-1.5">
                 <FormLabel>Intensity Setting</FormLabel>
-                <Tabs defaultValue="none" className="w-[400px]">
+                <Tabs defaultValue="none">
                   <TabsList>
                     <TabsTrigger value="rpe" onClick={() => form.setValue('intensitySetting', 'rpe')}>
                       RPE
@@ -172,20 +186,19 @@ function WelcomeModal({ isOpen, onClose }: WelcomeModalProps) {
             )}
           />
           <FormField
-            control={form.control}
             name="theme"
             render={() => (
               <FormItem className="flex flex-col space-y-1.5">
                 <FormLabel>Theme</FormLabel>
-                <Tabs defaultValue="light" className="w-[400px]">
+                <Tabs defaultValue="system">
                   <TabsList>
-                    <TabsTrigger value="light" onClick={() => form.setValue('theme', 'light')}>
+                    <TabsTrigger value="light" onClick={() => setTheme('light')}>
                       Light
                     </TabsTrigger>
-                    <TabsTrigger value="dark" onClick={() => form.setValue('theme', 'dark')}>
+                    <TabsTrigger value="dark" onClick={() => setTheme('dark')}>
                       Dark
                     </TabsTrigger>
-                    <TabsTrigger value="system" onClick={() => form.setValue('theme', 'system')}>
+                    <TabsTrigger value="system" onClick={() => setTheme('system')}>
                       System
                     </TabsTrigger>
                   </TabsList>

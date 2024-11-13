@@ -1,13 +1,13 @@
-import * as React from "react";
-import { useMediaQuery } from "@uidotdev/usehooks"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter } from "@/components/ui/drawer";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { useMediaQuery } from "@uidotdev/usehooks";
+import * as React from "react";
 
 interface ResponsiveModalProps {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onOpenChange?: (open: boolean) => void;
   title: React.ReactNode;
   description?: React.ReactNode;
   children: React.ReactNode;
@@ -17,7 +17,7 @@ interface ResponsiveModalProps {
 
 export function ResponsiveModal({
   open,
-  onOpenChange,
+  onOpenChange = () => {},
   title,
   description,
   children,
