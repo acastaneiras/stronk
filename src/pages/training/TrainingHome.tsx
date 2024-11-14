@@ -2,23 +2,35 @@ import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import WelcomeModal from '@/shared/training/WelcomeModal';
 import { useUserStore } from '@/stores/userStore';
+import { useWorkoutStore } from '@/stores/workoutStore';
 import { MoreHorizontal, PlusCircle } from 'lucide-react';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
-const Welcome = () => {
-	const { isUserSetupComplete } = useUserStore();
+const TrainingHome = () => {
+	const { isUserSetupComplete, user } = useUserStore();
+	const { newWorkout, setIsTimerEnabled } = useWorkoutStore();
+	const navigate = useNavigate();
 	const [showDropdown, setShowDropdown] = useState<null | number>(null);
 
+	const createNewWorkout = () => {
 
+		//ToDo: Show a modal to confirm if the user wants to discard the current workout
+		startNewWorkout();
+	};
+
+	const startNewWorkout = () => {
+			navigate('/training/create-new-workout');
+      newWorkout(user!.id);
+      setIsTimerEnabled(true);
+  }
 	return (
 		<>
 			<div className={`transition-all duration-300 ease-in-out`}>
 				<h1 className="text-5xl font-bold tracking-tighter">Training</h1>
 				<div className='flex flex-col py-6 gap-y-4'>
-					<Link to="/training/create-new-workout">
-						<Button className='w-full'>Create New Workout</Button>
-					</Link>
+
+					<Button className='w-full' onClick={createNewWorkout}>Create New Workout</Button>
 
 					<div className='flex flex-col gap-y-4'>
 						<div className='flex flex-row gap-4 items-center'>
@@ -76,13 +88,13 @@ const Welcome = () => {
 					</div>
 				</div>
 			</div>
-						
+
 			<WelcomeModal
-        isOpen={isUserSetupComplete === false}
-      />
+				isOpen={isUserSetupComplete === false}
+			/>
 
 		</>
 	);
 };
 
-export default Welcome;
+export default TrainingHome;

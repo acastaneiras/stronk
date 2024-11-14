@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
+import { getCurrentUser } from '@/utils/authUtils';
+import { useUserStore } from '@/stores/userStore';
 
 export default function EmailConfirmation() {
+	const {setUser} = useUserStore();
 	const location = useLocation();
 	const navigate = useNavigate();
 	const [errorMessage, setErrorMessage] = useState('');
@@ -17,11 +20,17 @@ export default function EmailConfirmation() {
 			setErrorMessage(decodeURIComponent(errorDescription || 'An unknown error occurred.'));
 		} else {
 			setSuccessMessage('Email verified successfully!');
+			const fetchUser = async () => {
+				const user = await getCurrentUser();
+				setUser(user);
+			}
+			fetchUser();
+			
 			setTimeout(() => {
 				navigate('/training');
 			}, 3000);
 		}
-	}, [location, navigate]);
+	}, [location, navigate, setUser]);
 
 	return (
 		<div className="flex h-screen items-center justify-center">

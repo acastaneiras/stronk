@@ -6,7 +6,6 @@ import ProfileLayout from '@/layouts/ProfileLayout';
 import TrainingLayout from '@/layouts/TrainingLayout';
 import NotFound from '@/pages/NotFound';
 import Home from '@/pages/Home';
-import Welcome from '@/pages/Welcome';
 import SignIn from '@/pages/auth/SignIn';
 import SignUp from '@/pages/auth/SignUp';
 import ForgotPassword from '@/pages/auth/ForgotPassword';
@@ -24,6 +23,7 @@ import EditWorkout from '@/pages/training/workout/EditWorkout';
 import EmailConfirmation from "@/pages/auth/EmailConfirmation";
 import AuthProtectedRoute from "./AuthProtectedRoute";
 import Providers from "@/Providers";
+import OAuthCallback from "./OAuthCallback";
 
 
 const router = createBrowserRouter([
@@ -39,6 +39,10 @@ const router = createBrowserRouter([
 						element: <Home />,
 					},
 				],
+			},
+			{
+				path: '/oauth-callback',
+				element: <OAuthCallback />,
 			},
 			{
 				element: <AuthLayout />,

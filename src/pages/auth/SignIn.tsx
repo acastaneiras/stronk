@@ -4,8 +4,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import NotificationAlert from '@/shared/AlertMessage';
 import PendingButton from '@/shared/PendingButton';
-import { handleGoogleSignIn } from '@/utils/authUtils';
-import { supabase } from '@/utils/supabaseClient';
+import { handleGoogleSignIn, handleSignIn } from '@/utils/authUtils';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -30,19 +29,13 @@ export default function LoginPage() {
     }
   });
 
-  const handleSignIn = async (data: z.infer<typeof schema>) => {
-    setErrorMessage(null);
-    const { email, password } = data;
-
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-
-    if (error) {
-      setErrorMessage(error.message);
-    } else {
+  const onSubmit = async (data: z.infer<typeof schema>) => {
+    const success = await handleSignIn(data.email, data.password, setErrorMessage);
+    if (success) {
       navigate('/training');
     }
   };
-
+  
   return (
     <Card className="w-full md:w-1/3 m-2">
       <CardHeader>
@@ -70,7 +63,7 @@ export default function LoginPage() {
           <div className="flex items-stretch justify-start h-[1px] border w-full"></div>
         </div>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSignIn)} className="grid w-full items-center gap-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="grid w-full items-center gap-4">
             <FormField
               control={form.control}
               name="email"
