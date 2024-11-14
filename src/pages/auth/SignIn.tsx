@@ -16,7 +16,7 @@ const schema = z.object({
   password: z.string(),
 });
 
-export default function LoginPage() {
+export default function LoginPage() {  
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const form = useForm<z.infer<typeof schema>>({

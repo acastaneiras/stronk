@@ -8,7 +8,9 @@ import router from './router/router';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ThemeProvider defaultTheme='system' storageKey='vite-ui-theme'>
+    <ThemeProvider attribute="class"
+      defaultTheme="system"
+      enableSystem>
       <RouterProvider router={router} />
       <Toaster />
     </ThemeProvider>
