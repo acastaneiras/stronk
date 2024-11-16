@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { CheckCircle2, ChevronLeft, ImageIcon, LucideEllipsisVertical } from 'lucide-react'
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 
 const MOCK_DELETE = 4; // 2 FOR TESTING
 const CreateNewWorkout = () => {
@@ -74,7 +75,9 @@ const CreateNewWorkout = () => {
     <div className='flex flex-col gap-4'>
       <div className='flex flex-row items-center justify-between'>
         <div className='w-10'>
-          <ChevronLeft className="cursor-pointer" />
+          <Link to="/training">
+            <ChevronLeft className="cursor-pointer" />
+          </Link>
         </div>
         <h1 className="text-xl font-bold tracking-tighter w-full text-center ">Ongoing Workout</h1>
         <div className='flex gap-2'>
@@ -166,8 +169,8 @@ const CreateNewWorkout = () => {
                       {index !== MOCK_DELETE ? index + 1 : <span className='text-red-500'>F</span>}
                     </span>
                     <span className='text-sm font-bold'>100kg</span>
-                    <Input className='text-sm font-bold border-none shadow-none w-8 ml-2 text-center' value={3} />
-                    <Input className='text-sm font-bold border-none shadow-none w-8 text-center' value={8} />
+                    <Input className='text-sm font-bold border-none shadow-none w-8 ml-2 text-center' value={3} readOnly />
+                    <Input className='text-sm font-bold border-none shadow-none w-8 text-center' value={8} readOnly />
                     <CheckCircle2
                       size={24}
                       className={index !== 2 ? 'text-green-600 cursor-pointer' : ''}

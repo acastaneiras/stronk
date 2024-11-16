@@ -4,7 +4,7 @@ import { Outlet } from 'react-router-dom';
 import { useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
-export default function Layout() {
+export default function AuthLayout() {
     const { theme, systemTheme } = useTheme();
     const [currentTheme, setCurrentTheme] = useState<string>("light");
 

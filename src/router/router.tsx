@@ -1,28 +1,28 @@
 
-import { createBrowserRouter } from "react-router-dom";
+import Providers from "@/Providers";
+import AppLayout from '@/layouts/AppLayout';
 import AuthLayout from '@/layouts/AuthLayout';
 import HomeLayout from '@/layouts/HomeLayout';
-import ProfileLayout from '@/layouts/ProfileLayout';
-import TrainingLayout from '@/layouts/TrainingLayout';
-import NotFound from '@/pages/NotFound';
+import WorkoutLayout from '@/layouts/WorkoutLayout';
 import Home from '@/pages/Home';
-import SignIn from '@/pages/auth/SignIn';
-import SignUp from '@/pages/auth/SignUp';
+import NotFound from '@/pages/NotFound';
+import EmailConfirmation from "@/pages/auth/EmailConfirmation";
 import ForgotPassword from '@/pages/auth/ForgotPassword';
 import ResetPassword from '@/pages/auth/ResetPassword';
+import SignIn from '@/pages/auth/SignIn';
+import SignUp from '@/pages/auth/SignUp';
 import Profile from '@/pages/profile/Profile';
-import TrainingHome from '@/pages/training/TrainingHome';
 import ExerciseList from '@/pages/training/ExerciseList';
 import ExerciseOverview from '@/pages/training/ExerciseOverview';
 import ReorderExercises from '@/pages/training/ReorderExercises';
+import TrainingHome from '@/pages/training/TrainingHome';
 import ViewWorkout from '@/pages/training/ViewWorkout';
 import CreateNewWorkout from '@/pages/training/workout/CreateNewWorkout';
 import CreateRoutine from '@/pages/training/workout/CreateRoutine';
 import EditRoutine from '@/pages/training/workout/EditRoutine';
 import EditWorkout from '@/pages/training/workout/EditWorkout';
-import EmailConfirmation from "@/pages/auth/EmailConfirmation";
+import { createBrowserRouter } from "react-router-dom";
 import AuthProtectedRoute from "./AuthProtectedRoute";
-import Providers from "@/Providers";
 import OAuthCallback from "./OAuthCallback";
 
 
@@ -75,7 +75,7 @@ const router = createBrowserRouter([
 				element: <AuthProtectedRoute />,
 				children: [
 					{
-						element: <ProfileLayout />,
+						element: <AppLayout />,
 						children: [
 							{
 								path: '',
@@ -91,12 +91,17 @@ const router = createBrowserRouter([
 				element: <AuthProtectedRoute />,
 				children: [
 					{
-						element: <TrainingLayout />,
+						element: <AppLayout />,
 						children: [
 							{
 								path: '',
 								element: <TrainingHome />,
 							},
+						],
+					},
+					{
+						element: <WorkoutLayout />,
+						children: [
 							{
 								path: 'exercise-list',
 								element: <ExerciseList />,
