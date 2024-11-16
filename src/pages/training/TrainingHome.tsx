@@ -20,10 +20,10 @@ const TrainingHome = () => {
 	};
 
 	const startNewWorkout = () => {
-			navigate('/training/create-new-workout');
-      newWorkout(user!.id);
-      setIsTimerEnabled(true);
-  }
+		navigate('/training/create-new-workout');
+		newWorkout(user!.id);
+		setIsTimerEnabled(true);
+	}
 	return (
 		<>
 			<div className={`transition-all duration-300 ease-in-out`}>
