@@ -28,7 +28,6 @@ async function loadEquipment(versionChange: boolean, addEquipment: (equipment: s
     console.error('Error fetching equipment:', error);
     return;
   }
-  console.log('Equipment Loaded from DB');
 
   const equipment = data as string[];
   addEquipment(equipment);

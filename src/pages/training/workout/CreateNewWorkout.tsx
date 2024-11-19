@@ -1,19 +1,27 @@
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
-import { Progress } from '@/components/ui/progress'
-import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
-import { cn } from '@/lib/utils'
-import { CheckCircle2, ChevronLeft, ImageIcon, LucideEllipsisVertical } from 'lucide-react'
+import WorkoutExercise from '@/shared/training/workout-exercise/WorkoutExercise'
+import WorkoutHeader from '@/shared/training/WorkoutHeader'
+import { useExercisesStore } from '@/stores/exerciseStore'
+import { useWorkoutStore } from '@/stores/workoutStore'
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import NoExercises from '../NoExercises'
 
+const exercise = 
+{
+  id: "27c3307b-63f7-4f50-a9e8-c4a3697b55b2",
+  exercise: { id: "27c3307b-63f7-4f50-a9e8-c4a3697b55b2", guid: "3_4_Sit-Up", name: "3/4 Sit-Up", category: "Strength", primaryMuscles: ["abdominals"], secondaryMuscles: [], equipment: "Body Only", instructions: ["Lie down on the floor and secure your feet. Your legs should be bent at the knees.", "Place your hands behind or to the side of your head. You will begin with your back on the ground. This will be your starting position.", "Flex your hips and spine to raise your torso toward your knees.", "At the top of the contraction your torso should be perpendicular to the ground. Reverse the motion, going only Â¾ of the way down.", "Repeat for the recommended amount of repetitions."], isCustom: false, userId: null, createdAt: new Date(), images: ["3_4_Sit-Up/0.jpg", "3_4_Sit-Up/1.jpg"] },
+  sets: [],
+  setInterval: null,
+  notes: ""
+}
 const MOCK_DELETE = 4; // 2 FOR TESTING
 const CreateNewWorkout = () => {
+  const { workout } = useWorkoutStore();
+  const { allExercises } = useExercisesStore();
   const [showRemoveModal, setShowRemoveModal] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [notesDrawerOpen, setNotesDrawerOpen] = useState(false)
@@ -26,6 +34,8 @@ const CreateNewWorkout = () => {
   const [restTimeSeconds, setRestTimeSeconds] = useState('0')
   const [workoutTitle, setWorkoutTitle] = useState('')
   const [workoutDescription, setWorkoutDescription] = useState('')
+
+
 
   const handleOpenDrawer = (index: number) => {
     setSelectedSet(index)
@@ -72,37 +82,28 @@ const CreateNewWorkout = () => {
   }
 
   return (
-    <div className='flex flex-col gap-4'>
-      <div className='flex flex-row items-center justify-between'>
-        <div className='w-10'>
-          <Link to="/training">
-            <ChevronLeft className="cursor-pointer" />
-          </Link>
-        </div>
-        <h1 className="text-xl font-bold tracking-tighter w-full text-center ">Ongoing Workout</h1>
-        <div className='flex gap-2'>
-          <Button onClick={handleOpenFinishDrawer}>Finish</Button>
-        </div>
-      </div>
-      <div className='flex flex-row text-center justify-center gap-24'>
-        <div>
-          <div className='font-bold'>Sets</div>
-          <div>2/3</div>
-        </div>
-        <div>
-          <div className='font-bold'>Volume</div>
-          <div>900kg</div>
-        </div>
-        <div>
-          <div className='font-bold'>Time</div>
-          <div>10:01</div>
-        </div>
-      </div>
-      <Progress value={66} />
-      <div className='text-center'>66%</div>
-      <Separator />
+    <div className='flex flex-col  flex-1'>
+      <WorkoutHeader onClose={() => alert('Close')} onFinish={handleOpenFinishDrawer} />
 
-      <div className='py-4 flex-col'>
+      <div className='flex flex-col flex-grow py-4'>
+        {((workout?.workout_exercises) && (workout.workout_exercises.length > 0)) ?
+          workout?.workout_exercises?.map((exercise, index) => (
+            <WorkoutExercise
+              id={index}
+              key={`${exercise.id}-${index}`}
+              currentExercise={exercise}
+              handleOpenSettingsModal={() => alert('Open Settings')}
+              onChangeSetTypePress={() => alert('Change Set Type')}
+              addNotesPress={() => alert('Add Notes')}
+            />
+          )) : (
+            <div className='m-auto'>
+              <NoExercises /> 
+            </div>
+          )}
+      </div>
+      <div>
+        {/* exercises here
         <div className='flex flex-col gap-4'>
           <div className='flex flex-row justify-between items-center gap-4'>
             <div className='flex flex-row items-center gap-4 w-full'>
@@ -113,7 +114,7 @@ const CreateNewWorkout = () => {
                   <Badge className='w-min text-nowrap'>Strength</Badge>
                   <span className='text-sm'>Chest</span>
                 </div>
-                <div></div>
+
               </div>
             </div>
             <DropdownMenu>
@@ -184,6 +185,7 @@ const CreateNewWorkout = () => {
 
           <Button className='flex items-center justify-center gap-2 text-white'>Add Set</Button>
         </div>
+         */}
       </div>
 
       <Dialog open={showRemoveModal} onOpenChange={setShowRemoveModal}>

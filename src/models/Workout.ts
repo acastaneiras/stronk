@@ -12,7 +12,7 @@ export interface Workout {
     duration: number | null;
     sets: number;
     volume: number;
-    workout_exercises: WorkoutExerciseType[] | null;
+    workout_exercises: WorkoutExerciseType[];
     completed: boolean;
 }
 

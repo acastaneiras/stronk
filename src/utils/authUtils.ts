@@ -1,3 +1,4 @@
+import { User } from '@/models/User';
 import { useUserStore } from '@/stores/userStore';
 import { supabase } from '@/utils/supabaseClient';
 
@@ -36,7 +37,7 @@ export const handleSignIn = async ( email: string, password: string, setErrorMes
   return false;
 };
 
-export const getCurrentUser = async () => {
+export const getCurrentUser = async (): Promise<User | null> => {
   try {
     const { data: authData, error: authError } = await supabase.auth.getUser();
 
@@ -56,7 +57,7 @@ export const getCurrentUser = async () => {
 
     if (userError) throw userError;
 
-    return userData;
+    return userData as User;
   } catch (error) {
     console.error("Error while fetching user", error);
     throw error;

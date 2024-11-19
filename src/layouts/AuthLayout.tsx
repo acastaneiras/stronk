@@ -14,7 +14,6 @@ export default function AuthLayout() {
         } else {
             setCurrentTheme(theme === "dark" ? "dark" : "light");
         }
-        console.log(useTheme)
     }, [theme, systemTheme]);
 
     return (

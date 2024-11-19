@@ -159,7 +159,6 @@ export const useWorkoutStore = create<WorkoutState>()(
         }),
         changeRepsFromExercise: (exerciseId: string | number[], setIndex: number, reps: number | string) => set((state) => {
           if (!state.workout || !state.workout.workout_exercises) return state;
-          console.log('e')
           return {
             ...state,
             workout: {
