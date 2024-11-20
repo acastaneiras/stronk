@@ -2,6 +2,7 @@
 import Providers from "@/Providers";
 import AppLayout from '@/layouts/AppLayout';
 import AuthLayout from '@/layouts/AuthLayout';
+import ExerciseListLayout from "@/layouts/ExerciseListLayout";
 import HomeLayout from '@/layouts/HomeLayout';
 import WorkoutLayout from '@/layouts/WorkoutLayout';
 import Home from '@/pages/Home';
@@ -103,10 +104,6 @@ const router = createBrowserRouter([
 						element: <WorkoutLayout />,
 						children: [
 							{
-								path: 'exercise-list',
-								element: <ExerciseList />,
-							},
-							{
 								path: 'exercise-overview',
 								element: <ExerciseOverview />,
 							},
@@ -136,6 +133,15 @@ const router = createBrowserRouter([
 							},
 						],
 					},
+					{
+						element: <ExerciseListLayout />,
+						children: [
+							{
+								path: 'exercise-list',
+								element: <ExerciseList />,
+							}
+						]
+					}
 				],
 			},
 		],

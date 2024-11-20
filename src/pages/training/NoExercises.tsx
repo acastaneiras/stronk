@@ -6,7 +6,7 @@ const NoExercises = () => {
       className="flex flex-col items-center justify-center space-y-4 px-6 pb-12"
     >
       <div className="flex flex-col items-center space-y-2">
-        <Dumbbell className="text-primary-foreground h-12 w-12" />
+        <Dumbbell className=" h-12 w-12" />
         <h2 className="text-xl font-bold">No exercises</h2>
       </div>
       <p className="text-center">

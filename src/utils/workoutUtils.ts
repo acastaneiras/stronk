@@ -1,3 +1,4 @@
+import { Exercise } from "@/models/Exercise";
 import { SetCounts, Workout } from "../models/Workout";
 
 export const getTotalSets = (workout: Workout | null): SetCounts => {
@@ -55,4 +56,33 @@ export const getCategoryColor = (category: string): string => {
 
 export const formatWeightUnit = (unit: string): string => {
   return unit === 'kilograms' ? 'Kg' : 'Lb';
+}
+
+export const filterPrimaryAndSecondaryMuscles = (filteredData: Exercise[], muscleGroupFilter: string) => {
+  return filteredData.sort((a: Exercise, b: Exercise) => {
+    const aHasPrimary = a.primaryMuscles && a.primaryMuscles.includes(muscleGroupFilter);
+    const bHasPrimary = b.primaryMuscles && b.primaryMuscles.includes(muscleGroupFilter);
+
+    //If 'a' has the muscle group in primary muscles but 'b' doesn't, sort 'a' first
+    if (aHasPrimary && !bHasPrimary) {
+      return -1;
+    }
+    //If 'b' has the muscle group in primary muscles but 'a' doesn't, sort 'b' first
+    else if (!aHasPrimary && bHasPrimary) {
+      return 1;
+    }
+    //If both or neither have the muscle group in primary muscles, fall back to secondary muscles
+    else {
+      const aHasSecondary = a.secondaryMuscles && a.secondaryMuscles.includes(muscleGroupFilter);
+      const bHasSecondary = b.secondaryMuscles && b.secondaryMuscles.includes(muscleGroupFilter);
+
+      if (aHasSecondary && !bHasSecondary) {
+        return -1;
+      } else if (!aHasSecondary && bHasSecondary) {
+        return 1;
+      } else {
+        return 0;
+      }
+    }
+  })
 }

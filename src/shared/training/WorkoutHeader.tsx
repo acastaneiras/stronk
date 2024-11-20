@@ -51,7 +51,7 @@ const WorkoutHeader = ({ onClose, onFinish }: { onClose: () => void; onFinish: (
         </div>
         <div>
           <div className="font-bold">Volume</div>
-          <div>{totalVolume} {formatWeightUnit(user!.unitPreference)}</div>
+          <div>{totalVolume} {user ? formatWeightUnit(user.unitPreference) : "Kg"}</div>
         </div>
         <div>
           <div className="font-bold">Time</div>
