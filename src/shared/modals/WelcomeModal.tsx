@@ -4,7 +4,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSession } from '@/context/SessionContext';
-import { ResponsiveModal } from '@/shared/ResponsiveModal';
+import { ResponsiveModal } from '@/shared/modals/ResponsiveModal';
 import { useUserStore } from '@/stores/userStore';
 import { supabase } from '@/utils/supabaseClient';
 import { zodResolver } from '@hookform/resolvers/zod';

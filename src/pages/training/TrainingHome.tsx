@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import WelcomeModal from '@/shared/WelcomeModal';
+import WelcomeModal from '@/shared/modals/WelcomeModal';
 import { useUserStore } from '@/stores/userStore';
 import { useWorkoutStore } from '@/stores/workoutStore';
 import { MoreHorizontal, PlusCircle } from 'lucide-react';

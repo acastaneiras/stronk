@@ -15,6 +15,11 @@ import { useEffect, useRef, useState } from 'react'
 import { MdOutlineFilterList } from "react-icons/md"
 import { useNavigate } from 'react-router-dom'
 import NoExercises from './NoExercises'
+import { ResponsiveModal } from '@/shared/modals/ResponsiveModal'
+import MuscleGroupModal from '@/shared/modals/MuscleGroupModal'
+import CategoryModal from '@/shared/modals/CategoryModal'
+import EquipmentModal from '@/shared/modals/EquipmentModal'
+import CreateExerciseModal from '@/shared/modals/CreateExerciseModal'
 
 //ToDo - Create a component for the ExerciseList and pass the mode as a prop
 const mode: ExerciseSearchMode = ExerciseSearchMode.ADD_EXERCISE;
@@ -119,110 +124,18 @@ const ExerciseList = () => {
           ? filteredExercises.map((filteredExercise) => {
             const isSelected = selectedExercises.some(exercise => exercise.id === filteredExercise.id);
             return <ExerciseListItem exercise={filteredExercise} key={filteredExercise.id} onPress={() => onPressExercise(filteredExercise)} selected={isSelected} />
-          }) : 
+          }) :
           <div className='m-auto'>
             <NoExercises />
           </div>
-          }
+        }
       </div>
 
-      <Drawer open={groupDrawerOpen} onOpenChange={setGroupDrawerOpen}>
-        <DrawerContent>
-          <DrawerHeader>
-            <DrawerTitle>Select Muscle Group</DrawerTitle>
-          </DrawerHeader>
-          <div className="p-4">
-            <Button className="w-full mb-2">Chest</Button>
-            <Button className="w-full mb-2">Back</Button>
-            <Button className="w-full mb-2">Legs</Button>
-            <Button className="w-full mb-2">Shoulders</Button>
-            <Button className="w-full mb-2">Arms</Button>
-            ...
-          </div>
-        </DrawerContent>
-      </Drawer>
+      <MuscleGroupModal groupDrawerOpen={groupDrawerOpen} setGroupDrawerOpen={setGroupDrawerOpen} />
+      <CategoryModal categoryDrawerOpen={categoryDrawerOpen} setCategoryDrawerOpen={setCategoryDrawerOpen} />
+      <EquipmentModal equipmentDrawerOpen={equipmentDrawerOpen} setEquipmentDrawerOpen={setEquipmentDrawerOpen} />
+      <CreateExerciseModal createExerciseOpen={createExerciseOpen} setCreateExerciseOpen={setCreateExerciseOpen} />
 
-      <Drawer open={categoryDrawerOpen} onOpenChange={setCategoryDrawerOpen}>
-        <DrawerContent>
-          <DrawerHeader>
-            <DrawerTitle>Select Category</DrawerTitle>
-          </DrawerHeader>
-          <div className="p-4">
-            <Button className="w-full mb-2">Strength</Button>
-            <Button className="w-full mb-2">Cardio</Button>
-            <Button className="w-full mb-2">Mobility</Button>
-            <Button className="w-full mb-2">Endurance</Button>
-            ...
-          </div>
-        </DrawerContent>
-      </Drawer>
-
-      <Drawer open={equipmentDrawerOpen} onOpenChange={setEquipmentDrawerOpen}>
-        <DrawerContent>
-          <DrawerHeader>
-            <DrawerTitle>Select Equipment</DrawerTitle>
-          </DrawerHeader>
-          <div className="p-4">
-            <Button className="w-full mb-2">Barbell</Button>
-            <Button className="w-full mb-2">Dumbbell</Button>
-            <Button className="w-full mb-2">Machine</Button>
-            <Button className="w-full mb-2">Bodyweight</Button>
-            ...
-          </div>
-        </DrawerContent>
-      </Drawer>
-
-      <Drawer open={createExerciseOpen} onOpenChange={setCreateExerciseOpen}>
-        <DrawerContent>
-          <DrawerHeader>
-            <DrawerTitle>Create New Exercise</DrawerTitle>
-          </DrawerHeader>
-          <div className="p-4">
-            <Input placeholder="Exercise Name" className="mb-4" />
-
-            <Select>
-              <SelectTrigger className="w-full mb-2">
-                <SelectValue placeholder="Select Category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="strength">Strength</SelectItem>
-                <SelectItem value="cardio">Cardio</SelectItem>
-                <SelectItem value="mobility">Mobility</SelectItem>
-                <SelectItem value="endurance">Endurance</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select>
-              <SelectTrigger className="w-full mb-2">
-                <SelectValue placeholder="Select Muscle Group" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="chest">Chest</SelectItem>
-                <SelectItem value="back">Back</SelectItem>
-                <SelectItem value="legs">Legs</SelectItem>
-                <SelectItem value="shoulders">Shoulders</SelectItem>
-                <SelectItem value="arms">Arms</SelectItem>
-                <SelectItem value="core">Core</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select>
-              <SelectTrigger className="w-full mb-2">
-                <SelectValue placeholder="Select Equipment" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="barbell">Barbell</SelectItem>
-                <SelectItem value="dumbbell">Dumbbell</SelectItem>
-                <SelectItem value="machine">Machine</SelectItem>
-                <SelectItem value="bodyweight">Bodyweight</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Textarea placeholder="Instructions" className="mb-4 h-24" />
-            <Button onClick={() => setCreateExerciseOpen(false)} className="w-full">Save</Button>
-          </div>
-        </DrawerContent>
-      </Drawer>
       <div className="fixed bottom-0 left-0 w-full bg-background text-center p-4 shadow-lg border-t border-border">
         <div className="flex flex-row items-center max-w-screen-lg mx-auto">
           <Button className="w-full">
