@@ -12,7 +12,7 @@ const MuscleGroupModal = ({groupDrawerOpen, setGroupDrawerOpen} : MuscleGroupMod
       open={groupDrawerOpen}
       onOpenChange={setGroupDrawerOpen}
       dismissable={true}
-      title={`Select muscle group`}
+      title={`Select Muscle Group`}
       titleClassName='text-xl'
     >
 

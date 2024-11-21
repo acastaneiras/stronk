@@ -1,28 +1,24 @@
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Separator } from '@/components/ui/separator'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Exercise } from '@/models/Exercise'
 import { ExerciseSearchMode } from '@/models/ExerciseSearchMode'
-import MuscleIcon from '@/shared/icons/MuscleIcon'
 import LoadingAnimation from '@/shared/LoadingAnimation'
 import CategoryModal from '@/shared/modals/CategoryModal'
 import CreateExerciseModal from '@/shared/modals/CreateExerciseModal'
 import EquipmentModal from '@/shared/modals/EquipmentModal'
 import MuscleGroupModal from '@/shared/modals/MuscleGroupModal'
+import ExerciseListHeader from '@/shared/training/exercise-list/ExerciseListHeader'
 import ExerciseListItem from '@/shared/training/exercise-list/ExerciseListItem'
 import { useExercisesStore } from '@/stores/exerciseStore'
+import { useWorkoutStore } from '@/stores/workoutStore'
 import { filterPrimaryAndSecondaryMuscles } from '@/utils/workoutUtils'
-import { ChevronLeft, DumbbellIcon, Plus, PlusCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { MdOutlineFilterList } from "react-icons/md"
-import { useNavigate } from 'react-router-dom'
 
 //ToDo - Create a component for the ExerciseList and pass the mode as a prop
 const mode: ExerciseSearchMode = ExerciseSearchMode.ADD_EXERCISE;
 
 const ExerciseList = () => {
-  const navigate = useNavigate();
   const { allExercises } = useExercisesStore();
+  const {selectedExercises, addOrReplaceExercise} = useWorkoutStore();
   const [filteredExercises, setFilteredExercises] = useState<Exercise[] | null>(null);
   const [groupDrawerOpen, setGroupDrawerOpen] = useState(false);
   const [categoryDrawerOpen, setCategoryDrawerOpen] = useState(false);
@@ -32,7 +28,6 @@ const ExerciseList = () => {
   const [equipmentFilter, setEquipmentFilter] = useState<string | null>(null);
   const [muscleGroupFilter, setMuscleGroupFilter] = useState<string | null>(null);
   const [searchValue, setSearchValue] = useState<string>('');
-  const [selectedExercises, setSelectedExercises] = useState<Exercise[]>([]);
 
   useEffect(() => {
     if (filteredExercises == null) {
@@ -67,84 +62,53 @@ const ExerciseList = () => {
   }, [searchValue, categoryFilter, equipmentFilter, muscleGroupFilter, allExercises]);
 
 
-  const onPressExercise = (ex: Exercise) => {
-    if (mode == ExerciseSearchMode.ADD_EXERCISE) {
-      setSelectedExercises(prevExercises => {
-        const isExerciseSelected = prevExercises.some(exercise => exercise.id === ex.id);
-        if (isExerciseSelected) {
-          //If the exercise already exists, remove it from the state
-          return prevExercises.filter(exercise => exercise.id !== ex.id);
-        } else {
-          //If the exercise doesn't exist, add it to the state
-          return [...prevExercises, ex];
-        }
-      });
-    } else {
-      setSelectedExercises([ex]);
-    }
+  const onPressExercise = (exercise: Exercise) => {
+    addOrReplaceExercise(exercise);
   };
 
-  const buttonText = () => {
-    if (mode === ExerciseSearchMode.REPLACE_EXERCISE as ExerciseSearchMode) {
-      return `Replace Exercise`
+  const handleFilterCateogry = (category: string) => {
+    if (category != 'All Categories') {
+      setCategoryFilter(category);
+    } else {
+      setCategoryFilter(null);
     }
-    return selectedExercises.length > 1 ? `Add ${selectedExercises.length} Exercises` : `Add ${selectedExercises.length ? `${selectedExercises.length} Exercise` : 'Exercise'}`
+    setCategoryDrawerOpen(false);
   }
 
   return (
-    <div className='flex flex-col gap-4 flex-grow'>
-      <div className='flex flex-col gap-4 sticky top-0 bg-background z-10 pt-4 border-none'>
-        <div className='flex flex-row items-center justify-between'>
-          <div className='w-10 cursor-pointer' onClick={() => navigate(-1)}>
-            <ChevronLeft className="cursor-pointer" />
+    <div className='flex flex-col gap-4 justify-center flex-grow'>
+      <ExerciseListHeader
+        searchValue={searchValue}
+        setSearchValue={setSearchValue}
+        setCreateExerciseOpen={setCreateExerciseOpen}
+        setCategoryDrawerOpen={setCategoryDrawerOpen}
+        setEquipmentDrawerOpen={setEquipmentDrawerOpen}
+        setGroupDrawerOpen={setGroupDrawerOpen}
+      />
+
+      <div className='flex flex-col flex-grow overflow-hidden'>
+        <ScrollArea type='always' className='flex-grow max-h-full h-1'>
+          <div className="flex flex-col gap-4 flex-grow">
+            {filteredExercises && filteredExercises.length > 0
+              ? filteredExercises.map((filteredExercise) => {
+                const isSelected = selectedExercises.some(exercise => exercise.id === filteredExercise.id);
+                return <ExerciseListItem exercise={filteredExercise} key={filteredExercise.id} onPress={() => onPressExercise(filteredExercise)} selected={isSelected} />;
+              })
+              : (
+                <div className='flex justify-center items-center flex-grow'>
+                  <LoadingAnimation />
+                </div>
+              )
+            }
           </div>
-          <h1 className="text-xl font-bold tracking-tighter w-full text-center ">Exercise List</h1>
-          <div className='w-10' >
-            <PlusCircle className="cursor-pointer" onClick={() => setCreateExerciseOpen(true)} />
-          </div>
-        </div>
-
-        <Input
-          placeholder="Search exercise"
-          value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
-        />
-
-        <div className='flex justify-center gap-1'>
-          <Button className='w-full' onClick={() => setCategoryDrawerOpen(true)}><MdOutlineFilterList /> Category</Button>
-          <Button className='w-full' onClick={() => setEquipmentDrawerOpen(true)}><DumbbellIcon /> Equipment</Button>
-          <Button className='w-full' onClick={() => setGroupDrawerOpen(true)}><MuscleIcon className='stroke-white' /> M. Group</Button>
-        </div>
-        <Separator />
-      </div>
-
-      <div className="flex flex-col gap-4 flex-grow overflow-y-auto h-[calc(100vh-HEADER_HEIGHT)]">
-        {filteredExercises && filteredExercises.length > 0
-          ? filteredExercises.map((filteredExercise) => {
-            const isSelected = selectedExercises.some(exercise => exercise.id === filteredExercise.id);
-            return <ExerciseListItem exercise={filteredExercise} key={filteredExercise.id} onPress={() => onPressExercise(filteredExercise)} selected={isSelected} />;
-          })
-          : (
-            <div className='flex justify-center items-center flex-grow'>
-              <LoadingAnimation />
-            </div>
-          )
-        }
+          <ScrollBar orientation='vertical' className='h-full' />
+        </ScrollArea>
       </div>
 
       <MuscleGroupModal groupDrawerOpen={groupDrawerOpen} setGroupDrawerOpen={setGroupDrawerOpen} />
-      <CategoryModal categoryDrawerOpen={categoryDrawerOpen} setCategoryDrawerOpen={setCategoryDrawerOpen} />
+      <CategoryModal categoryDrawerOpen={categoryDrawerOpen} setCategoryDrawerOpen={setCategoryDrawerOpen} currentCategory={categoryFilter} filterCategory={handleFilterCateogry} />
       <EquipmentModal equipmentDrawerOpen={equipmentDrawerOpen} setEquipmentDrawerOpen={setEquipmentDrawerOpen} />
       <CreateExerciseModal createExerciseOpen={createExerciseOpen} setCreateExerciseOpen={setCreateExerciseOpen} />
-
-      <div className="fixed bottom-0 left-0 w-full bg-background text-center p-4 shadow-lg border-t border-border">
-        <div className="flex flex-row items-center max-w-screen-lg mx-auto">
-          <Button className="w-full">
-            <Plus className="w-6 h-6" />
-            {buttonText()}
-          </Button>
-        </div>
-      </div>
     </div>
   )
 }

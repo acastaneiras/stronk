@@ -18,7 +18,7 @@ interface ResponsiveModalProps {
 
 export function ResponsiveModal({
   open,
-  onOpenChange = () => {},
+  onOpenChange = () => { },
   title,
   description,
   children,
@@ -39,9 +39,11 @@ export function ResponsiveModal({
         >
           <DialogHeader>
             <DialogTitle className={titleClassName ? titleClassName : `text-2xl font-bold`}>{title}</DialogTitle>
-            {description && <DialogDescription>{description}</DialogDescription>}
+            <DialogDescription>
+              {description || ''}
+            </DialogDescription>
           </DialogHeader>
-          <Separator orientation="horizontal"/>
+          <Separator orientation="horizontal" />
           <div>{children}</div>
           {footer && <DialogFooter>{footer}</DialogFooter>}
         </DialogContent>
@@ -55,9 +57,11 @@ export function ResponsiveModal({
       <DrawerContent>
         <DrawerHeader>
           <DrawerTitle className={titleClassName ? titleClassName : `text-3xl font-bold text-center`}>{title}</DrawerTitle>
-          {description && <DrawerDescription>{description}</DrawerDescription>}
+          <DrawerDescription>
+            {description}
+          </DrawerDescription>
         </DrawerHeader>
-        <Separator orientation="horizontal"/>
+        <Separator orientation="horizontal" />
         <div className="p-4">{children}</div>
         {footer && <DrawerFooter>{footer}</DrawerFooter>}
       </DrawerContent>

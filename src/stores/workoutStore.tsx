@@ -1,12 +1,13 @@
+import { ExerciseSearchMode } from '@/models/ExerciseSearchMode';
+import { indexedDBStorage } from '@/utils/indexedDBStorage';
 import dayjs from 'dayjs';
+import { v4 as uuidv4 } from 'uuid';
 import { create } from 'zustand';
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 import { Exercise } from '../models/Exercise';
 import { ExerciseSet, SetType, SetWeight, WeightUnit } from '../models/ExerciseSet';
 import { Workout } from '../models/Workout';
 import { WorkoutExerciseType } from '../models/WorkoutExerciseType';
-import {v4 as uuidv4} from 'uuid';
-import { indexedDBStorage } from '@/utils/indexedDBStorage';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const createNewSet = (weightUnits: WeightUnit) => {
@@ -30,6 +31,8 @@ export interface WorkoutState {
   isTimerEnabled: boolean,
   weightUnits: WeightUnit,
   workouts: Workout[],
+  selectedExercises: Exercise[],
+  exerciseSearchMode: ExerciseSearchMode,
   newWorkout: (user_id: string) => void,
   setUserWeightUnits: (userWeightUnits: WeightUnit) => void,
   addExercisesToWorkout: (exercises: Exercise[]) => void,
@@ -49,6 +52,9 @@ export interface WorkoutState {
   cleanupIncompleteSets: () => void,
   emptyWorkout: () => void,
   setWorkouts: (workouts: Workout[]) => void,
+  addOrReplaceExercise: (exercise: Exercise) => void,
+  clearSelectedExercises: () => void,
+  setSelectedExerciseMode: (mode: ExerciseSearchMode) => void,
 }
 
 export const useWorkoutStore = create<WorkoutState>()(
@@ -59,6 +65,8 @@ export const useWorkoutStore = create<WorkoutState>()(
         isTimerEnabled: false,
         weightUnits: WeightUnit.KG,
         workouts: [],
+        selectedExercises: [],
+        exerciseSearchMode: ExerciseSearchMode.ADD_EXERCISE,
         emptyWorkout: () => set((state) => {
           return {
             ...state,
@@ -381,7 +389,39 @@ export const useWorkoutStore = create<WorkoutState>()(
               workouts: workouts
             }
           });
-        }
+        },
+        setSelectedExerciseMode: (mode: ExerciseSearchMode) =>
+          set({
+            exerciseSearchMode: mode
+          }),
+        addOrReplaceExercise: (exercise) =>
+          set((state) => {
+            const { exerciseSearchMode, selectedExercises } = state;
+            if (exerciseSearchMode === ExerciseSearchMode.ADD_EXERCISE) {
+              const isExerciseSelected = selectedExercises.some((ex) => ex.id === exercise.id);
+              if (isExerciseSelected) {
+                //Already selected, remove it
+                return {
+                  selectedExercises: selectedExercises.filter((ex) => ex.id !== exercise.id),
+                };
+              } else {
+                return {
+                  selectedExercises: [...state.selectedExercises, exercise],
+                };
+              }
+            } else if (exerciseSearchMode === ExerciseSearchMode.REPLACE_EXERCISE) {
+              //Can only replace one exercise
+              return {
+                selectedExercises: [exercise],
+              };
+            }
+            return state;
+          }),
+
+        clearSelectedExercises: () =>
+          set({
+            selectedExercises: [],
+          }),
       }),
       {
         name: 'currentWorkoutStore',
