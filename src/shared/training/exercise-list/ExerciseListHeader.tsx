@@ -4,7 +4,7 @@ import { Separator } from '@/components/ui/separator';
 import ExerciseFilterButton from '@/shared/buttons/ExerciseFilterButton';
 import MuscleIcon from '@/shared/icons/MuscleIcon';
 import { getCategoryColor } from '@/utils/workoutUtils';
-import { ChevronLeft, DumbbellIcon, PlusCircle, X } from 'lucide-react';
+import { ChevronLeft, DumbbellIcon, PlusCircle, Search } from 'lucide-react';
 import { MdOutlineFilterList } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 
@@ -39,11 +39,15 @@ const ExerciseListHeader = ({ searchValue, categoryFilter, equipmentFilter, musc
         </div>
       </div>
 
-      <Input
-        placeholder="Search exercise"
-        value={searchValue}
-        onChange={(e) => setSearchValue(e.target.value)}
-      />
+      <div className="relative">
+        <Input
+          placeholder="Search exercise"
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          className="pl-10"
+        />
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+      </div>
 
       <div className="flex justify-center gap-1">
         <Button className="w-full" onClick={() => setCategoryDrawerOpen(true)}>
