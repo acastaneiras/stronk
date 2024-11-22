@@ -1,31 +1,58 @@
-import { Button } from '@/components/ui/button'
-import { ResponsiveModal } from './ResponsiveModal'
+import { Button } from '@/components/ui/button';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { useExercisesStore } from '@/stores/exerciseStore';
+import { ResponsiveModal } from './ResponsiveModal';
 
 type MuscleGroupModalProps = {
-  groupDrawerOpen: boolean
-  setGroupDrawerOpen: (open: boolean) => void
-}
+  groupDrawerOpen: boolean;
+  setGroupDrawerOpen: (open: boolean) => void;
+  currentMuscleGroup: string | null;
+  filterMuscleGroup: (groupName: string) => void;
+};
 
-const MuscleGroupModal = ({groupDrawerOpen, setGroupDrawerOpen} : MuscleGroupModalProps) => {
+type MuscleAndLabel = {
+  muscle: string;
+  label: string;
+};
+
+const MuscleGroupModal = ({ groupDrawerOpen, setGroupDrawerOpen, currentMuscleGroup, filterMuscleGroup }: MuscleGroupModalProps) => {
+  const { allMuscles } = useExercisesStore();
+  const muscleGroupList: MuscleAndLabel[] = allMuscles
+    ? [{ muscle: '', label: 'All Muscle Groups' }, ...allMuscles.map((muscle) => ({ muscle, label: muscle }))]
+    : [{ muscle: '', label: 'All Muscle Groups' }];
+
   return (
     <ResponsiveModal
       open={groupDrawerOpen}
       onOpenChange={setGroupDrawerOpen}
       dismissable={true}
-      title={`Select Muscle Group`}
-      titleClassName='text-xl'
+      title="Select Muscle Group"
+      titleClassName="text-xl font-bold text-center"
     >
-
-      <div className="p-4">
-        <Button className="w-full mb-2">Chest</Button>
-        <Button className="w-full mb-2">Back</Button>
-        <Button className="w-full mb-2">Legs</Button>
-        <Button className="w-full mb-2">Shoulders</Button>
-        <Button className="w-full mb-2">Arms</Button>
-        ...
+      <div className="flex flex-col flex-grow overflow-hidden">
+        <ScrollArea type="always" className="flex-grow max-h-full h-96">
+          <div className="p-4 space-y-2">
+            {muscleGroupList.map((group, index) => (
+              <Button
+                key={index}
+                className={`w-full ${currentMuscleGroup?.toLowerCase() === group.muscle.toLowerCase()
+                  ? 'bg-primary text-white'
+                  : 'bg-secondary text-secondary-foreground'
+                  }`}
+                onClick={() => {
+                  filterMuscleGroup(group.muscle);
+                  setGroupDrawerOpen(false);
+                }}
+              >
+                {group.label}
+              </Button>
+            ))}
+          </div>
+          <ScrollBar orientation="vertical" />
+        </ScrollArea>
       </div>
     </ResponsiveModal>
-  )
-}
+  );
+};
 
-export default MuscleGroupModal
+export default MuscleGroupModal;

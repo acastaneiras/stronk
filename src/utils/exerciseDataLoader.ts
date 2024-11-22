@@ -12,7 +12,7 @@ export const loadData = (store: ExercisesState) => {
   loadMuscleGroups(versionChange, store.addMuscles, store.allMuscles);
   loadEquipment(versionChange, store.addEquipment, store.allEquipment);
   loadCategories(versionChange, store.addCategories, store.allCategories);
-  
+
   store.setVersion(Number(EXERCISES_VERSION));
 };
 
@@ -29,7 +29,9 @@ async function loadEquipment(versionChange: boolean, addEquipment: (equipment: s
     return;
   }
 
-  const equipment = data as string[];
+  const equipment = Array.isArray(data)
+    ? data.map((row) => row.equipment)
+    : [];
   addEquipment(equipment);
 }
 
@@ -46,7 +48,9 @@ async function loadCategories(versionChange: boolean, addCategories: (categories
     return;
   }
 
-  const categories = data as string[];
+  const categories = Array.isArray(data)
+    ? data.map((row) => row.category)
+    : [];
   addCategories(categories);
 }
 
@@ -63,7 +67,9 @@ async function loadMuscleGroups(versionChange: boolean, addMuscles: (muscles: st
     return;
   }
 
-  const muscles = data as string[];
+  const muscles = Array.isArray(data)
+    ? data.map((row) => row.muscle)
+    : [];
   addMuscles(muscles);
 }
 
