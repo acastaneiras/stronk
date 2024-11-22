@@ -35,7 +35,7 @@ const MuscleGroupModal = ({ groupDrawerOpen, setGroupDrawerOpen, currentMuscleGr
             {muscleGroupList.map((group, index) => (
               <Button
                 key={index}
-                className={`w-full ${currentMuscleGroup?.toLowerCase() === group.muscle.toLowerCase()
+                className={`w-full hover:text-primary-foreground ${currentMuscleGroup?.toLowerCase() === group.muscle.toLowerCase()
                   ? 'bg-primary text-white'
                   : 'bg-secondary text-secondary-foreground'
                   }`}

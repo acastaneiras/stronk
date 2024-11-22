@@ -27,7 +27,7 @@ const EquipmentModal = ({ equipmentDrawerOpen, setEquipmentDrawerOpen, currentEq
             {equipmentList.map((item, index) => (
               <Button
                 key={index}
-                className={`w-full ${currentEquipment?.toLowerCase() === item.equipment.toLowerCase()
+                className={`w-full hover:text-primary-foreground ${currentEquipment?.toLowerCase() === item.equipment.toLowerCase()
                   ? 'bg-primary text-white'
                   : 'bg-secondary text-secondary-foreground'
                   }`}

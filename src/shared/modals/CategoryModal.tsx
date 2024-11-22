@@ -24,7 +24,7 @@ const CategoryModal = ({ categoryDrawerOpen, setCategoryDrawerOpen, currentCateg
         {categoryList.map((item, index) => (
           <Button
             key={index}
-            className={`w-full ${currentCategory?.toLowerCase() === item.category?.toLowerCase()
+            className={`w-full hover:text-primary-foreground ${currentCategory?.toLowerCase() === item.category?.toLowerCase()
               ? 'bg-primary text-white'
               : 'bg-secondary text-secondary-foreground'
               }`}
