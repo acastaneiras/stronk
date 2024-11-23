@@ -29,8 +29,7 @@ const WorkoutHeader = ({ onClose, onFinish }: { onClose: () => void; onFinish: (
   };
 
   return (
-    <div className='flex  flex-col gap-4'>
-
+    <div className='flex flex-col gap-4 sticky top-0 bg-background z-10 pt-4 border-none'>
       <div className='flex flex-row items-center justify-between'>
         <div className='w-10'>
           <button onClick={handleClose} className="p-1">

@@ -12,7 +12,7 @@ type WorkoutExerciseProps = {
 
 const WorkoutExercise = ({ id, handleOpenSettingsModal, currentExercise, onChangeSetTypePress, addNotesPress }: WorkoutExerciseProps) => {
   return (
-    <div key={id} className='flex flex-col'>
+    <div key={id} className='flex flex-col pb-4'>
       <WorkoutExerciseHeader
         currentExercise={currentExercise}
         openSettingsEvent={handleOpenSettingsModal}

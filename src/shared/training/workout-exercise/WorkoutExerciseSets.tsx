@@ -36,8 +36,9 @@ function WorkoutExerciseSets({ currentExercise, onChangeSetTypePressEvent }: Wor
         />
       ))}
       <Button
+        variant="secondary"
         onClick={() => console.log('Add set')}
-        className="mt-4 px-4 py-2  w-full"
+        className="mt-4 px-4 py-2 w-full border"
       >
         <Plus className="h-6 w-6" />
         Add Set

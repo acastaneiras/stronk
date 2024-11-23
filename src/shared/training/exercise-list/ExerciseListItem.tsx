@@ -14,7 +14,7 @@ const ExerciseListItem = ({ exercise, onPress, selected }: { exercise: Exercise;
   return (
     <div
       onClick={onPress}
-      className="cursor-pointer">
+      className="cursor-pointer pb-4">
       <Card className={selected ? "border-primary" : "border-border shadow-none"}>
         <CardContent className="flex flex-col items-start space-x-4 p-0">
           {exercise.category && (

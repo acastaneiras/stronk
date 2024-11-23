@@ -9,8 +9,9 @@ import { useExercisesStore } from '@/stores/exerciseStore'
 import { useWorkoutStore } from '@/stores/workoutStore'
 import { useState } from 'react'
 import NoExercises from '../NoExercises'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 
-const exercise = 
+const exercise =
 {
   id: "27c3307b-63f7-4f50-a9e8-c4a3697b55b2",
   exercise: { id: "27c3307b-63f7-4f50-a9e8-c4a3697b55b2", guid: "3_4_Sit-Up", name: "3/4 Sit-Up", category: "Strength", primaryMuscles: ["abdominals"], secondaryMuscles: [], equipment: "Body Only", instructions: ["Lie down on the floor and secure your feet. Your legs should be bent at the knees.", "Place your hands behind or to the side of your head. You will begin with your back on the ground. This will be your starting position.", "Flex your hips and spine to raise your torso toward your knees.", "At the top of the contraction your torso should be perpendicular to the ground. Reverse the motion, going only Â¾ of the way down.", "Repeat for the recommended amount of repetitions."], isCustom: false, userId: null, createdAt: new Date(), images: ["3_4_Sit-Up/0.jpg", "3_4_Sit-Up/1.jpg"] },
@@ -82,26 +83,33 @@ const CreateNewWorkout = () => {
   }
 
   return (
-    <div className='flex flex-col  flex-1'>
+    <div className='flex flex-col flex-1'>
       <WorkoutHeader onClose={() => alert('Close')} onFinish={handleOpenFinishDrawer} />
 
-      <div className='flex flex-col flex-grow py-4'>
-        {((workout?.workout_exercises) && (workout.workout_exercises.length > 0)) ?
-          workout?.workout_exercises?.map((exercise, index) => (
-            <WorkoutExercise
-              id={index}
-              key={`${exercise.id}-${index}`}
-              currentExercise={exercise}
-              handleOpenSettingsModal={() => alert('Open Settings')}
-              onChangeSetTypePress={() => alert('Change Set Type')}
-              addNotesPress={() => alert('Add Notes')}
-            />
-          )) : (
-            <div className='m-auto'>
-              <NoExercises /> 
+      <div className='flex flex-col flex-grow pt-4'>
+        {((workout?.workout_exercises) && (workout.workout_exercises.length > 0)) ? (
+          <ScrollArea type="always" className="flex-grow max-h-full h-1">
+            <div className="flex flex-col gap-4 flex-grow pr-4">
+              {workout?.workout_exercises?.map((exercise, index) => (
+                <WorkoutExercise
+                  id={index}
+                  key={`${exercise.id}-${index}`}
+                  currentExercise={exercise}
+                  handleOpenSettingsModal={() => alert('Open Settings')}
+                  onChangeSetTypePress={() => alert('Change Set Type')}
+                  addNotesPress={() => alert('Add Notes')}
+                />
+              ))}
             </div>
-          )}
+            <ScrollBar orientation="vertical" />
+          </ScrollArea>
+        ) : (
+          <div className='m-auto'>
+            <NoExercises />
+          </div>
+        )}
       </div>
+
       <div>
         {/* exercises here
         <div className='flex flex-col gap-4'>

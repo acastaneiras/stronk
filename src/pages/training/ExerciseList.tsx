@@ -1,5 +1,7 @@
+import { Button } from '@/components/ui/button'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Exercise } from '@/models/Exercise'
+import { ExerciseSearchMode } from '@/models/ExerciseSearchMode'
 import LoadingAnimation from '@/shared/LoadingAnimation'
 import CategoryModal from '@/shared/modals/CategoryModal'
 import CreateExerciseModal from '@/shared/modals/CreateExerciseModal'
@@ -11,11 +13,16 @@ import NoExercisesFound from '@/shared/training/exercise-list/NoExercisesFound'
 import { useExercisesStore } from '@/stores/exerciseStore'
 import { useWorkoutStore } from '@/stores/workoutStore'
 import { filterPrimaryAndSecondaryMuscles } from '@/utils/workoutUtils'
+import { Plus } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const ExerciseList = () => {
+  const navigate = useNavigate();
   const { allExercises } = useExercisesStore();
-  const { selectedExercises, addOrReplaceExercise } = useWorkoutStore();
+  const { exerciseSearchMode, addExercisesToWorkout } = useWorkoutStore();
+
+  const [selectedExercises, setSelectedExercises] = useState<Exercise[]>([]);
   const [filteredExercises, setFilteredExercises] = useState<Exercise[] | null>(null);
   const [groupDrawerOpen, setGroupDrawerOpen] = useState(false);
   const [categoryDrawerOpen, setCategoryDrawerOpen] = useState(false);
@@ -70,8 +77,21 @@ const ExerciseList = () => {
   }, [searchValue, categoryFilter, equipmentFilter, muscleGroupFilter, allExercises]);
 
 
-  const onPressExercise = (exercise: Exercise) => {
-    addOrReplaceExercise(exercise);
+  const onPressExercise = (ex: Exercise) => {
+    if (exerciseSearchMode == ExerciseSearchMode.ADD_EXERCISE) {
+      setSelectedExercises(prevExercises => {
+        const isExerciseSelected = prevExercises.some(exercise => exercise.id === ex.id);
+        if (isExerciseSelected) {
+          //Already selected, remove it 
+          return prevExercises.filter(exercise => exercise.id !== ex.id);
+        } else {
+          //Add exercise
+          return [...prevExercises, ex];
+        }
+      });
+    } else {
+      setSelectedExercises([ex]);
+    }
   };
 
   const handleFilterCateogry = (category: string) => {
@@ -101,59 +121,88 @@ const ExerciseList = () => {
     setGroupDrawerOpen(false);
   }
 
+  const buttonText = () => {
+    if (exerciseSearchMode === ExerciseSearchMode.REPLACE_EXERCISE as ExerciseSearchMode) {
+      return `Replace Exercise`
+    }
+    return selectedExercises.length > 1 ? `Add ${selectedExercises.length} Exercises` : `Add ${selectedExercises.length ? `${selectedExercises.length} Exercise` : 'Exercise'}`
+  }
+
+  const addSelectedExercises = () => {
+    if (exerciseSearchMode == ExerciseSearchMode.REPLACE_EXERCISE) {
+      //ToDo: Implement replace exercise
+    } else {
+      addExercisesToWorkout(selectedExercises);
+    }
+    setSelectedExercises([]);
+    navigate(-1);
+  }
+
   return (
-    <div className='flex flex-col gap-4 justify-center flex-grow'>
-      <ExerciseListHeader
-        searchValue={searchValue}
-        setSearchValue={setSearchValue}
-        setCreateExerciseOpen={setCreateExerciseOpen}
-        setCategoryDrawerOpen={setCategoryDrawerOpen}
-        setEquipmentDrawerOpen={setEquipmentDrawerOpen}
-        setGroupDrawerOpen={setGroupDrawerOpen}
-        categoryFilter={categoryFilter}
-        setCategoryFilter={setCategoryFilter}
-        equipmentFilter={equipmentFilter}
-        setEquipmentFilter={setEquipmentFilter}
-        muscleGroupFilter={muscleGroupFilter}
-        setMuscleGroupFilter={setMuscleGroupFilter}
-      />
+    <>
+      <div className="flex-grow flex flex-col w-full max-w-full lg:max-w-screen-lg mx-auto px-4 py-0">
+        <div className='flex flex-col gap-4 justify-center flex-grow'>
+          <ExerciseListHeader
+            searchValue={searchValue}
+            setSearchValue={setSearchValue}
+            setCreateExerciseOpen={setCreateExerciseOpen}
+            setCategoryDrawerOpen={setCategoryDrawerOpen}
+            setEquipmentDrawerOpen={setEquipmentDrawerOpen}
+            setGroupDrawerOpen={setGroupDrawerOpen}
+            categoryFilter={categoryFilter}
+            setCategoryFilter={setCategoryFilter}
+            equipmentFilter={equipmentFilter}
+            setEquipmentFilter={setEquipmentFilter}
+            muscleGroupFilter={muscleGroupFilter}
+            setMuscleGroupFilter={setMuscleGroupFilter}
+          />
 
-      <div className="flex flex-col flex-grow overflow-hidden">
-        {isLoading ? (
-          <div className="flex justify-center items-center flex-grow">
-            <LoadingAnimation />
+          <div className="flex flex-col flex-grow overflow-hidden">
+            {isLoading ? (
+              <div className="flex justify-center items-center flex-grow">
+                <LoadingAnimation />
+              </div>
+            ) : filteredExercises && filteredExercises.length > 0 ? (
+              <ScrollArea type="always" className="flex-grow max-h-full h-1">
+                <div className="flex flex-col flex-grow">
+                  {filteredExercises.map((filteredExercise) => {
+                    const isSelected = selectedExercises.some(
+                      (exercise) => exercise.id === filteredExercise.id
+                    );
+                    return (
+                      <ExerciseListItem
+                        exercise={filteredExercise}
+                        key={filteredExercise.id}
+                        onPress={() => onPressExercise(filteredExercise)}
+                        selected={isSelected}
+                      />
+                    );
+                  })}
+                </div>
+                <ScrollBar orientation="vertical" className="h-full" />
+              </ScrollArea>
+            ) : (
+              <div className="flex justify-center items-center flex-grow">
+                <NoExercisesFound />
+              </div>
+            )}
           </div>
-        ) : filteredExercises && filteredExercises.length > 0 ? (
-          <ScrollArea type="always" className="flex-grow max-h-full h-1">
-            <div className="flex flex-col gap-4 flex-grow">
-              {filteredExercises.map((filteredExercise) => {
-                const isSelected = selectedExercises.some(
-                  (exercise) => exercise.id === filteredExercise.id
-                );
-                return (
-                  <ExerciseListItem
-                    exercise={filteredExercise}
-                    key={filteredExercise.id}
-                    onPress={() => onPressExercise(filteredExercise)}
-                    selected={isSelected}
-                  />
-                );
-              })}
-            </div>
-            <ScrollBar orientation="vertical" className="h-full" />
-          </ScrollArea>
-        ) : (
-          <div className="flex justify-center items-center flex-grow">
-            <NoExercisesFound />
-          </div>
-        )}
+
+          <MuscleGroupModal groupDrawerOpen={groupDrawerOpen} setGroupDrawerOpen={setGroupDrawerOpen} currentMuscleGroup={muscleGroupFilter} filterMuscleGroup={handleFilterMuscle} />
+          <CategoryModal categoryDrawerOpen={categoryDrawerOpen} setCategoryDrawerOpen={setCategoryDrawerOpen} currentCategory={categoryFilter} filterCategory={handleFilterCateogry} />
+          <EquipmentModal equipmentDrawerOpen={equipmentDrawerOpen} setEquipmentDrawerOpen={setEquipmentDrawerOpen} currentEquipment={equipmentFilter} filterEquipment={handleFilterEquipment} />
+          <CreateExerciseModal createExerciseOpen={createExerciseOpen} setCreateExerciseOpen={setCreateExerciseOpen} />
+        </div>
       </div>
-
-      <MuscleGroupModal groupDrawerOpen={groupDrawerOpen} setGroupDrawerOpen={setGroupDrawerOpen} currentMuscleGroup={muscleGroupFilter} filterMuscleGroup={handleFilterMuscle} />
-      <CategoryModal categoryDrawerOpen={categoryDrawerOpen} setCategoryDrawerOpen={setCategoryDrawerOpen} currentCategory={categoryFilter} filterCategory={handleFilterCateogry} />
-      <EquipmentModal equipmentDrawerOpen={equipmentDrawerOpen} setEquipmentDrawerOpen={setEquipmentDrawerOpen} currentEquipment={equipmentFilter} filterEquipment={handleFilterEquipment} />
-      <CreateExerciseModal createExerciseOpen={createExerciseOpen} setCreateExerciseOpen={setCreateExerciseOpen} />
-    </div>
+      <div className="sticky bottom-0 left-0 w-full bg-background text-center p-4 border-t border-border">
+        <div className="flex flex-row items-center max-w-screen-lg mx-auto">
+          <Button className="w-full" onClick={addSelectedExercises}>
+            <Plus className="w-6 h-6" />
+            {buttonText() || 'Add Exercise'}
+          </Button>
+        </div>
+      </div>
+    </>
   )
 }
 
