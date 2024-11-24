@@ -1,7 +1,9 @@
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import { WorkoutExerciseType } from '@/models/WorkoutExerciseType';
 import WorkoutExerciseSingleSet from '@/shared/training/workout-exercise/WorkoutExerciseSingleSet';
 import { useUserStore } from '@/stores/userStore';
+import { useWorkoutStore } from '@/stores/workoutStore';
 import { formatWeightUnit } from '@/utils/workoutUtils';
 import { CheckCheckIcon, Hash, Plus, Weight, Zap } from 'lucide-react';
 import { GoNumber } from "react-icons/go";
@@ -14,6 +16,7 @@ type WorkoutExerciseSetsProps = {
 
 function WorkoutExerciseSets({ currentExercise, onChangeSetTypePressEvent }: WorkoutExerciseSetsProps) {
   const { user } = useUserStore();
+  const { addSetToExercise } = useWorkoutStore();
 
   return (
     <div>
@@ -37,7 +40,7 @@ function WorkoutExerciseSets({ currentExercise, onChangeSetTypePressEvent }: Wor
       ))}
       <Button
         variant="secondary"
-        onClick={() => console.log('Add set')}
+        onClick={() => addSetToExercise(currentExercise.id)}
         className="mt-4 px-4 py-2 w-full border"
       >
         <Plus className="h-6 w-6" />

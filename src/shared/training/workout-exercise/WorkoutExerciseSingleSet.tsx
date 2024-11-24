@@ -1,12 +1,12 @@
-import { WorkoutExerciseType } from '@/models/WorkoutExerciseType';
-import { ExerciseSet } from '@/models/ExerciseSet';
 import { Button } from '@/components/ui/button';
+import { ExerciseSet } from '@/models/ExerciseSet';
+import { WorkoutExerciseType } from '@/models/WorkoutExerciseType';
 import IconSet from '@/shared/icons/IconSet';
 import WeightInput from '@/shared/training/workout-exercise/workout-exercise-sets/WeightInput';
-import RepsInput from './workout-exercise-sets/RepsInput';
-import { Check } from 'lucide-react';
 import { useWorkoutStore } from '@/stores/workoutStore';
 import clsx from 'clsx';
+import { Check } from 'lucide-react';
+import RepsInput from './workout-exercise-sets/RepsInput';
 
 type WorkoutExerciseSingleSetProps = {
   set: ExerciseSet;
@@ -22,22 +22,23 @@ function WorkoutExerciseSingleSet({ set, setIndex, currentExercise, onChangeSetT
     toggleSetCompletion(currentExercise.id, setIndex);
   }
   return (
-    <div className={clsx("flex items-center text-center py-2 rounded", {"bg-primary/10": set.completed})}>
+    <div className={clsx("flex items-center text-center py-2 rounded", { "bg-primary/10": set.completed })}>
       <div className="w-1/5">
         <Button
           onClick={onChangeSetType}
           variant={`ghost`}
+          className="px-4 py-1 rounded"
         >
           <IconSet setType={set.type} setNumber={set.number} ></IconSet>
         </Button>
       </div>
-      <div className="w-1/5 md:px-10">
+      <div className="w-1/5 px-1 md:px-10">
         <WeightInput
           set={set}
           setIndex={setIndex}
           currentExercise={currentExercise}
         /></div>
-      <div className="w-1/5 md:px-10">
+      <div className="w-1/5 px-1 md:px-10">
         <RepsInput
           set={set}
           setIndex={setIndex}
@@ -48,7 +49,7 @@ function WorkoutExerciseSingleSet({ set, setIndex, currentExercise, onChangeSetT
         <Button
           variant={`ghost`}
           onClick={() => console.log('Change RPE')}
-          className="px-4 py-1 rounded"
+          className="px-4 py-1 rounded text-lg"
         >
           {/*set.rpe */}
           1
@@ -57,7 +58,7 @@ function WorkoutExerciseSingleSet({ set, setIndex, currentExercise, onChangeSetT
 
       <div className="w-1/5">
         <Button onClick={() => handleSetCompleted(setIndex)} variant={set.completed ? "default" : "outline"} >
-            <Check className='h-4 w-4' />
+          <Check className='h-4 w-4' />
         </Button>
       </div>
     </div>

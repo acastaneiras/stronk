@@ -8,8 +8,10 @@ type CategoryAndLabel = {
 };
 
 type CategoryModalProps = {
-  categoryDrawerOpen: boolean; setCategoryDrawerOpen: (open: boolean) => void;
-  currentCategory: string | null; filterCategory: (categoryName: string) => void;
+  categoryDrawerOpen: boolean; 
+  setCategoryDrawerOpen: (open: boolean) => void;
+  currentCategory: string | null; 
+  filterCategory: (categoryName: string) => void;
 };
 
 const CategoryModal = ({ categoryDrawerOpen, setCategoryDrawerOpen, currentCategory, filterCategory }: CategoryModalProps) => {
