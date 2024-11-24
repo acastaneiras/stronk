@@ -1,6 +1,12 @@
 import { WorkoutExerciseType } from '@/models/WorkoutExerciseType';
 import { ExerciseSet } from '@/models/ExerciseSet';
 import { Button } from '@/components/ui/button';
+import IconSet from '@/shared/icons/IconSet';
+import WeightInput from '@/shared/training/workout-exercise/workout-exercise-sets/WeightInput';
+import RepsInput from './workout-exercise-sets/RepsInput';
+import { Check } from 'lucide-react';
+import { useWorkoutStore } from '@/stores/workoutStore';
+import clsx from 'clsx';
 
 type WorkoutExerciseSingleSetProps = {
   set: ExerciseSet;
@@ -10,25 +16,48 @@ type WorkoutExerciseSingleSetProps = {
 };
 
 function WorkoutExerciseSingleSet({ set, setIndex, currentExercise, onChangeSetType }: WorkoutExerciseSingleSetProps) {
+  const { toggleSetCompletion } = useWorkoutStore();
+
+  const handleSetCompleted = (setIndex: number) => {
+    toggleSetCompletion(currentExercise.id, setIndex);
+  }
   return (
-    <div className="flex items-center text-center py-2">
+    <div className={clsx("flex items-center text-center py-2 rounded", {"bg-primary/10": set.completed})}>
       <div className="w-1/5">
         <Button
           onClick={onChangeSetType}
-          className="bg-gray-200 text-gray-700 px-2 py-1 rounded"
+          variant={`ghost`}
         >
-          {set.type} #{setIndex + 1}
+          <IconSet setType={set.type} setNumber={set.number} ></IconSet>
         </Button>
       </div>
-      <div className="w-1/5">{set.previous?.weight.value || '-'}</div>
-      <div className="w-1/5">{set.weight.value}</div>
-      <div className="w-1/5">{set.reps}</div>
+      <div className="w-1/5 md:px-10">
+        <WeightInput
+          set={set}
+          setIndex={setIndex}
+          currentExercise={currentExercise}
+        /></div>
+      <div className="w-1/5 md:px-10">
+        <RepsInput
+          set={set}
+          setIndex={setIndex}
+          currentExercise={currentExercise}
+        />
+      </div>
       <div className="w-1/5">
         <Button
-          onClick={() => console.log('Set completed')}
-          className={`px-4 py-1 rounded ${set.completed ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'
-            }`}
+          variant={`ghost`}
+          onClick={() => console.log('Change RPE')}
+          className="px-4 py-1 rounded"
         >
+          {/*set.rpe */}
+          1
+        </Button>
+      </div>
+
+      <div className="w-1/5">
+        <Button onClick={() => handleSetCompleted(setIndex)} variant={set.completed ? "default" : "outline"} >
+            <Check className='h-4 w-4' />
         </Button>
       </div>
     </div>

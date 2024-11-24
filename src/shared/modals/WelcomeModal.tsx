@@ -18,7 +18,7 @@ const schema = z.object({
   firstName: z.string().min(1, 'First Name is required'),
   lastName: z.string().min(1, 'Last Name is required'),
   alias: z.string().optional(),
-  unitPreference: z.enum(['kilograms', 'pounds']),
+  unitPreference: z.enum(['kg', 'lb']),
   intensitySetting: z.enum(['rpe', 'rir', 'none']),
 });
 
@@ -39,7 +39,7 @@ function WelcomeModal({ isOpen }: WelcomeModalProps) {
       firstName: '',
       lastName: '',
       alias: '',
-      unitPreference: 'kilograms',
+      unitPreference: 'kg',
       intensitySetting: 'none',
     },
   });
@@ -148,12 +148,12 @@ function WelcomeModal({ isOpen }: WelcomeModalProps) {
                 <FormLabel>
                   Unit System <span className="text-red-600">*</span>
                 </FormLabel>
-                <Tabs defaultValue="kilograms">
+                <Tabs defaultValue="kg">
                   <TabsList>
-                    <TabsTrigger value="kilograms" onClick={() => form.setValue('unitPreference', 'kilograms')}>
+                    <TabsTrigger value="kg" onClick={() => form.setValue('unitPreference', 'kg')}>
                       Kilograms
                     </TabsTrigger>
-                    <TabsTrigger value="pounds" onClick={() => form.setValue('unitPreference', 'pounds')}>
+                    <TabsTrigger value="lb" onClick={() => form.setValue('unitPreference', 'lb')}>
                       Pounds
                     </TabsTrigger>
                   </TabsList>

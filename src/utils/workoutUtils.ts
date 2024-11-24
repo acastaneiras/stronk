@@ -1,5 +1,6 @@
 import { Exercise } from "@/models/Exercise";
 import { SetCounts, Workout } from "../models/Workout";
+import { SetWeight, WeightUnit } from "@/models/ExerciseSet";
 
 export const getTotalSets = (workout: Workout | null): SetCounts => {
   if (!workout || !workout.workout_exercises) return {
@@ -55,7 +56,7 @@ export const getCategoryColor = (category: string): string => {
 }
 
 export const formatWeightUnit = (unit: string): string => {
-  return unit === 'kilograms' ? 'Kg' : 'Lb';
+  return unit === 'kg' ? 'Kg' : 'Lb';
 }
 
 export const filterPrimaryAndSecondaryMuscles = (filteredData: Exercise[], muscleGroupFilter: string) => {
@@ -86,3 +87,31 @@ export const filterPrimaryAndSecondaryMuscles = (filteredData: Exercise[], muscl
     }
   })
 }
+
+export const WeightConvert = (setWeight: SetWeight, toUnit: WeightUnit): string => {
+  const lbToKg = 0.45359237;
+  const kgToLb = 2.20462262185;
+
+  let convertedWeight: string;
+
+  if (setWeight.value === "") {
+    return "";
+  }
+
+  const numericValue = parseFloat(setWeight.value.toString());
+
+  if (isNaN(numericValue)) {
+    return "";
+  }
+  if (setWeight.unit === toUnit) {
+    convertedWeight = numericValue.toString();
+  } else if (setWeight.unit === WeightUnit.LB && toUnit === WeightUnit.KG) {
+    convertedWeight = (numericValue * lbToKg).toString();
+  } else if (setWeight.unit === WeightUnit.KG && toUnit === WeightUnit.LB) {
+    convertedWeight = (numericValue * kgToLb).toString();
+  } else {
+    throw new Error("Unsupported unit conversion");
+  }
+
+  return convertedWeight;
+};

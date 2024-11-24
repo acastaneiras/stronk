@@ -1,6 +1,6 @@
 export enum WeightUnit {
     KG = 'kg',
-    LBS = 'lbs',
+    LB = 'lb',
 }
 
 export enum SetType {

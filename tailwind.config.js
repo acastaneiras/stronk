@@ -55,7 +55,11 @@ export default {
   				'3': 'hsl(var(--chart-3))',
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
-  			}
+  			},
+				warmup: "hsl(var(--warmup))",
+        "rest-pause": "hsl(var(--rest-pause))",
+        "drop-set": "hsl(var(--drop-set))",
+        "failure-set": "hsl(var(--failure-set))",
   		}
   	}
   },

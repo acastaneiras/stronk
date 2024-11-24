@@ -30,6 +30,10 @@ body,
     --input: 268.24 42.5% 84.31%;
     --ring: 240 5.03% 64.9%;
     --radius: 0.5rem;
+    --warmup: 46 100% 50%;
+    --rest-pause: 210 85% 65%;
+    --drop-set: 320 100% 55%;
+    --failure-set: 0 65% 60%;
   }
   .dark {
     --background: 0 11% 10%;
@@ -52,6 +56,10 @@ body,
     --input: 0 20% 24%;
     --ring: 0 66.5% 60.2%;
     --radius: 0.5rem;
+    --warmup: 46 100% 50%;
+    --rest-pause: 210 85% 65%;
+    --drop-set: 320 100% 55%;
+    --failure-set: 0 65% 60%;
    } 
 }
 
