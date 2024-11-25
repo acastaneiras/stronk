@@ -3,7 +3,7 @@ import WorkoutExerciseHeader from '@/shared/training/workout-exercise/WorkoutExe
 import WorkoutExerciseSets from '@/shared/training/workout-exercise/WorkoutExerciseSets';
 
 type WorkoutExerciseProps = {
-  id: number | undefined;
+  id: number;
   currentExercise: WorkoutExerciseType;
   onChangeSetTypePress: (exerciseId: string | number[], index: number) => void;
   addNotesPress: () => void;
@@ -14,6 +14,7 @@ const WorkoutExercise = ({ id, currentExercise, onChangeSetTypePress, addNotesPr
   return (
     <div key={id} className='flex flex-col pb-4'>
       <WorkoutExerciseHeader
+        index={id}
         currentExercise={currentExercise}
         addNotesEvent={addNotesPress}
         callRemoveExercise={callRemoveExercise}

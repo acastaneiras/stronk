@@ -13,14 +13,14 @@ import NoExercisesFound from '@/shared/training/exercise-list/NoExercisesFound'
 import { useExercisesStore } from '@/stores/exerciseStore'
 import { useWorkoutStore } from '@/stores/workoutStore'
 import { filterPrimaryAndSecondaryMuscles } from '@/utils/workoutUtils'
-import { Plus } from 'lucide-react'
+import { Plus, Replace } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const ExerciseList = () => {
   const navigate = useNavigate();
   const { allExercises } = useExercisesStore();
-  const { exerciseSearchMode, addExercisesToWorkout } = useWorkoutStore();
+  const { exerciseSearchMode, addExercisesToWorkout, selectedExerciseIndex, replaceExerciseInWorkout } = useWorkoutStore();
 
   const [selectedExercises, setSelectedExercises] = useState<Exercise[]>([]);
   const [filteredExercises, setFilteredExercises] = useState<Exercise[] | null>(null);
@@ -130,7 +130,9 @@ const ExerciseList = () => {
 
   const addSelectedExercises = () => {
     if (exerciseSearchMode == ExerciseSearchMode.REPLACE_EXERCISE) {
-      //ToDo: Implement replace exercise
+      if (selectedExercises.length == 1 && selectedExerciseIndex !== -1) { //If there's a 
+        replaceExerciseInWorkout(selectedExerciseIndex, selectedExercises[0]);
+      }
     } else {
       addExercisesToWorkout(selectedExercises);
     }
@@ -197,7 +199,7 @@ const ExerciseList = () => {
       <div className="sticky bottom-0 left-0 w-full bg-background text-center p-4 border-t border-border">
         <div className="flex flex-row items-center max-w-screen-lg mx-auto">
           <Button className="w-full" onClick={addSelectedExercises}>
-            <Plus className="w-6 h-6" />
+            {(exerciseSearchMode == ExerciseSearchMode.ADD_EXERCISE) ? <Plus className="w-6 h-6" /> : <Replace className="w-6 h-6" />}
             {buttonText() || 'Add Exercise'}
           </Button>
         </div>

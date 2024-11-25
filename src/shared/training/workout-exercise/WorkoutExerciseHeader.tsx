@@ -1,11 +1,15 @@
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { ExerciseSearchMode } from '@/models/ExerciseSearchMode';
 import { WorkoutExerciseType } from '@/models/WorkoutExerciseType';
+import { useWorkoutStore } from '@/stores/workoutStore';
 import { getCategoryColor } from '@/utils/workoutUtils';
-import { Clock, FileText, RefreshCw, Settings2, Trash } from 'lucide-react';
+import { Clock, FileText, Replace, Settings2, Trash } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 type WorkoutExerciseHeaderProps = {
+  index: number;
   currentExercise: WorkoutExerciseType;
   addNotesEvent: () => void;
   callRemoveExercise: () => void;
@@ -13,11 +17,18 @@ type WorkoutExerciseHeaderProps = {
 
 const MAX_CHARACTERS_TO_SHOW = 80;
 
-const WorkoutExerciseHeader = ({ currentExercise, callRemoveExercise}: WorkoutExerciseHeaderProps) => {
+const WorkoutExerciseHeader = ({ index, currentExercise, callRemoveExercise}: WorkoutExerciseHeaderProps) => {
+  const navigate = useNavigate();
+  const { setSelectedExerciseMode, setSelectedExerciseIndex } = useWorkoutStore();
   const [expandNotes, setExpandNotes] = useState(false);
 
   const categoryColor = getCategoryColor(currentExercise.exercise.category!);
 
+  const navigateToReplaceExercise = () => {
+    setSelectedExerciseMode(ExerciseSearchMode.REPLACE_EXERCISE);
+    setSelectedExerciseIndex(index);
+    navigate('/training/exercise-list');
+  }
   return (
     <div className='flex flex-row justify-between'>
       <div
@@ -89,8 +100,8 @@ const WorkoutExerciseHeader = ({ currentExercise, callRemoveExercise}: WorkoutEx
               </Button>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Button variant="ghost" className="w-full justify-start border-none cursor-pointer">
-                <RefreshCw className="h-4 w-4 mr-2" /> Replace exercise
+              <Button variant="ghost" className="w-full justify-start border-none cursor-pointer" onClick={navigateToReplaceExercise}>
+                <Replace className="h-4 w-4 mr-2" /> Replace exercise
               </Button>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>

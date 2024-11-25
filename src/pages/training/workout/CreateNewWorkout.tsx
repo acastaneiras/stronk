@@ -15,7 +15,7 @@ import { useState } from 'react'
 import NoExercises from '../NoExercises'
 
 const CreateNewWorkout = () => {
-  const { workout, changeSetType, deleteExercise } = useWorkoutStore();
+  const { workout, changeSetType, deleteExercise, selectedExerciseIndex, setSelectedExerciseIndex } = useWorkoutStore();
 
   const [notesDrawerOpen, setNotesDrawerOpen] = useState(false);
   const [restDrawerOpen, setRestDrawerOpen] = useState(false);
@@ -23,7 +23,6 @@ const CreateNewWorkout = () => {
   const [finishDrawerOpen, setFinishDrawerOpen] = useState(false);
   const [confirmSaveRoutineDialog, setConfirmSaveRoutineDialog] = useState(false);
   const [selectedSet, setSelectedSet] = useState<SelectedSet | null>(null);
-  const [selectedExerciseIndex, setSelectedExerciseIndex] = useState<number>(-1);
   const [notes, setNotes] = useState('');
   const [restTimeMinutes, setRestTimeMinutes] = useState('0');
   const [restTimeSeconds, setRestTimeSeconds] = useState('0');
@@ -96,6 +95,7 @@ const CreateNewWorkout = () => {
     if (selectedExerciseIndex < 0) { return }
     deleteExercise(selectedExerciseIndex);
     setRemoveExerciseOpen(false);
+    setSelectedExerciseIndex(-1);
   }
 
   return (

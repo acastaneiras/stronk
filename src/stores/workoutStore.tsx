@@ -32,6 +32,7 @@ export interface WorkoutState {
   weightUnits: WeightUnit,
   workouts: Workout[],
   exerciseSearchMode: ExerciseSearchMode,
+  selectedExerciseIndex: number,
   newWorkout: (user_id: string) => void,
   setUserWeightUnits: (userWeightUnits: WeightUnit) => void,
   addExercisesToWorkout: (exercises: Exercise[]) => void,
@@ -52,6 +53,7 @@ export interface WorkoutState {
   emptyWorkout: () => void,
   setWorkouts: (workouts: Workout[]) => void,
   setSelectedExerciseMode: (mode: ExerciseSearchMode) => void,
+  setSelectedExerciseIndex: (index: number) => void,
 }
 
 export const useWorkoutStore = create<WorkoutState>()(
@@ -63,6 +65,7 @@ export const useWorkoutStore = create<WorkoutState>()(
         weightUnits: WeightUnit.KG,
         workouts: [],
         exerciseSearchMode: ExerciseSearchMode.ADD_EXERCISE,
+        selectedExerciseIndex: -1,
         emptyWorkout: () => set((state) => {
           return {
             ...state,
@@ -386,10 +389,8 @@ export const useWorkoutStore = create<WorkoutState>()(
             }
           });
         },
-        setSelectedExerciseMode: (mode: ExerciseSearchMode) =>
-          set({
-            exerciseSearchMode: mode
-          }),
+        setSelectedExerciseMode: (mode: ExerciseSearchMode) => set({ exerciseSearchMode: mode }),
+        setSelectedExerciseIndex: (index: number) => set({ selectedExerciseIndex: index}),
       }),
       {
         name: 'currentWorkoutStore',
