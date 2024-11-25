@@ -4,19 +4,19 @@ import WorkoutExerciseSets from '@/shared/training/workout-exercise/WorkoutExerc
 
 type WorkoutExerciseProps = {
   id: number | undefined;
-  handleOpenSettingsModal: () => void;
   currentExercise: WorkoutExerciseType;
   onChangeSetTypePress: (exerciseId: string | number[], index: number) => void;
   addNotesPress: () => void;
+  callRemoveExercise: () => void;
 };
 
-const WorkoutExercise = ({ id, handleOpenSettingsModal, currentExercise, onChangeSetTypePress, addNotesPress }: WorkoutExerciseProps) => {
+const WorkoutExercise = ({ id, currentExercise, onChangeSetTypePress, addNotesPress, callRemoveExercise }: WorkoutExerciseProps) => {
   return (
     <div key={id} className='flex flex-col pb-4'>
       <WorkoutExerciseHeader
         currentExercise={currentExercise}
-        openSettingsEvent={handleOpenSettingsModal}
         addNotesEvent={addNotesPress}
+        callRemoveExercise={callRemoveExercise}
       />
       <div className="relative">
         <WorkoutExerciseSets

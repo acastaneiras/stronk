@@ -12,7 +12,7 @@ const WorkoutTimer = forwardRef<TimerHandle>((_Props, ref) => {
   const timerInterval = null;
   useEffect(() => {
     setTimer((workout !== null && workout.duration !== null) ? workout.duration : 0)
-  }, [workout?.duration])
+  }, [workout?.duration, workout])
 
   useEffect(() => {
     //A timer that will run and update every second
@@ -26,7 +26,7 @@ const WorkoutTimer = forwardRef<TimerHandle>((_Props, ref) => {
 
       return () => clearInterval(timerInterval);
     }
-  }, [isTimerEnabled]);
+  }, [isTimerEnabled, workout]);
 
   useImperativeHandle(ref, () => ({
     saveTimer() {

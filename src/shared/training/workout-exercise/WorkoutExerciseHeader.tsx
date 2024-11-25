@@ -1,17 +1,19 @@
+import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { WorkoutExerciseType } from '@/models/WorkoutExerciseType';
 import { getCategoryColor } from '@/utils/workoutUtils';
-import { Menu } from 'lucide-react';
+import { Clock, FileText, RefreshCw, Settings2, Trash } from 'lucide-react';
 import { useState } from 'react';
 
 type WorkoutExerciseHeaderProps = {
   currentExercise: WorkoutExerciseType;
-  openSettingsEvent: () => void;
   addNotesEvent: () => void;
+  callRemoveExercise: () => void;
 };
 
 const MAX_CHARACTERS_TO_SHOW = 80;
 
-const WorkoutExerciseHeader = ({ currentExercise }: WorkoutExerciseHeaderProps) => {
+const WorkoutExerciseHeader = ({ currentExercise, callRemoveExercise}: WorkoutExerciseHeaderProps) => {
   const [expandNotes, setExpandNotes] = useState(false);
 
   const categoryColor = getCategoryColor(currentExercise.exercise.category!);
@@ -36,7 +38,7 @@ const WorkoutExerciseHeader = ({ currentExercise }: WorkoutExerciseHeaderProps) 
             {currentExercise.exercise.category && (
               <span
                 className={`px-2 py-1 rounded text-white flex-grow-0 text-xs`}
-                style={{backgroundColor: `${categoryColor}`}}
+                style={{ backgroundColor: `${categoryColor}` }}
               >
                 {currentExercise.exercise.category}
               </span>
@@ -67,9 +69,37 @@ const WorkoutExerciseHeader = ({ currentExercise }: WorkoutExerciseHeaderProps) 
         </div>
       </div>
       <div className='px-4 py-3'>
-        <div className='p-0 cursor-pointer'>
-          <Menu className='h-5'></Menu>
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost">
+              <Settings2 className="h-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56 flex flex-col gap-1">
+            <DropdownMenuLabel>Exercise Settings</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Button variant="ghost" className="w-full justify-start border-none cursor-pointer">
+                <FileText className="h-4 w-4 mr-2" /> Notes
+              </Button>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Button variant="ghost" className="w-full justify-start border-none cursor-pointer">
+                <Clock className="h-4 w-4 mr-2" /> Rest time
+              </Button>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Button variant="ghost" className="w-full justify-start border-none cursor-pointer">
+                <RefreshCw className="h-4 w-4 mr-2" /> Replace exercise
+              </Button>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Button variant="destructive" onClick={callRemoveExercise} className="w-full justify-start border-none cursor-pointer">
+                <Trash className="h-4 w-4 mr-2" /> Remove exercise
+              </Button>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );

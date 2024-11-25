@@ -55,7 +55,8 @@ function WorkoutExerciseSingleSet({ set, setIndex, currentExercise, onChangeSetT
         transition={{ duration: 0.2 }}
       >
         <Button
-          onPointerUp={onDeleteSet}
+          onTouchEnd={onDeleteSet}
+          onClick={onDeleteSet}
           variant="destructive"
           className="py-2"
         >

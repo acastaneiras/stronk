@@ -2,33 +2,35 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
 import { Input } from '@/components/ui/input'
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { Textarea } from '@/components/ui/textarea'
 import { SelectedSet, SetType } from '@/models/ExerciseSet'
+import { ResponsiveModal } from '@/shared/modals/ResponsiveModal'
+import SetTypeModal from '@/shared/modals/SetTypeModal'
 import WorkoutExercise from '@/shared/training/workout-exercise/WorkoutExercise'
 import WorkoutHeader from '@/shared/training/WorkoutHeader'
-import { useExercisesStore } from '@/stores/exerciseStore'
 import { useWorkoutStore } from '@/stores/workoutStore'
+import { Trash } from 'lucide-react'
 import { useState } from 'react'
 import NoExercises from '../NoExercises'
-import SetTypeModal from '@/shared/modals/SetTypeModal'
 
 const CreateNewWorkout = () => {
-  const { workout, changeSetType } = useWorkoutStore();
-  const { allExercises } = useExercisesStore();
+  const { workout, changeSetType, deleteExercise } = useWorkoutStore();
 
-  const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [notesDrawerOpen, setNotesDrawerOpen] = useState(false);
   const [restDrawerOpen, setRestDrawerOpen] = useState(false);
+  const [removeExerciseOpen, setRemoveExerciseOpen] = useState(false);
   const [finishDrawerOpen, setFinishDrawerOpen] = useState(false);
   const [confirmSaveRoutineDialog, setConfirmSaveRoutineDialog] = useState(false);
   const [selectedSet, setSelectedSet] = useState<SelectedSet | null>(null);
+  const [selectedExerciseIndex, setSelectedExerciseIndex] = useState<number>(-1);
   const [notes, setNotes] = useState('');
   const [restTimeMinutes, setRestTimeMinutes] = useState('0');
   const [restTimeSeconds, setRestTimeSeconds] = useState('0');
   const [workoutTitle, setWorkoutTitle] = useState('');
   const [workoutDescription, setWorkoutDescription] = useState('');
-  const [setTypeShown, setSetTypeShown] = useState<boolean>(false);
+  const [setTypeShown, setSetTypeShown] = useState(false);
+
 
   /*const handleOpenNotesDrawer = (index: number) => {
     setSelectedSet(index)
@@ -85,6 +87,17 @@ const CreateNewWorkout = () => {
     }
   }
 
+  const handleModalRemoveExercise = (index: number) => {
+    setSelectedExerciseIndex(index);
+    setRemoveExerciseOpen(true);
+  }
+
+  const handleRemoveExercise = () => {
+    if (selectedExerciseIndex < 0) { return }
+    deleteExercise(selectedExerciseIndex);
+    setRemoveExerciseOpen(false);
+  }
+
   return (
     <div className='flex flex-col flex-1'>
       <WorkoutHeader onClose={() => alert('Close')} onFinish={handleOpenFinishDrawer} />
@@ -92,19 +105,18 @@ const CreateNewWorkout = () => {
       <div className='flex flex-col flex-grow pt-4'>
         {((workout?.workout_exercises) && (workout.workout_exercises.length > 0)) ? (
           <ScrollArea type="always" className="flex-grow max-h-full h-1">
-            <div className="flex flex-col gap-4 flex-grow pr-4">
+            <div className="flex flex-col gap-4 flex-grow">
               {workout?.workout_exercises?.map((exercise, index) => (
                 <WorkoutExercise
                   id={index}
                   key={`${exercise.id}-${index}`}
                   currentExercise={exercise}
-                  handleOpenSettingsModal={() => alert('Open Settings')}
                   onChangeSetTypePress={onChangeSetTypePress}
                   addNotesPress={() => alert('Add Notes')}
+                  callRemoveExercise={() => handleModalRemoveExercise(index)}
                 />
               ))}
             </div>
-            <ScrollBar orientation="vertical" />
           </ScrollArea>
         ) : (
           <div className='m-auto'>
@@ -113,31 +125,31 @@ const CreateNewWorkout = () => {
         )}
       </div>
 
-      <Dialog open={showRemoveModal} onOpenChange={setShowRemoveModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Remove Exercise</DialogTitle>
-          </DialogHeader>
-          <p>Are you sure you want to remove this exercise?</p>
-          <DialogFooter>
+      <ResponsiveModal
+        open={removeExerciseOpen}
+        onOpenChange={setRemoveExerciseOpen}
+        dismissable={true}
+        title="Remove Exercise"
+        titleClassName="text-xl font-bold text-center"
+        footer={
+          <>
             <Button
               variant='destructive'
-              onClick={() => {
-                setShowRemoveModal(false)
-                alert('Exercise Removed')
-              }}
+              onClick={handleRemoveExercise}
             >
-              Confirm
+              <Trash /> Confirm
             </Button>
-            <Button variant='outline' onClick={() => setShowRemoveModal(false)}>
+            <Button variant='outline' onClick={() => setRemoveExerciseOpen(false)}>
               Cancel
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </>
+        }
+      >
+        <p>Are you sure you want to remove this exercise?</p>
+      </ResponsiveModal>
 
       {/* Drawer for selecting set type */}
-      <SetTypeModal setTypeShown={setTypeShown} setSetTypeShown={setSetTypeShown} onChangeSetType={onChangeSetType}/>
+      <SetTypeModal setTypeShown={setTypeShown} setSetTypeShown={setSetTypeShown} onChangeSetType={onChangeSetType} />
 
       {/* Drawer for finishing the workout */}
       <Drawer open={finishDrawerOpen} onOpenChange={setFinishDrawerOpen}>
