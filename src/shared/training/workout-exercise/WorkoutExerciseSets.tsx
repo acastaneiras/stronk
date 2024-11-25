@@ -1,5 +1,4 @@
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { WorkoutExerciseType } from '@/models/WorkoutExerciseType';
 import WorkoutExerciseSingleSet from '@/shared/training/workout-exercise/WorkoutExerciseSingleSet';
 import { useUserStore } from '@/stores/userStore';

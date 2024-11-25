@@ -25,7 +25,7 @@ const SetTypeModal = ({ setTypeShown, setSetTypeShown, onChangeSetType }: SetTyp
           <Button
             key={type}
             variant={`secondary`}
-            className={`w-full flex items-center gap-x-4 hover:text-primary-foreground bg-secondary text-secondary-foreground`}
+            className={`w-full flex items-center gap-x-4 hover:text-foreground bg-secondary text-secondary-foreground`}
             onClick={() => {
               onChangeSetType(type);
               setSetTypeShown(false);

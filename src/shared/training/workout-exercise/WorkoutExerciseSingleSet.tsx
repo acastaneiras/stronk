@@ -4,8 +4,11 @@ import { WorkoutExerciseType } from '@/models/WorkoutExerciseType';
 import IconSet from '@/shared/icons/IconSet';
 import WeightInput from '@/shared/training/workout-exercise/workout-exercise-sets/WeightInput';
 import { useWorkoutStore } from '@/stores/workoutStore';
+import { useMediaQuery } from '@uidotdev/usehooks';
 import clsx from 'clsx';
-import { Check } from 'lucide-react';
+import { Check, Trash2 } from 'lucide-react';
+import { motion, useAnimation } from 'motion/react';
+import { useState } from 'react';
 import RepsInput from './workout-exercise-sets/RepsInput';
 
 type WorkoutExerciseSingleSetProps = {
@@ -16,52 +19,108 @@ type WorkoutExerciseSingleSetProps = {
 };
 
 function WorkoutExerciseSingleSet({ set, setIndex, currentExercise, onChangeSetType }: WorkoutExerciseSingleSetProps) {
-  const { toggleSetCompletion } = useWorkoutStore();
+  const { toggleSetCompletion, deleteSetToExercise } = useWorkoutStore();
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const [isSwiped, setIsSwiped] = useState(false);
+  const controls = useAnimation();
 
   const handleSetCompleted = (setIndex: number) => {
     toggleSetCompletion(currentExercise.id, setIndex);
-  }
-  return (
-    <div className={clsx("flex items-center text-center py-2 rounded", { "bg-primary/10": set.completed })}>
-      <div className="w-1/5">
-        <Button
-          onClick={onChangeSetType}
-          variant={`ghost`}
-          className="px-4 py-1 rounded"
-        >
-          <IconSet setType={set.type} setNumber={set.number} ></IconSet>
-        </Button>
-      </div>
-      <div className="w-1/5 px-1 md:px-10">
-        <WeightInput
-          set={set}
-          setIndex={setIndex}
-          currentExercise={currentExercise}
-        /></div>
-      <div className="w-1/5 px-1 md:px-10">
-        <RepsInput
-          set={set}
-          setIndex={setIndex}
-          currentExercise={currentExercise}
-        />
-      </div>
-      <div className="w-1/5">
-        <Button
-          variant={`ghost`}
-          onClick={() => console.log('Change RPE')}
-          className="px-4 py-1 rounded text-lg"
-        >
-          {/*set.rpe */}
-          1
-        </Button>
-      </div>
+  };
 
-      <div className="w-1/5">
-        <Button onClick={() => handleSetCompleted(setIndex)} variant={set.completed ? "default" : "outline"} >
-          <Check className='h-4 w-4' />
+  const onDeleteSet = () => {
+    deleteSetToExercise(currentExercise.id, setIndex);
+    controls.start({ x: 0 });
+    setIsSwiped(false);
+  };
+
+  const handleDragEnd = (_e: MouseEvent | TouchEvent | PointerEvent, info: { offset: { x: number } }) => {
+    const swipeThreshold = -100;
+    if (info.offset.x < swipeThreshold) {
+      setIsSwiped(true);
+    } else {
+      setIsSwiped(false);
+      controls.start({ x: 0 });
+    }
+  };
+
+  return (
+    <motion.div
+      className="relative"
+    >
+      <motion.div
+        className="absolute left-0 right-0 top-0 flex items-center justify-end md:pr-10"
+        style={{ height: '100%', zIndex: isSwiped ? 0 : -1 }}
+        animate={{ opacity: isSwiped ? 1 : 0 }}
+        transition={{ duration: 0.2 }}
+      >
+        <Button
+          onPointerUp={onDeleteSet}
+          variant="destructive"
+          className="py-2"
+        >
+          <Trash2 className="h-4 w-4 mr-2" />
+          Delete
         </Button>
+      </motion.div>
+
+      <div className="bg-background">
+        <motion.div
+          className={clsx(
+            "relative flex items-center text-center py-2 rounded",
+            { "bg-primary/10": set.completed }
+          )}
+          drag="x"
+          dragConstraints={{ left: isDesktop ? -160 : -120, right: 0 }}
+          dragElastic={0.2}
+          onDragEnd={handleDragEnd}
+          animate={controls}
+          initial={{ x: 0 }}
+          style={{ zIndex: 1 }}
+        >
+          <div className="w-1/5">
+            <Button
+              onClick={onChangeSetType}
+              variant="ghost"
+              className="px-4 py-1 rounded"
+            >
+              <IconSet setType={set.type} setNumber={set.number} />
+            </Button>
+          </div>
+          <div className="w-1/5 px-1 md:px-10">
+            <WeightInput
+              set={set}
+              setIndex={setIndex}
+              currentExercise={currentExercise}
+            />
+          </div>
+          <div className="w-1/5 px-1 md:px-10">
+            <RepsInput
+              set={set}
+              setIndex={setIndex}
+              currentExercise={currentExercise}
+            />
+          </div>
+          <div className="w-1/5">
+            <Button
+              variant="ghost"
+              onClick={() => console.log('Change RPE')}
+              className="px-4 py-1 rounded text-lg"
+            >
+              2
+            </Button>
+          </div>
+          <div className="w-1/5">
+            <Button
+              onClick={() => handleSetCompleted(setIndex)}
+              variant={set.completed ? "default" : "outline"}
+            >
+              <Check className="h-4 w-4" />
+            </Button>
+          </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
