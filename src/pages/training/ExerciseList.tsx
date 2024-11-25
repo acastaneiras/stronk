@@ -20,7 +20,7 @@ import { useNavigate } from 'react-router-dom'
 const ExerciseList = () => {
   const navigate = useNavigate();
   const { allExercises } = useExercisesStore();
-  const { exerciseSearchMode, addExercisesToWorkout, selectedExerciseIndex, replaceExerciseInWorkout } = useWorkoutStore();
+  const { exerciseSearchMode, addExercisesToWorkout, selectedExerciseIndex, replaceExerciseInWorkout, setExerciseSearchMode } = useWorkoutStore();
 
   const [selectedExercises, setSelectedExercises] = useState<Exercise[]>([]);
   const [filteredExercises, setFilteredExercises] = useState<Exercise[] | null>(null);
@@ -132,6 +132,7 @@ const ExerciseList = () => {
     if (exerciseSearchMode == ExerciseSearchMode.REPLACE_EXERCISE) {
       if (selectedExercises.length == 1 && selectedExerciseIndex !== -1) { //If there's a 
         replaceExerciseInWorkout(selectedExerciseIndex, selectedExercises[0]);
+        setExerciseSearchMode(ExerciseSearchMode.ADD_EXERCISE);
       }
     } else {
       addExercisesToWorkout(selectedExercises);

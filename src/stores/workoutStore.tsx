@@ -52,7 +52,7 @@ export interface WorkoutState {
   cleanupIncompleteSets: () => void,
   emptyWorkout: () => void,
   setWorkouts: (workouts: Workout[]) => void,
-  setSelectedExerciseMode: (mode: ExerciseSearchMode) => void,
+  setExerciseSearchMode: (mode: ExerciseSearchMode) => void,
   setSelectedExerciseIndex: (index: number) => void,
 }
 
@@ -389,7 +389,7 @@ export const useWorkoutStore = create<WorkoutState>()(
             }
           });
         },
-        setSelectedExerciseMode: (mode: ExerciseSearchMode) => set({ exerciseSearchMode: mode }),
+        setExerciseSearchMode: (mode: ExerciseSearchMode) => set({ exerciseSearchMode: mode }),
         setSelectedExerciseIndex: (index: number) => set({ selectedExerciseIndex: index}),
       }),
       {

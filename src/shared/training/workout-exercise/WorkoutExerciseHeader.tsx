@@ -19,13 +19,13 @@ const MAX_CHARACTERS_TO_SHOW = 80;
 
 const WorkoutExerciseHeader = ({ index, currentExercise, callRemoveExercise}: WorkoutExerciseHeaderProps) => {
   const navigate = useNavigate();
-  const { setSelectedExerciseMode, setSelectedExerciseIndex } = useWorkoutStore();
+  const { setExerciseSearchMode, setSelectedExerciseIndex } = useWorkoutStore();
   const [expandNotes, setExpandNotes] = useState(false);
 
   const categoryColor = getCategoryColor(currentExercise.exercise.category!);
 
   const navigateToReplaceExercise = () => {
-    setSelectedExerciseMode(ExerciseSearchMode.REPLACE_EXERCISE);
+    setExerciseSearchMode(ExerciseSearchMode.REPLACE_EXERCISE);
     setSelectedExerciseIndex(index);
     navigate('/training/exercise-list');
   }
