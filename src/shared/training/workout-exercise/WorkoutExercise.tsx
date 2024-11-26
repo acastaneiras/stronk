@@ -8,9 +8,10 @@ type WorkoutExerciseProps = {
   onChangeSetTypePress: (exerciseId: string | number[], index: number) => void;
   callExerciseNotes: () => void;
   callRemoveExercise: () => void;
+  onCallShowIntensityModal: (exerciseId: string | number[], index: number) => void;
 };
 
-const WorkoutExercise = ({ id, currentExercise, onChangeSetTypePress, callExerciseNotes, callRemoveExercise }: WorkoutExerciseProps) => {
+const WorkoutExercise = ({ id, currentExercise, onChangeSetTypePress, callExerciseNotes, callRemoveExercise, onCallShowIntensityModal}: WorkoutExerciseProps) => {
   return (
     <div key={id} className='flex flex-col pb-4'>
       <WorkoutExerciseHeader
@@ -23,6 +24,7 @@ const WorkoutExercise = ({ id, currentExercise, onChangeSetTypePress, callExerci
         <WorkoutExerciseSets
           currentExercise={currentExercise}
           onChangeSetTypePressEvent={onChangeSetTypePress}
+          onCallShowIntensityModalEvent={onCallShowIntensityModal}
         />
       </div>
     </div>

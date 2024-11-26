@@ -22,7 +22,7 @@ export type ExerciseSet = {
     weight: SetWeight;
     reps: number | string; //it can be string if its empty, otherwise it's an int
     completed: boolean;
-    rpe?: number; //ToDo: conversion form RPE to RIR and vice versa
+    intensity?: number; //ToDo: conversion form RPE to RIR and vice versa
     type: SetType;
     number?: number;
 }

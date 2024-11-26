@@ -20,7 +20,7 @@ const EquipmentModal = ({ equipmentDrawerOpen, setEquipmentDrawerOpen, currentEq
     : [{ equipment: '', label: 'All Equipment' }];
 
   return (
-    <ResponsiveModal open={equipmentDrawerOpen} onOpenChange={setEquipmentDrawerOpen} dismissable={true} title="Select Equipment" titleClassName="text-xl font-bold text-center">
+    <ResponsiveModal open={equipmentDrawerOpen} onOpenChange={setEquipmentDrawerOpen} dismissable={true} title="Select Equipment" titleClassName="text-lg text-center font-semibold leading-none tracking-tight">
       <div className="flex flex-col flex-grow overflow-hidden">
         <ScrollArea type="always" className="flex-grow max-h-full h-96">
           <div className="p-4 space-y-2">

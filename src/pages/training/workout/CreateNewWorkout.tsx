@@ -14,9 +14,10 @@ import { Trash } from 'lucide-react'
 import { useState } from 'react'
 import NoExercises from '../NoExercises'
 import NotesModal from '@/shared/modals/NotesModal'
+import RPEModal from '@/shared/modals/RPEModal'
 
 const CreateNewWorkout = () => {
-  const { workout, changeSetType, deleteExercise, selectedExerciseIndex, setSelectedExerciseIndex, updateNoteToExercise } = useWorkoutStore();
+  const { workout, changeSetType, deleteExercise, selectedExerciseIndex, setSelectedExerciseIndex, updateNoteToExercise, setIntensityToExerciseSet } = useWorkoutStore();
 
   const [showExerciseNotes, setShowExerciseNotes] = useState(false);
   const [restDrawerOpen, setRestDrawerOpen] = useState(false);
@@ -29,7 +30,8 @@ const CreateNewWorkout = () => {
   const [workoutTitle, setWorkoutTitle] = useState('');
   const [workoutDescription, setWorkoutDescription] = useState('');
   const [setTypeShown, setSetTypeShown] = useState(false);
-
+  const [showRPEModal, setShowRPEModal] = useState(false);
+  const [showRIRModal, setShowRIRModal] = useState(false);
   /*const handleOpenRestDrawer = (index: number) => {
     setSelectedSet(index)
     setRestDrawerOpen(true)
@@ -98,6 +100,33 @@ const CreateNewWorkout = () => {
     updateNoteToExercise(index, note);
   }
 
+  const onCallShowIntensityModal = (exerciseIndex: string | number[], setIndex: number) => {
+    setSelectedSet({
+      exerciseIndex: exerciseIndex,
+      setIndex: setIndex,
+    });
+    setShowRPEModal(true);
+    /**
+     * TODO: Implement RIR modal based on user preference
+     */
+  }
+
+  const handleUnsetIntensity = () => {
+    if (selectedSet) {
+      setIntensityToExerciseSet(selectedSet.exerciseIndex, selectedSet.setIndex, undefined);
+      setSelectedSet(null);
+      setShowRPEModal(false);
+    }
+  }
+
+  const handleSaveRPE = (rpe: number) => {
+    if (selectedSet) {
+      setIntensityToExerciseSet(selectedSet.exerciseIndex, selectedSet.setIndex, rpe);
+      setSelectedSet(null);
+      setShowRPEModal(false);
+    }
+  }
+
   return (
     <div className='flex flex-col flex-1'>
       <WorkoutHeader onClose={() => alert('Close')} onFinish={handleOpenFinishDrawer} />
@@ -114,6 +143,7 @@ const CreateNewWorkout = () => {
                   onChangeSetTypePress={onChangeSetTypePress}
                   callExerciseNotes={() => handleExerciseNotes(index)}
                   callRemoveExercise={() => handleModalRemoveExercise(index)}
+                  onCallShowIntensityModal={onCallShowIntensityModal}
                 />
               ))}
             </div>
@@ -147,9 +177,9 @@ const CreateNewWorkout = () => {
       >
         <p>Are you sure you want to remove this exercise?</p>
       </ResponsiveModal>
-      <NotesModal notesShown={showExerciseNotes} exerciseIndex={selectedExerciseIndex} setNotesShown={setShowExerciseNotes} changeNote={changeNoteEvent} workout={workout} />
 
-      {/* Drawer for selecting set type */}
+      <RPEModal showRPEModal={showRPEModal} setShowRPEModal={setShowRPEModal} onSaveIntensity={handleSaveRPE} onUnsetIntensity={handleUnsetIntensity} workout={workout} selectedSet={selectedSet} />
+      <NotesModal notesShown={showExerciseNotes} exerciseIndex={selectedExerciseIndex} setNotesShown={setShowExerciseNotes} changeNote={changeNoteEvent} workout={workout} />
       <SetTypeModal setTypeShown={setTypeShown} setSetTypeShown={setSetTypeShown} onChangeSetType={onChangeSetType} />
 
       {/* Drawer for finishing the workout */}

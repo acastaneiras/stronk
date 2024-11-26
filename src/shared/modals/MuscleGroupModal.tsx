@@ -27,7 +27,7 @@ const MuscleGroupModal = ({ groupDrawerOpen, setGroupDrawerOpen, currentMuscleGr
       onOpenChange={setGroupDrawerOpen}
       dismissable={true}
       title="Select Muscle Group"
-      titleClassName="text-xl font-bold text-center"
+      titleClassName="text-lg font-semibold text-center leading-none tracking-tight"
     >
       <div className="flex flex-col flex-grow overflow-hidden">
         <ScrollArea type="always" className="flex-grow max-h-full h-96">

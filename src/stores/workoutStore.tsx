@@ -54,6 +54,7 @@ export interface WorkoutState {
   setWorkouts: (workouts: Workout[]) => void,
   setExerciseSearchMode: (mode: ExerciseSearchMode) => void,
   setSelectedExerciseIndex: (index: number) => void,
+  setIntensityToExerciseSet: (exerciseId: string | number[], setIndex: number, intensity: number | undefined) => void,
 }
 
 export const useWorkoutStore = create<WorkoutState>()(
@@ -391,6 +392,25 @@ export const useWorkoutStore = create<WorkoutState>()(
         },
         setExerciseSearchMode: (mode: ExerciseSearchMode) => set({ exerciseSearchMode: mode }),
         setSelectedExerciseIndex: (index: number) => set({ selectedExerciseIndex: index}),
+        setIntensityToExerciseSet: (exerciseId: string | number[], setIndex: number, intensity: number | undefined) => set((state) => {
+          if (!state.workout || !state.workout.workout_exercises) return state;
+
+          return {
+            ...state,
+            workout: {
+              ...state.workout,
+              workout_exercises: state.workout.workout_exercises.map(workout_exercise => {
+                if (workout_exercise.id === exerciseId) {
+                  const newSets = [...workout_exercise.sets];
+                  newSets[setIndex] = { ...newSets[setIndex], intensity: intensity };
+                  const reorderedSets = reorderExerciseSetNumber(newSets);
+                  return { ...workout_exercise, sets: reorderedSets };
+                }
+                return workout_exercise;
+              })
+            }
+          };
+        }),
       }),
       {
         name: 'currentWorkoutStore',

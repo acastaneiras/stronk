@@ -26,7 +26,7 @@ const WeightInput = ({ set, setIndex, currentExercise }: WeightInputProps) => {
 
   const displayWeight = (setWeight: SetWeight) => {
     let weightDisplay = "";
-    if (user?.unitPreference !== setWeight.unit) {
+    if (user?.unitPreference && user.unitPreference !== setWeight.unit) {
       weightDisplay = WeightConvert(setWeight, user!.unitPreference!);
     } else {
       weightDisplay = setWeight.value.toString();

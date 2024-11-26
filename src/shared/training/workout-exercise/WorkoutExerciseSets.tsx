@@ -11,9 +11,10 @@ import { GoNumber } from "react-icons/go";
 type WorkoutExerciseSetsProps = {
   currentExercise: WorkoutExerciseType;
   onChangeSetTypePressEvent: (exerciseId: string | number[], index: number) => void;
+  onCallShowIntensityModalEvent: (exerciseId: string | number[], index: number) => void;
 };
 
-function WorkoutExerciseSets({ currentExercise, onChangeSetTypePressEvent }: WorkoutExerciseSetsProps) {
+function WorkoutExerciseSets({ currentExercise, onChangeSetTypePressEvent, onCallShowIntensityModalEvent }: WorkoutExerciseSetsProps) {
   const { user } = useUserStore();
   const { addSetToExercise } = useWorkoutStore();
 
@@ -22,7 +23,7 @@ function WorkoutExerciseSets({ currentExercise, onChangeSetTypePressEvent }: Wor
       {currentExercise.sets.length > 0 && (
         <div className="grid grid-cols-5 text-center text-gray-500">
           <span className='flex gap-1 items-center justify-center'><Hash className='w-4' /> Set</span>
-          <span className='flex gap-1 items-center justify-center'><Weight className='w-4' /> {formatWeightUnit(user!.unitPreference)}</span>
+          <span className='flex gap-1 items-center justify-center'><Weight className='w-4' /> {user?.unitPreference && formatWeightUnit(user.unitPreference)}</span>
           <span className='flex gap-1 items-center justify-center'><GoNumber className='w-4' /> Reps</span>
           <span className='flex gap-1 items-center justify-center'><Zap className='w-4' />RPE</span>
           <span className='flex gap-1 items-center justify-center'><CheckCheckIcon className='w-4' /></span>
@@ -35,6 +36,7 @@ function WorkoutExerciseSets({ currentExercise, onChangeSetTypePressEvent }: Wor
           setIndex={index}
           currentExercise={currentExercise}
           onChangeSetType={() => onChangeSetTypePressEvent(currentExercise.id, index)}
+          callShowIntensityModal={() => onCallShowIntensityModalEvent(currentExercise.id, index)}
         />
       ))}
       <Button

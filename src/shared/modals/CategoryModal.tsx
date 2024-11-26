@@ -21,7 +21,7 @@ const CategoryModal = ({ categoryDrawerOpen, setCategoryDrawerOpen, currentCateg
     : [{ category: '', label: 'All Categories' }];
 
   return (
-    <ResponsiveModal open={categoryDrawerOpen} onOpenChange={setCategoryDrawerOpen} dismissable={true} title="Select Category" titleClassName="text-xl font-bold text-center">
+    <ResponsiveModal open={categoryDrawerOpen} onOpenChange={setCategoryDrawerOpen} dismissable={true} title="Select Category" titleClassName="text-lg text-center font-semibold leading-none tracking-tight">
       <div className="p-4 space-y-2">
         {categoryList.map((item, index) => (
           <Button

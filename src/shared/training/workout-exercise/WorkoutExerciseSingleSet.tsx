@@ -15,10 +15,11 @@ type WorkoutExerciseSingleSetProps = {
   set: ExerciseSet;
   setIndex: number;
   currentExercise: WorkoutExerciseType;
+  callShowIntensityModal: (setIndex: number) => void;
   onChangeSetType: () => void;
 };
 
-function WorkoutExerciseSingleSet({ set, setIndex, currentExercise, onChangeSetType }: WorkoutExerciseSingleSetProps) {
+function WorkoutExerciseSingleSet({ set, setIndex, currentExercise, callShowIntensityModal, onChangeSetType }: WorkoutExerciseSingleSetProps) {
   const { toggleSetCompletion, deleteSetToExercise } = useWorkoutStore();
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const [isSwiped, setIsSwiped] = useState(false);
@@ -105,10 +106,10 @@ function WorkoutExerciseSingleSet({ set, setIndex, currentExercise, onChangeSetT
           <div className="w-1/5">
             <Button
               variant="ghost"
-              onClick={() => console.log('Change RPE')}
-              className="px-4 py-1 rounded text-lg"
+              onClick={() => callShowIntensityModal(setIndex)}
+              className="px-4 py-1 rounded text-lg text-gray-500"
             >
-              2
+              {set.intensity ? `@ ${set.intensity.toFixed(1)}` : "@"}
             </Button>
           </div>
           <div className="w-1/5">
