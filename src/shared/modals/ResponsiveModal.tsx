@@ -37,7 +37,7 @@ export function ResponsiveModal({
           onEscapeKeyDown={(e) => { if (!dismissable) e.preventDefault(); }}
           className={cn(!dismissable && "[&>button]:hidden")}
         >
-          <DialogHeader>
+          <DialogHeader className="p-0 m-0">
             <DialogTitle className={titleClassName ? titleClassName : `text-2xl font-bold`}>{title}</DialogTitle>
             <DialogDescription>
               {description || ''}

@@ -6,18 +6,18 @@ type WorkoutExerciseProps = {
   id: number;
   currentExercise: WorkoutExerciseType;
   onChangeSetTypePress: (exerciseId: string | number[], index: number) => void;
-  addNotesPress: () => void;
+  callExerciseNotes: () => void;
   callRemoveExercise: () => void;
 };
 
-const WorkoutExercise = ({ id, currentExercise, onChangeSetTypePress, addNotesPress, callRemoveExercise }: WorkoutExerciseProps) => {
+const WorkoutExercise = ({ id, currentExercise, onChangeSetTypePress, callExerciseNotes, callRemoveExercise }: WorkoutExerciseProps) => {
   return (
     <div key={id} className='flex flex-col pb-4'>
       <WorkoutExerciseHeader
         index={id}
         currentExercise={currentExercise}
-        addNotesEvent={addNotesPress}
         callRemoveExercise={callRemoveExercise}
+        callExerciseNotes={callExerciseNotes}
       />
       <div className="relative">
         <WorkoutExerciseSets

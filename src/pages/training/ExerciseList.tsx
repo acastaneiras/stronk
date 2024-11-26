@@ -130,11 +130,11 @@ const ExerciseList = () => {
 
   const addSelectedExercises = () => {
     if (exerciseSearchMode == ExerciseSearchMode.REPLACE_EXERCISE) {
-      if (selectedExercises.length == 1 && selectedExerciseIndex !== -1) { //If there's a 
+      if (selectedExercises.length == 1 && selectedExerciseIndex !== -1) { //If there's only 1 exercise, replace
         replaceExerciseInWorkout(selectedExerciseIndex, selectedExercises[0]);
         setExerciseSearchMode(ExerciseSearchMode.ADD_EXERCISE);
       }
-    } else {
+    } else { //Add exercises to workout
       addExercisesToWorkout(selectedExercises);
     }
     setSelectedExercises([]);

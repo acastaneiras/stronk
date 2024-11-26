@@ -4,6 +4,7 @@ import { ExerciseSearchMode } from '@/models/ExerciseSearchMode';
 import { WorkoutExerciseType } from '@/models/WorkoutExerciseType';
 import { useWorkoutStore } from '@/stores/workoutStore';
 import { getCategoryColor } from '@/utils/workoutUtils';
+import clsx from 'clsx';
 import { Clock, FileText, Replace, Settings2, Trash } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -11,13 +12,13 @@ import { useNavigate } from 'react-router-dom';
 type WorkoutExerciseHeaderProps = {
   index: number;
   currentExercise: WorkoutExerciseType;
-  addNotesEvent: () => void;
   callRemoveExercise: () => void;
+  callExerciseNotes: () => void;
 };
 
 const MAX_CHARACTERS_TO_SHOW = 80;
 
-const WorkoutExerciseHeader = ({ index, currentExercise, callRemoveExercise}: WorkoutExerciseHeaderProps) => {
+const WorkoutExerciseHeader = ({ index, currentExercise, callRemoveExercise, callExerciseNotes }: WorkoutExerciseHeaderProps) => {
   const navigate = useNavigate();
   const { setExerciseSearchMode, setSelectedExerciseIndex } = useWorkoutStore();
   const [expandNotes, setExpandNotes] = useState(false);
@@ -61,15 +62,20 @@ const WorkoutExerciseHeader = ({ index, currentExercise, callRemoveExercise}: Wo
             </p>
           )}
           {currentExercise.notes && (
-            <div className="mt-2 text-sm">
-              <p>
+            <div className='block'>
+              <p
+                className={clsx(
+                  'break-words mt-2 text-sm',
+                  !expandNotes && 'max-h-12 overflow-hidden text-ellipsis'
+                )}
+              >
                 {expandNotes || currentExercise.notes.length <= MAX_CHARACTERS_TO_SHOW
                   ? currentExercise.notes
                   : `${currentExercise.notes.slice(0, MAX_CHARACTERS_TO_SHOW)}...`}
               </p>
               {currentExercise.notes.length > MAX_CHARACTERS_TO_SHOW && (
                 <button
-                  className="text-blue-500"
+                  className="text-primary underline mt-1"
                   onClick={() => setExpandNotes(!expandNotes)}
                 >
                   {expandNotes ? 'Show Less' : 'Show More'}
@@ -90,7 +96,7 @@ const WorkoutExerciseHeader = ({ index, currentExercise, callRemoveExercise}: Wo
             <DropdownMenuLabel>Exercise Settings</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Button variant="ghost" className="w-full justify-start border-none cursor-pointer">
+              <Button variant="ghost" className="w-full justify-start border-none cursor-pointer" onClick={callExerciseNotes}>
                 <FileText className="h-4 w-4 mr-2" /> Notes
               </Button>
             </DropdownMenuItem>

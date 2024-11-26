@@ -29,9 +29,9 @@ function WorkoutExerciseSingleSet({ set, setIndex, currentExercise, onChangeSetT
   };
 
   const onDeleteSet = () => {
-    deleteSetToExercise(currentExercise.id, setIndex);
-    controls.start({ x: 0 });
     setIsSwiped(false);
+    controls.start({ x: 0 });
+    deleteSetToExercise(currentExercise.id, setIndex);
   };
 
   const handleDragEnd = (_e: MouseEvent | TouchEvent | PointerEvent, info: { offset: { x: number } }) => {

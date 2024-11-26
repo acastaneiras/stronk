@@ -18,7 +18,7 @@ const SetTypeModal = ({ setTypeShown, setSetTypeShown, onChangeSetType }: SetTyp
       onOpenChange={setSetTypeShown}
       dismissable={true}
       title="Select Set Type"
-      titleClassName="text-xl font-bold text-center"
+      titleClassName="text-lg font-semibold leading-none tracking-tight"
     >
       <div className="p-4 space-y-2">
         {setTypes.map((type) => (

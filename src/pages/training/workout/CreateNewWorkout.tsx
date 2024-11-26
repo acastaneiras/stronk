@@ -13,41 +13,30 @@ import { useWorkoutStore } from '@/stores/workoutStore'
 import { Trash } from 'lucide-react'
 import { useState } from 'react'
 import NoExercises from '../NoExercises'
+import NotesModal from '@/shared/modals/NotesModal'
 
 const CreateNewWorkout = () => {
-  const { workout, changeSetType, deleteExercise, selectedExerciseIndex, setSelectedExerciseIndex } = useWorkoutStore();
+  const { workout, changeSetType, deleteExercise, selectedExerciseIndex, setSelectedExerciseIndex, updateNoteToExercise } = useWorkoutStore();
 
-  const [notesDrawerOpen, setNotesDrawerOpen] = useState(false);
+  const [showExerciseNotes, setShowExerciseNotes] = useState(false);
   const [restDrawerOpen, setRestDrawerOpen] = useState(false);
   const [removeExerciseOpen, setRemoveExerciseOpen] = useState(false);
   const [finishDrawerOpen, setFinishDrawerOpen] = useState(false);
   const [confirmSaveRoutineDialog, setConfirmSaveRoutineDialog] = useState(false);
   const [selectedSet, setSelectedSet] = useState<SelectedSet | null>(null);
-  const [notes, setNotes] = useState('');
   const [restTimeMinutes, setRestTimeMinutes] = useState('0');
   const [restTimeSeconds, setRestTimeSeconds] = useState('0');
   const [workoutTitle, setWorkoutTitle] = useState('');
   const [workoutDescription, setWorkoutDescription] = useState('');
   const [setTypeShown, setSetTypeShown] = useState(false);
 
-
-  /*const handleOpenNotesDrawer = (index: number) => {
-    setSelectedSet(index)
-    setNotesDrawerOpen(true)
-  }
-
-  const handleOpenRestDrawer = (index: number) => {
+  /*const handleOpenRestDrawer = (index: number) => {
     setSelectedSet(index)
     setRestDrawerOpen(true)
   }*/
 
   const handleOpenFinishDrawer = () => {
     setFinishDrawerOpen(true)
-  }
-
-  const handleSaveNotes = () => {
-    console.log(`Saved notes for set ${selectedSet}: ${notes}`)
-    setNotesDrawerOpen(false)
   }
 
   const handleSaveRestTime = () => {
@@ -98,6 +87,17 @@ const CreateNewWorkout = () => {
     setSelectedExerciseIndex(-1);
   }
 
+  const handleExerciseNotes = (index: number) => {
+    setSelectedExerciseIndex(index);
+    setShowExerciseNotes(true)
+  }
+
+  const changeNoteEvent = (note: string) => {
+    const index = selectedExerciseIndex;
+    setShowExerciseNotes(false);
+    updateNoteToExercise(index, note);
+  }
+
   return (
     <div className='flex flex-col flex-1'>
       <WorkoutHeader onClose={() => alert('Close')} onFinish={handleOpenFinishDrawer} />
@@ -112,7 +112,7 @@ const CreateNewWorkout = () => {
                   key={`${exercise.id}-${index}`}
                   currentExercise={exercise}
                   onChangeSetTypePress={onChangeSetTypePress}
-                  addNotesPress={() => alert('Add Notes')}
+                  callExerciseNotes={() => handleExerciseNotes(index)}
                   callRemoveExercise={() => handleModalRemoveExercise(index)}
                 />
               ))}
@@ -130,7 +130,7 @@ const CreateNewWorkout = () => {
         onOpenChange={setRemoveExerciseOpen}
         dismissable={true}
         title="Remove Exercise"
-        titleClassName="text-xl font-bold text-center"
+        titleClassName="text-lg font-semibold leading-none tracking-tight"
         footer={
           <>
             <Button
@@ -147,6 +147,7 @@ const CreateNewWorkout = () => {
       >
         <p>Are you sure you want to remove this exercise?</p>
       </ResponsiveModal>
+      <NotesModal notesShown={showExerciseNotes} exerciseIndex={selectedExerciseIndex} setNotesShown={setShowExerciseNotes} changeNote={changeNoteEvent} workout={workout} />
 
       {/* Drawer for selecting set type */}
       <SetTypeModal setTypeShown={setTypeShown} setSetTypeShown={setSetTypeShown} onChangeSetType={onChangeSetType} />
@@ -205,26 +206,6 @@ const CreateNewWorkout = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Drawer for adding notes */}
-      <Drawer open={notesDrawerOpen} onOpenChange={setNotesDrawerOpen}>
-        <DrawerContent>
-          <DrawerHeader>
-            <DrawerTitle>Add Notes</DrawerTitle>
-          </DrawerHeader>
-          <div className="p-4">
-            <Textarea
-              placeholder="Enter your notes here"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="mb-4 h-52"
-            />
-            <Button onClick={handleSaveNotes} className="w-full">
-              Save
-            </Button>
-          </div>
-        </DrawerContent>
-      </Drawer>
 
       {/* Drawer for changing rest time */}
       <Drawer open={restDrawerOpen} onOpenChange={setRestDrawerOpen}>
