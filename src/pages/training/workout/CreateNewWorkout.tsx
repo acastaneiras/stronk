@@ -15,10 +15,13 @@ import { useState } from 'react'
 import NoExercises from '../NoExercises'
 import NotesModal from '@/shared/modals/NotesModal'
 import RPEModal from '@/shared/modals/RPEModal'
+import { useUserStore } from '@/stores/userStore'
+import { Intensity } from '@/models/Intensity'
+import RIRModal from '@/shared/modals/RIRModal'
 
 const CreateNewWorkout = () => {
   const { workout, changeSetType, deleteExercise, selectedExerciseIndex, setSelectedExerciseIndex, updateNoteToExercise, setIntensityToExerciseSet } = useWorkoutStore();
-
+  const { user } = useUserStore();
   const [showExerciseNotes, setShowExerciseNotes] = useState(false);
   const [restDrawerOpen, setRestDrawerOpen] = useState(false);
   const [removeExerciseOpen, setRemoveExerciseOpen] = useState(false);
@@ -105,10 +108,12 @@ const CreateNewWorkout = () => {
       exerciseIndex: exerciseIndex,
       setIndex: setIndex,
     });
-    setShowRPEModal(true);
-    /**
-     * TODO: Implement RIR modal based on user preference
-     */
+
+    if (user?.intensitySetting === Intensity.RIR) {
+      setShowRIRModal(true);
+    } else {
+      setShowRPEModal(true);
+    } 
   }
 
   const handleUnsetIntensity = () => {
@@ -116,6 +121,7 @@ const CreateNewWorkout = () => {
       setIntensityToExerciseSet(selectedSet.exerciseIndex, selectedSet.setIndex, undefined);
       setSelectedSet(null);
       setShowRPEModal(false);
+      setShowRIRModal(false);
     }
   }
 
@@ -124,6 +130,14 @@ const CreateNewWorkout = () => {
       setIntensityToExerciseSet(selectedSet.exerciseIndex, selectedSet.setIndex, rpe);
       setSelectedSet(null);
       setShowRPEModal(false);
+    }
+  }
+
+  const handleSaveRIR = (rir: number) => {
+    if (selectedSet) {
+      setIntensityToExerciseSet(selectedSet.exerciseIndex, selectedSet.setIndex, rir);
+      setSelectedSet(null);
+      setShowRIRModal(false);
     }
   }
 
@@ -179,6 +193,7 @@ const CreateNewWorkout = () => {
       </ResponsiveModal>
 
       <RPEModal showRPEModal={showRPEModal} setShowRPEModal={setShowRPEModal} onSaveIntensity={handleSaveRPE} onUnsetIntensity={handleUnsetIntensity} workout={workout} selectedSet={selectedSet} />
+      <RIRModal showRIRModal={showRIRModal} setShowRIRModal={setShowRIRModal} onSaveIntensity={handleSaveRIR} onUnsetIntensity={handleUnsetIntensity} workout={workout} selectedSet={selectedSet} />
       <NotesModal notesShown={showExerciseNotes} exerciseIndex={selectedExerciseIndex} setNotesShown={setShowExerciseNotes} changeNote={changeNoteEvent} workout={workout} />
       <SetTypeModal setTypeShown={setTypeShown} setSetTypeShown={setSetTypeShown} onChangeSetType={onChangeSetType} />
 

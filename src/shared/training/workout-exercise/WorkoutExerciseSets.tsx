@@ -25,7 +25,7 @@ function WorkoutExerciseSets({ currentExercise, onChangeSetTypePressEvent, onCal
           <span className='flex gap-1 items-center justify-center'><Hash className='w-4' /> Set</span>
           <span className='flex gap-1 items-center justify-center'><Weight className='w-4' /> {user?.unitPreference && formatWeightUnit(user.unitPreference)}</span>
           <span className='flex gap-1 items-center justify-center'><GoNumber className='w-4' /> Reps</span>
-          <span className='flex gap-1 items-center justify-center'><Zap className='w-4' />RPE</span>
+          <span className='flex gap-1 items-center justify-center uppercase'><Zap className='w-4' />{user?.intensitySetting}</span>
           <span className='flex gap-1 items-center justify-center'><CheckCheckIcon className='w-4' /></span>
         </div>
       )}
