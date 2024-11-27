@@ -88,11 +88,10 @@ const RIRModal = ({ showRIRModal, setShowRIRModal, onUnsetIntensity, onSaveInten
 
         <div className="w-full h-2 rounded">
           <Slider
-            value={[10 - rirValue]}
-            min={0}
+            value={[rirValue]}
             max={10}
             step={1}
-            onValueChange={(value) => setRirValue(10 - value[0])}
+            onValueChange={(value) => setRirValue(value[0])}
             className="w-full"
           />
         </div>
