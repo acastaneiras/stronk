@@ -55,6 +55,7 @@ export interface WorkoutState {
   setExerciseSearchMode: (mode: ExerciseSearchMode) => void,
   setSelectedExerciseIndex: (index: number) => void,
   setIntensityToExerciseSet: (exerciseId: string | number[], setIndex: number, intensity: number | undefined) => void,
+  setRestTimeToExercise: (selectedExerciseIndex: number, seconds: number) => void,
 }
 
 export const useWorkoutStore = create<WorkoutState>()(
@@ -405,6 +406,22 @@ export const useWorkoutStore = create<WorkoutState>()(
                   newSets[setIndex] = { ...newSets[setIndex], intensity: intensity };
                   const reorderedSets = reorderExerciseSetNumber(newSets);
                   return { ...workout_exercise, sets: reorderedSets };
+                }
+                return workout_exercise;
+              })
+            }
+          };
+        }),
+        setRestTimeToExercise: (selectedExerciseIndex: number, seconds: number) => set((state) => {
+          if (!state.workout || !state.workout.workout_exercises) return state;
+
+          return {
+            ...state,
+            workout: {
+              ...state.workout,
+              workout_exercises: state.workout.workout_exercises.map((workout_exercise, index) => {
+                if (index === selectedExerciseIndex) {
+                  return { ...workout_exercise, setInterval: seconds };
                 }
                 return workout_exercise;
               })

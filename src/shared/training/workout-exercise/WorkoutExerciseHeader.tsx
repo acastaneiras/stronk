@@ -1,3 +1,4 @@
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { ExerciseSearchMode } from '@/models/ExerciseSearchMode';
@@ -5,6 +6,7 @@ import { WorkoutExerciseType } from '@/models/WorkoutExerciseType';
 import { useWorkoutStore } from '@/stores/workoutStore';
 import { getCategoryColor } from '@/utils/workoutUtils';
 import clsx from 'clsx';
+import dayjs from 'dayjs';
 import { Clock, FileText, Replace, Settings2, Trash } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -12,13 +14,14 @@ import { useNavigate } from 'react-router-dom';
 type WorkoutExerciseHeaderProps = {
   index: number;
   currentExercise: WorkoutExerciseType;
-  callRemoveExercise: () => void;
-  callExerciseNotes: () => void;
+  onCallRemoveExercise: () => void;
+  onCallExerciseNotes: () => void;
+  onCallRestTimeExercise: () => void;
 };
 
 const MAX_CHARACTERS_TO_SHOW = 80;
 
-const WorkoutExerciseHeader = ({ index, currentExercise, callRemoveExercise, callExerciseNotes }: WorkoutExerciseHeaderProps) => {
+const WorkoutExerciseHeader = ({ index, currentExercise, onCallRemoveExercise, onCallExerciseNotes, onCallRestTimeExercise }: WorkoutExerciseHeaderProps) => {
   const navigate = useNavigate();
   const { setExerciseSearchMode, setSelectedExerciseIndex } = useWorkoutStore();
   const [expandNotes, setExpandNotes] = useState(false);
@@ -47,14 +50,21 @@ const WorkoutExerciseHeader = ({ index, currentExercise, callRemoveExercise, cal
             <h2 className="font-bold text-lg text-primary">
               {currentExercise.exercise.name}
             </h2>
-            {currentExercise.exercise.category && (
-              <span
-                className={`px-2 py-1 rounded text-white flex-grow-0 text-xs`}
-                style={{ backgroundColor: `${categoryColor}` }}
-              >
-                {currentExercise.exercise.category}
-              </span>
-            )}
+            <div className='flex flex-row gap-2'>
+              {currentExercise.exercise.category && (
+                <Badge
+                  className={`px-2 py-1 rounded text-white flex-grow-0 text-xs`}
+                  style={{ backgroundColor: `${categoryColor}` }}
+                >
+                  {currentExercise.exercise.category}
+                </Badge>
+              )}
+              {currentExercise.setInterval != null && currentExercise.setInterval > 0 && (
+                <Badge className="px-2 py-1 rounded text-white flex-grow-0 text-xs gap-1" variant="outline">
+                  <Clock className="h-4 w-4" /> {dayjs(currentExercise.setInterval * 1000).format("mm:ss")}
+                </Badge>
+              )}
+            </div>
           </div>
           {currentExercise.exercise.primaryMuscles!.length > 0 && (
             <p className="text-sm text-gray-500 capitalize">
@@ -96,12 +106,12 @@ const WorkoutExerciseHeader = ({ index, currentExercise, callRemoveExercise, cal
             <DropdownMenuLabel>Exercise Settings</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Button variant="ghost" className="w-full justify-start border-none cursor-pointer" onClick={callExerciseNotes}>
+              <Button variant="ghost" className="w-full justify-start border-none cursor-pointer" onClick={onCallExerciseNotes}>
                 <FileText className="h-4 w-4 mr-2" /> Notes
               </Button>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Button variant="ghost" className="w-full justify-start border-none cursor-pointer">
+              <Button variant="ghost" className="w-full justify-start border-none cursor-pointer" onClick={onCallRestTimeExercise}>
                 <Clock className="h-4 w-4 mr-2" /> Rest time
               </Button>
             </DropdownMenuItem>
@@ -111,7 +121,7 @@ const WorkoutExerciseHeader = ({ index, currentExercise, callRemoveExercise, cal
               </Button>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Button variant="destructive" onClick={callRemoveExercise} className="w-full justify-start border-none cursor-pointer">
+              <Button variant="destructive" onClick={onCallRemoveExercise} className="w-full justify-start border-none cursor-pointer">
                 <Trash className="h-4 w-4 mr-2" /> Remove exercise
               </Button>
             </DropdownMenuItem>

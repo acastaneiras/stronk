@@ -18,35 +18,31 @@ import RPEModal from '@/shared/modals/RPEModal'
 import { useUserStore } from '@/stores/userStore'
 import { Intensity } from '@/models/Intensity'
 import RIRModal from '@/shared/modals/RIRModal'
+import RestTimeModal from '@/shared/modals/RestTimeModal'
 
 const CreateNewWorkout = () => {
-  const { workout, changeSetType, deleteExercise, selectedExerciseIndex, setSelectedExerciseIndex, updateNoteToExercise, setIntensityToExerciseSet } = useWorkoutStore();
+  const { workout, changeSetType, deleteExercise, selectedExerciseIndex, setSelectedExerciseIndex, updateNoteToExercise, setIntensityToExerciseSet, setRestTimeToExercise } = useWorkoutStore();
   const { user } = useUserStore();
   const [showExerciseNotes, setShowExerciseNotes] = useState(false);
-  const [restDrawerOpen, setRestDrawerOpen] = useState(false);
+  const [showRestTime, setShowRestTime] = useState(false);
   const [removeExerciseOpen, setRemoveExerciseOpen] = useState(false);
   const [finishDrawerOpen, setFinishDrawerOpen] = useState(false);
   const [confirmSaveRoutineDialog, setConfirmSaveRoutineDialog] = useState(false);
   const [selectedSet, setSelectedSet] = useState<SelectedSet | null>(null);
-  const [restTimeMinutes, setRestTimeMinutes] = useState('0');
-  const [restTimeSeconds, setRestTimeSeconds] = useState('0');
   const [workoutTitle, setWorkoutTitle] = useState('');
   const [workoutDescription, setWorkoutDescription] = useState('');
   const [setTypeShown, setSetTypeShown] = useState(false);
   const [showRPEModal, setShowRPEModal] = useState(false);
   const [showRIRModal, setShowRIRModal] = useState(false);
-  /*const handleOpenRestDrawer = (index: number) => {
-    setSelectedSet(index)
-    setRestDrawerOpen(true)
-  }*/
 
   const handleOpenFinishDrawer = () => {
     setFinishDrawerOpen(true)
   }
 
-  const handleSaveRestTime = () => {
-    console.log(`Saved rest time for set ${selectedSet}: ${restTimeMinutes} min ${restTimeSeconds} sec`)
-    setRestDrawerOpen(false)
+  const handleSaveRestTime = (seconds: number) => {
+    setRestTimeToExercise(selectedExerciseIndex, seconds)
+    setShowRestTime(false)
+    /*TODO: Handle timer pop up and notification...*/
   }
 
   const handleSaveWorkout = () => {
@@ -141,6 +137,11 @@ const CreateNewWorkout = () => {
     }
   }
 
+  const handleRestTimeExercise = (index: number) => {
+    setSelectedExerciseIndex(index);
+    setShowRestTime(true);
+  }
+
   return (
     <div className='flex flex-col flex-1'>
       <WorkoutHeader onClose={() => alert('Close')} onFinish={handleOpenFinishDrawer} />
@@ -155,9 +156,10 @@ const CreateNewWorkout = () => {
                   key={`${exercise.id}-${index}`}
                   currentExercise={exercise}
                   onChangeSetTypePress={onChangeSetTypePress}
-                  callExerciseNotes={() => handleExerciseNotes(index)}
-                  callRemoveExercise={() => handleModalRemoveExercise(index)}
+                  onCallExerciseNotes={() => handleExerciseNotes(index)}
+                  onCallRemoveExercise={() => handleModalRemoveExercise(index)}
                   onCallShowIntensityModal={onCallShowIntensityModal}
+                  onCallRestTimeExercise={() => handleRestTimeExercise(index)}
                 />
               ))}
             </div>
@@ -196,6 +198,7 @@ const CreateNewWorkout = () => {
       <RIRModal showRIRModal={showRIRModal} setShowRIRModal={setShowRIRModal} onSaveIntensity={handleSaveRIR} onUnsetIntensity={handleUnsetIntensity} workout={workout} selectedSet={selectedSet} />
       <NotesModal notesShown={showExerciseNotes} exerciseIndex={selectedExerciseIndex} setNotesShown={setShowExerciseNotes} changeNote={changeNoteEvent} workout={workout} />
       <SetTypeModal setTypeShown={setTypeShown} setSetTypeShown={setSetTypeShown} onChangeSetType={onChangeSetType} />
+      <RestTimeModal showRestTime={showRestTime} setShowRestTime={setShowRestTime} handleSaveRestTime={handleSaveRestTime}/>
 
       {/* Drawer for finishing the workout */}
       <Drawer open={finishDrawerOpen} onOpenChange={setFinishDrawerOpen}>
@@ -252,38 +255,7 @@ const CreateNewWorkout = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Drawer for changing rest time */}
-      <Drawer open={restDrawerOpen} onOpenChange={setRestDrawerOpen}>
-        <DrawerContent>
-          <DrawerHeader>
-            <DrawerTitle>Set Rest Time</DrawerTitle>
-          </DrawerHeader>
-          <div className="p-4">
-            <div className="flex items-center gap-4">
-              <Input
-                type="number"
-                min="0"
-                placeholder="Min"
-                value={restTimeMinutes}
-                onChange={(e) => setRestTimeMinutes(e.target.value)}
-                className="w-1/2"
-              />
-              <Input
-                type="number"
-                min="0"
-                max="59"
-                placeholder="Sec"
-                value={restTimeSeconds}
-                onChange={(e) => setRestTimeSeconds(e.target.value)}
-                className="w-1/2"
-              />
-            </div>
-            <Button onClick={handleSaveRestTime} className="w-full mt-4">
-              Save
-            </Button>
-          </div>
-        </DrawerContent>
-      </Drawer>
+      
     </div>
   )
 }
