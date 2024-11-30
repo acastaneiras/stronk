@@ -33,10 +33,10 @@ const RPEModal = ({ showRPEModal, setShowRPEModal, onUnsetIntensity, onSaveInten
   useEffect(() => {
     if (currentSet?.intensity) {
       setRpeValue(currentSet.intensity);
-    } else {
+    } else if (showRPEModal) {
       setRpeValue(DEFAULT_RPE);
     }
-  }, [currentSet]);
+  }, [currentSet, showRPEModal]);
 
   const getGradient = (value: number) => {
     if (value >= 9.5) return "bg-gradient-to-r from-red-500 to-red-800";
@@ -82,21 +82,14 @@ const RPEModal = ({ showRPEModal, setShowRPEModal, onUnsetIntensity, onSaveInten
       }
     >
       <div className="flex flex-col gap-4 items-center py-4">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={rpeValue}
-            initial={{ y: 15, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: -15, opacity: 0 }}
-            transition={{ duration: 0.03 }}
-            className={`text-center text-6xl font-bold bg-clip-text text-transparent ${getGradient(
-              rpeValue
-            )}`}
-          >
-            {rpeValue.toFixed(1)}
-          </motion.div>
-        </AnimatePresence>
-
+        <div
+          key={rpeValue}
+          className={`text-center text-6xl font-bold bg-clip-text text-transparent ${getGradient(
+            rpeValue
+          )}`}
+        >
+          {rpeValue.toFixed(1)}
+        </div>
         <div className="text-center text-xs md:text-sm mt-4 text-foreground/75">
           {getDescription(rpeValue)}
         </div>

@@ -115,3 +115,25 @@ export const WeightConvert = (setWeight: SetWeight, toUnit: WeightUnit): string 
 
   return convertedWeight;
 };
+
+export const formatTime = (time: number) => {
+  if (time === 0) {
+      return "0s";
+  }
+  const hours = Math.floor(time / 3600);
+  const minutes = Math.floor((time % 3600) / 60);
+  const seconds = time % 60;
+  let timeString = "";
+
+  if (hours > 0) {
+      timeString += `${hours}h`;
+  }
+  if (minutes > 0) {
+      timeString += ` ${minutes}m`;
+  }
+  if (seconds > 0) {
+      timeString += `${seconds}s`;
+  }
+
+  return timeString;
+};

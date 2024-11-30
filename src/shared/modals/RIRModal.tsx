@@ -1,10 +1,9 @@
-import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { SelectedSet } from "@/models/ExerciseSet";
+import { Workout } from "@/models/Workout";
 import { ResponsiveModal } from "@/shared/modals/ResponsiveModal";
 import { useEffect, useMemo, useState } from "react";
-import { Workout } from "@/models/Workout";
-import { SelectedSet } from "@/models/ExerciseSet";
 
 type CreateExerciseModalProps = {
   showRIRModal: boolean;
@@ -32,7 +31,7 @@ const RIRModal = ({ showRIRModal, setShowRIRModal, onUnsetIntensity, onSaveInten
   useEffect(() => {
     if (currentSet?.intensity !== undefined) {
       setRirValue(currentSet.intensity);
-    } else {
+    } else if (showRIRModal){
       setRirValue(DEFAULT_RIR);
     }
   }, [currentSet, showRIRModal]);
@@ -67,20 +66,14 @@ const RIRModal = ({ showRIRModal, setShowRIRModal, onUnsetIntensity, onSaveInten
       }
     >
       <div className="flex flex-col gap-4 items-center py-4">
-        <AnimatePresence mode="wait">
-          <motion.div
+          <div
             key={rirValue}
-            initial={{ y: 15, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: -15, opacity: 0 }}
-            transition={{ duration: 0.03 }}
             className={`text-center text-6xl font-bold bg-clip-text text-transparent ${getGradient(
               rirValue
             )}`}
           >
             {rirValue}
-          </motion.div>
-        </AnimatePresence>
+          </div>
 
         <div className="text-center text-xs md:text-sm mt-4 text-foreground/75">
           {getDescription(rirValue)}

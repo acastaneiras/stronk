@@ -60,7 +60,7 @@ const WorkoutExerciseHeader = ({ index, currentExercise, onCallRemoveExercise, o
                 </Badge>
               )}
               {currentExercise.setInterval != null && currentExercise.setInterval > 0 && (
-                <Badge className="px-2 py-1 rounded text-white flex-grow-0 text-xs gap-1" variant="outline">
+                <Badge className="px-2 py-1 rounded flex-grow-0 text-xs gap-1" variant="outline">
                   <Clock className="h-4 w-4" /> {dayjs(currentExercise.setInterval * 1000).format("mm:ss")}
                 </Badge>
               )}

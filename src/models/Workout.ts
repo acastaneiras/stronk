@@ -8,7 +8,6 @@ export interface Workout {
     description?: string;
     //routine: Routine | null; //TODO
     startDate: dayjs.Dayjs;
-    endDate?: dayjs.Dayjs;
     duration: number | null;
     sets: number;
     volume: number;

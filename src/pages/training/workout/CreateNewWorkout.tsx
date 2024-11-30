@@ -1,24 +1,22 @@
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
-import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Textarea } from '@/components/ui/textarea'
 import { SelectedSet, SetType } from '@/models/ExerciseSet'
+import { Intensity } from '@/models/Intensity'
+import FinishWorkoutModal from '@/shared/modals/FinishWorkoutModal'
+import NotesModal from '@/shared/modals/NotesModal'
 import { ResponsiveModal } from '@/shared/modals/ResponsiveModal'
+import RestTimeModal from '@/shared/modals/RestTimeModal'
+import RIRModal from '@/shared/modals/RIRModal'
+import RPEModal from '@/shared/modals/RPEModal'
 import SetTypeModal from '@/shared/modals/SetTypeModal'
 import WorkoutExercise from '@/shared/training/workout-exercise/WorkoutExercise'
 import WorkoutHeader from '@/shared/training/WorkoutHeader'
+import { useUserStore } from '@/stores/userStore'
 import { useWorkoutStore } from '@/stores/workoutStore'
 import { Trash } from 'lucide-react'
 import { useState } from 'react'
 import NoExercises from '../NoExercises'
-import NotesModal from '@/shared/modals/NotesModal'
-import RPEModal from '@/shared/modals/RPEModal'
-import { useUserStore } from '@/stores/userStore'
-import { Intensity } from '@/models/Intensity'
-import RIRModal from '@/shared/modals/RIRModal'
-import RestTimeModal from '@/shared/modals/RestTimeModal'
 
 const CreateNewWorkout = () => {
   const { workout, changeSetType, deleteExercise, selectedExerciseIndex, setSelectedExerciseIndex, updateNoteToExercise, setIntensityToExerciseSet, setRestTimeToExercise } = useWorkoutStore();
@@ -29,13 +27,16 @@ const CreateNewWorkout = () => {
   const [finishDrawerOpen, setFinishDrawerOpen] = useState(false);
   const [confirmSaveRoutineDialog, setConfirmSaveRoutineDialog] = useState(false);
   const [selectedSet, setSelectedSet] = useState<SelectedSet | null>(null);
-  const [workoutTitle, setWorkoutTitle] = useState('');
-  const [workoutDescription, setWorkoutDescription] = useState('');
   const [setTypeShown, setSetTypeShown] = useState(false);
   const [showRPEModal, setShowRPEModal] = useState(false);
   const [showRIRModal, setShowRIRModal] = useState(false);
+  const [showIncompleteExerciseModal, setShowIncompleteExerciseModal] = useState(false);
 
-  const handleOpenFinishDrawer = () => {
+  const handleOpenFinishDrawer = (showBeofreFinishModal: boolean) => {
+    if (showBeofreFinishModal) {
+      setShowIncompleteExerciseModal(true);
+      return;
+    }
     setFinishDrawerOpen(true)
   }
 
@@ -43,16 +44,6 @@ const CreateNewWorkout = () => {
     setRestTimeToExercise(selectedExerciseIndex, seconds)
     setShowRestTime(false)
     /*TODO: Handle timer pop up and notification...*/
-  }
-
-  const handleSaveWorkout = () => {
-    if (!workoutTitle) {
-      alert('Workout title is required!')
-      return
-    }
-    console.log(`Workout saved: Title - ${workoutTitle}, Description - ${workoutDescription}`)
-    setFinishDrawerOpen(false)
-    setConfirmSaveRoutineDialog(true)
   }
 
   const handleSaveRoutine = () => {
@@ -109,15 +100,15 @@ const CreateNewWorkout = () => {
       setShowRIRModal(true);
     } else {
       setShowRPEModal(true);
-    } 
+    }
   }
 
   const handleUnsetIntensity = () => {
     if (selectedSet) {
-      setIntensityToExerciseSet(selectedSet.exerciseIndex, selectedSet.setIndex, undefined);
-      setSelectedSet(null);
       setShowRPEModal(false);
       setShowRIRModal(false);
+      setIntensityToExerciseSet(selectedSet.exerciseIndex, selectedSet.setIndex, undefined);
+      setSelectedSet(null);
     }
   }
 
@@ -198,40 +189,25 @@ const CreateNewWorkout = () => {
       <RIRModal showRIRModal={showRIRModal} setShowRIRModal={setShowRIRModal} onSaveIntensity={handleSaveRIR} onUnsetIntensity={handleUnsetIntensity} workout={workout} selectedSet={selectedSet} />
       <NotesModal notesShown={showExerciseNotes} exerciseIndex={selectedExerciseIndex} setNotesShown={setShowExerciseNotes} changeNote={changeNoteEvent} workout={workout} />
       <SetTypeModal setTypeShown={setTypeShown} setSetTypeShown={setSetTypeShown} onChangeSetType={onChangeSetType} />
-      <RestTimeModal showRestTime={showRestTime} setShowRestTime={setShowRestTime} handleSaveRestTime={handleSaveRestTime}/>
+      <RestTimeModal showRestTime={showRestTime} setShowRestTime={setShowRestTime} handleSaveRestTime={handleSaveRestTime} />
+      <FinishWorkoutModal open={finishDrawerOpen} onOpenChange={setFinishDrawerOpen} />
 
-      {/* Drawer for finishing the workout */}
-      <Drawer open={finishDrawerOpen} onOpenChange={setFinishDrawerOpen}>
-        <DrawerContent>
-          <DrawerHeader>
-            <DrawerTitle>Finish Workout</DrawerTitle>
-          </DrawerHeader>
-          <div className="p-4">
-            <Input
-              placeholder="Workout title (required)"
-              value={workoutTitle}
-              onChange={(e) => setWorkoutTitle(e.target.value)}
-              className="mb-4"
-            />
-            <Textarea
-              placeholder="Description"
-              value={workoutDescription}
-              onChange={(e) => setWorkoutDescription(e.target.value)}
-              className="mb-4 h-52"
-            />
-            <div className="mb-4">
-              <p className="font-bold">Summary:</p>
-              <p>Duration: 10 minutes</p>
-              <p>Exercises: 1</p>
-              <p>Sets: 3</p>
-            </div>
-            <Button onClick={handleSaveWorkout} className="w-full">
-              Save Workout
+      <ResponsiveModal
+        open={showIncompleteExerciseModal}
+        onOpenChange={setShowIncompleteExerciseModal}
+        dismissable={true}
+        title="Incomplete Sets"
+        titleClassName="text-lg font-semibold leading-none tracking-tight"
+        footer={
+          <>
+            <Button variant='outline' onClick={() => setShowIncompleteExerciseModal(false)}>
+              Dismiss
             </Button>
-          </div>
-        </DrawerContent>
-      </Drawer>
-
+          </>
+        }
+      >
+        <p>It appears you have some incomplete sets, please complete those sets before finishing the workout.</p>
+      </ResponsiveModal>
       {/* Confirmation dialog for saving changes to routine */}
       <Dialog open={confirmSaveRoutineDialog} onOpenChange={setConfirmSaveRoutineDialog}>
         <DialogContent>
@@ -255,7 +231,7 @@ const CreateNewWorkout = () => {
         </DialogContent>
       </Dialog>
 
-      
+
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { SetCounts } from '@/models/Workout';
+import { WorkoutExerciseType } from '@/models/WorkoutExerciseType';
 import WorkoutTimer, { TimerHandle } from '@/shared/training/WorkoutTimer';
 import { useUserStore } from '@/stores/userStore';
 import { useWorkoutStore } from '@/stores/workoutStore';
@@ -9,7 +10,7 @@ import { ChevronLeft } from 'lucide-react';
 import { useRef } from 'react';
 import WorkoutProgress from './WorkoutProgress';
 
-const WorkoutHeader = ({ onClose, onFinish }: { onClose: () => void; onFinish: () => void; }) => {
+const WorkoutHeader = ({ onClose, onFinish }: { onClose: () => void; onFinish: (showBeofreFinishModal: boolean) => void; }) => {
   const timerRef = useRef<TimerHandle>(null);
   const { workout } = useWorkoutStore();
   const { user } = useUserStore();
@@ -23,9 +24,25 @@ const WorkoutHeader = ({ onClose, onFinish }: { onClose: () => void; onFinish: (
     onClose();
   };
 
-  const handleFinish = () => {
+  const incompleteSets = () => {
+    let incomplete = false;
+    workout?.workout_exercises?.forEach((workoutExercise: WorkoutExerciseType) => {
+      workoutExercise.sets.forEach(set => {
+        if (!set.completed) {
+          incomplete = true;
+        }
+      });
+    });
+    return incomplete;
+  }
+
+  const beforeOnFinish = () => {
     timerRef.current?.saveTimer();
-    onFinish();
+    let showBeofreFinishModal = false;
+    if (incompleteSets() || workout?.workout_exercises?.length === 0) {
+      showBeofreFinishModal = true;
+    }
+    onFinish(showBeofreFinishModal);
   };
 
   return (
@@ -38,7 +55,7 @@ const WorkoutHeader = ({ onClose, onFinish }: { onClose: () => void; onFinish: (
         </div>
         <h1 className="text-xl font-bold tracking-tighter w-full text-center ">Ongoing Workout</h1>
         <div className='flex gap-2'>
-          <Button variant="outline" onClick={handleFinish}>
+          <Button variant="outline" onClick={beforeOnFinish}>
             Finish
           </Button>
         </div>
