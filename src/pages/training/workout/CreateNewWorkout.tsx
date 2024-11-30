@@ -17,10 +17,12 @@ import { useWorkoutStore } from '@/stores/workoutStore'
 import { Trash } from 'lucide-react'
 import { useState } from 'react'
 import NoExercises from '../NoExercises'
+import { useNavigate } from 'react-router-dom'
 
 const CreateNewWorkout = () => {
   const { workout, changeSetType, deleteExercise, selectedExerciseIndex, setSelectedExerciseIndex, updateNoteToExercise, setIntensityToExerciseSet, setRestTimeToExercise } = useWorkoutStore();
   const { user } = useUserStore();
+  const navigate = useNavigate();
   const [showExerciseNotes, setShowExerciseNotes] = useState(false);
   const [showRestTime, setShowRestTime] = useState(false);
   const [removeExerciseOpen, setRemoveExerciseOpen] = useState(false);
@@ -43,7 +45,7 @@ const CreateNewWorkout = () => {
   const handleSaveRestTime = (seconds: number) => {
     setRestTimeToExercise(selectedExerciseIndex, seconds)
     setShowRestTime(false)
-    /*TODO: Handle timer pop up and notification...*/
+    /*ToDo: Handle timer pop up and notification...*/
   }
 
   const handleSaveRoutine = () => {
@@ -132,10 +134,13 @@ const CreateNewWorkout = () => {
     setSelectedExerciseIndex(index);
     setShowRestTime(true);
   }
+  const handleGoBack = () => {
+      navigate(-1);
+  }
 
   return (
     <div className='flex flex-col flex-1'>
-      <WorkoutHeader onClose={() => alert('Close')} onFinish={handleOpenFinishDrawer} />
+      <WorkoutHeader onClose={handleGoBack} onFinish={handleOpenFinishDrawer} />
 
       <div className='flex flex-col flex-grow pt-4'>
         {((workout?.workout_exercises) && (workout.workout_exercises.length > 0)) ? (

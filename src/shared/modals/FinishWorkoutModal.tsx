@@ -113,8 +113,12 @@ const FinishWorkoutModal = ({ open, onOpenChange }: { open: boolean, onOpenChang
       onOpenChange(false);
       navigate('/training');
       emptyWorkout();
-    } catch (err: any) {
-      toast.error(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast.error(err.message);
+      } else {
+        toast.error('An unknown error occurred.');
+      }
     } finally {
       setSpinner(false);
     }

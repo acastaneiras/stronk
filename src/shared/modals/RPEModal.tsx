@@ -1,10 +1,9 @@
-import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { SelectedSet } from "@/models/ExerciseSet";
+import { Workout } from "@/models/Workout";
 import { ResponsiveModal } from "@/shared/modals/ResponsiveModal";
 import { useEffect, useMemo, useState } from "react";
-import { Workout } from "@/models/Workout";
-import { SelectedSet } from "@/models/ExerciseSet";
 
 type CreateExerciseModalProps = {
   showRPEModal: boolean;
