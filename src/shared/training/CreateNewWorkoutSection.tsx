@@ -58,14 +58,14 @@ const CreateNewWorkoutSection = () => {
           <Button
             onClick={() => navigate('/training/create-new-workout')}
             className="w-full">
-            <Play className="w-4 h-4 mr-2" />
+            <Play className="w-4 h-4" />
             Continue
           </Button>
           <Button
             onClick={() => emptyWorkout()}
             variant={`destructive`}
             className="w-full">
-            <X className="w-4 h-4 mr-2" />
+            <X className="w-4 h-4" />
             Discard
           </Button>
         </CardFooter>

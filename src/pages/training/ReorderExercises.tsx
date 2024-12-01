@@ -1,61 +1,105 @@
-import { useState } from 'react'
-import { ChevronLeft, GripVertical } from 'lucide-react'
-import { Separator } from '@/components/ui/separator'
-import { DndContext } from '@dnd-kit/core'
-import { SortableContext, rectSortingStrategy, useSortable } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
+import { Button } from "@/components/ui/button";
+import { WorkoutExerciseType } from "@/models/WorkoutExerciseType";
+import { SortableItem } from "@/shared/SortableItem";
+import { useWorkoutStore } from "@/stores/workoutStore";
+import { closestCenter, DndContext, DragEndEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { ChevronLeft, SaveIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-interface Exercise {
-  id: number;
-  name: string;
-}
-
-const DraggableExercise = ({ exercise }: { exercise: Exercise }) => {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: exercise.id })
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  }
-
-  return (
-    <div ref={setNodeRef} {...attributes} {...listeners} style={style} className="flex flex-row items-center justify-between gap-4 px-4 py-2 bg-gray-100 rounded-lg">
-      <div className="flex flex-row items-center gap-4">
-        <GripVertical className="cursor-move" />
-        <span className="text-xl font-bold">{exercise.name}</span>
-      </div>
-    </div>
-  )
+interface ReorderItem {
+  id: string;
+  exercise: WorkoutExerciseType;
 }
 
 const ReorderExercises = () => {
-  const [exercises] = useState([
-    { id: 1, name: 'Bench Press' },
-    { id: 2, name: 'Deadlift' },
-    { id: 3, name: 'Squat' },
-    { id: 4, name: 'Overhead Press' },
-    { id: 5, name: 'Pull Up' },
-  ])
+  const { workout, reorderExercises } = useWorkoutStore();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (workout?.workout_exercises) {
+      const initialItems = workout.workout_exercises.map((exercise, index) => ({
+        id: `${exercise.id.toString()}-${index}`,
+        exercise: exercise,
+      }));
+      setItems(initialItems);
+    }
+  }, [workout]);
+
+  const [items, setItems] = useState<ReorderItem[]>([]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (active.id !== over!.id) {
+      setItems((prevItems) => {
+        const oldIndex = prevItems.findIndex((item) => item.id === active.id);
+        const newIndex = prevItems.findIndex((item) => item.id === over!.id);
+        return arrayMove(prevItems, oldIndex, newIndex);
+      });
+    }
+  };
+
+  const handleReorderExercises = () => {
+    const reorderedExercises = items.map((item) => item.exercise);
+    reorderExercises(reorderedExercises);
+    navigate(-1);
+  }
 
   return (
-    <div className='flex flex-col gap-4'>
-      <div className='flex flex-row items-center justify-between'>
-        <div className='w-10'>
-          <ChevronLeft className="cursor-pointer" />
-        </div>
-        <h1 className="text-xl font-bold tracking-tighter w-full text-center ">Reorder Exercises</h1>
-      </div>
-      <Separator />
-      <DndContext>
-        <SortableContext items={exercises} strategy={rectSortingStrategy}>
-          <div className="flex flex-col gap-2">
-            {exercises.map((exercise) => (
-              <DraggableExercise key={exercise.id} exercise={exercise} />
-            ))}
+    <main className="min-h-screen flex flex-col ">
+      <div className="flex-grow flex flex-col w-full max-w-full lg:max-w-screen-lg mx-auto px-4 py-0">
+        <div className="flex flex-col flex-grow h-full">
+          <div className="flex flex-row items-center justify-between p-4 bg-background sticky top-0 border-b border-border">
+            <div className="w-10 cursor-pointer">
+              <button onClick={() => navigate(-1)} className="p-1">
+                <ChevronLeft />
+              </button>
+            </div>
+            <h1 className="text-xl font-bold tracking-tighter w-full text-center">
+              Reorder Exercises
+            </h1>
           </div>
-        </SortableContext>
-      </DndContext>
-    </div>
-  )
-}
+          <div className="flex flex-col py-4">
+            {items.length > 0 ? (
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext items={items} strategy={verticalListSortingStrategy}>
+                  {items.map((item) => (
+                    <SortableItem key={item.id} id={item.id} name={item.exercise.exercise.name} />
+                  ))}
+                </SortableContext>
+              </DndContext>
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <h2 className="text-lg">No exercises to reorder</h2>
+              </div>
+            )}
 
-export default ReorderExercises
+          </div>
+        </div>
+      </div>
+      <div className="sticky bottom-0 left-0 w-full bg-background text-center p-4 border-t border-border">
+        <div className="flex flex-row items-center max-w-screen-lg mx-auto gap-4">
+          <Button className='w-full' onClick={handleReorderExercises}>
+            <SaveIcon />
+            Save order
+          </Button>
+        </div>
+      </div>
+    </main>
+  );
+};
+
+export default ReorderExercises;

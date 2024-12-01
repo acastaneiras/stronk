@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { SelectedSet, SetType } from '@/models/ExerciseSet'
 import { Intensity } from '@/models/Intensity'
 import FinishWorkoutModal from '@/shared/modals/FinishWorkoutModal'
@@ -159,6 +159,7 @@ const CreateNewWorkout = () => {
                 />
               ))}
             </div>
+            <ScrollBar/>
           </ScrollArea>
         ) : (
           <div className='m-auto'>

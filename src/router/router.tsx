@@ -101,15 +101,15 @@ const router = createBrowserRouter([
 						],
 					},
 					{
+						path: 'reorder-exercises',
+						element: <ReorderExercises />,
+					},
+					{
 						element: <WorkoutLayout />,
 						children: [
 							{
 								path: 'exercise-overview',
 								element: <ExerciseOverview />,
-							},
-							{
-								path: 'reorder-exercises',
-								element: <ReorderExercises />,
 							},
 							{
 								path: 'view-workout',

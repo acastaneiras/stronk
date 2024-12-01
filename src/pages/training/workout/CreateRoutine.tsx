@@ -2,16 +2,16 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
-import { ImageIcon, LucideEllipsisVertical, CheckCircle2 } from 'lucide-react'
+import { ImageIcon, LucideEllipsisVertical, CheckCircle2, Save, X } from 'lucide-react'
 
 const CreateRoutine = () => {
   return (
-    <div className='flex flex-col gap-4'>
-      <h1 className="text-5xl font-bold tracking-tighter ">Create Routine</h1>
+    <div className='flex flex-col gap-4 pt-4'>
+      <h1 className="text-5xl font-bold tracking-tighter ">Create New Routine</h1>
       <Input placeholder="Routine Name" />
       <div className='flex w-full gap-2'>
-        <Button className='w-full'>Save</Button>
-        <Button variant='destructive' className='w-full'>Cancel</Button>
+        <Button className='w-full'><Save /> Save</Button>
+        <Button variant='destructive' className='w-full'><X /> Cancel</Button>
       </div>
       <Separator />
 
