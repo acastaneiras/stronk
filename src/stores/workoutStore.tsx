@@ -9,7 +9,7 @@ import { ExerciseSet, SetType, SetWeight, WeightUnit } from '../models/ExerciseS
 import { Workout } from '../models/Workout';
 import { WorkoutExerciseType } from '../models/WorkoutExerciseType';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 const createNewSet = (weightUnits: WeightUnit) => {
   //ToDO: Need to modify, there's gonna be more logic in here... 
   //EG: remember previous set and match the weight * reps of that exact set (number)
@@ -45,8 +45,7 @@ export interface WorkoutState {
   toggleSetCompletion: (exerciseId: string | number[], setId: number) => void,
   changeRepsFromExercise: (exerciseId: string | number[], setIndex: number, reps: number | string) => void,
   changeWeightFromExercise: (exerciseId: string | number[], setIndex: number, setWeight: SetWeight) => void,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  reorderExercises: (data: any) => void,
+  reorderExercises: (data: WorkoutExerciseType[]) => void,
   updateWorkoutDuration: (duration: number) => void,
   setIsTimerEnabled: (boolean: boolean) => void,
   cleanupIncompleteSets: () => void,
@@ -76,16 +75,16 @@ export const useWorkoutStore = create<WorkoutState>()(
           }
         }, true),
         updateWorkout: (workout: Workout) => set(() => ({ workout })),
-        newWorkout: (user_id: string) => set((state) => {
-          const startDate = dayjs();
+        newWorkout: (userId: string) => set((state) => {
+          const date = dayjs();
           return {
             ...state,
             workout: {
               ...state.workout, ...{
                 id: null,
-                user_id,
-                title: `${startDate.format("dddd, MMMM D, YYYY")} Workout 🏋️`,
-                startDate: startDate,
+                userId,
+                title: `${date.format("dddd, MMMM D, YYYY")} Workout 🏋️`,
+                date: date,
                 duration: null,
                 sets: 0,
                 volume: 0,
@@ -327,7 +326,7 @@ export const useWorkoutStore = create<WorkoutState>()(
             },
           };
         }),
-        reorderExercises: (data) => {
+        reorderExercises: (data: WorkoutExerciseType[]) => {
           set((state) => {
             if (!state.workout || !state.workout.workout_exercises) return state;
 

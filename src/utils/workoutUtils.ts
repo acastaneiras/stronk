@@ -1,7 +1,9 @@
 import { Exercise } from "@/models/Exercise";
+import { ExerciseSet, SetWeight, WeightUnit } from "@/models/ExerciseSet";
+import dayjs from "dayjs";
 import { SetCounts, Workout } from "../models/Workout";
-import { SetWeight, WeightUnit } from "@/models/ExerciseSet";
 
+//Get the total sets of a workout
 export const getTotalSets = (workout: Workout | null): SetCounts => {
   if (!workout || !workout.workout_exercises) return {
     'done': 0,
@@ -14,6 +16,7 @@ export const getTotalSets = (workout: Workout | null): SetCounts => {
   };
 }
 
+//Get the total volume of a workout
 export const getTotalVolume = (workout: Workout | null): number => {
   if (!workout || !workout.workout_exercises) return 0;
 
@@ -35,6 +38,7 @@ export const getTotalVolume = (workout: Workout | null): number => {
   return totalVolume;
 }
 
+//Get the percentage of a workout that has been completed
 export const getWorkoutPercentage = (setsDetail: SetCounts): number => {
   if (setsDetail.total > 0) {
     return parseFloat(Number(setsDetail.done / setsDetail.total).toPrecision(2));
@@ -42,6 +46,7 @@ export const getWorkoutPercentage = (setsDetail: SetCounts): number => {
   return 0
 }
 
+//Get the color of a category
 export const getCategoryColor = (category: string): string => {
   const colors: { [key: string]: string } = {
     'Cardio': '#FF6347',
@@ -59,6 +64,7 @@ export const formatWeightUnit = (unit: string): string => {
   return unit === 'kg' ? 'Kg' : 'Lb';
 }
 
+//Filter exercises by muscle group
 export const filterPrimaryAndSecondaryMuscles = (filteredData: Exercise[], muscleGroupFilter: string) => {
   return filteredData.sort((a: Exercise, b: Exercise) => {
     const aHasPrimary = a.primaryMuscles && a.primaryMuscles.includes(muscleGroupFilter);
@@ -88,6 +94,7 @@ export const filterPrimaryAndSecondaryMuscles = (filteredData: Exercise[], muscl
   })
 }
 
+//Convert the weight of a set to a different unit
 export const WeightConvert = (setWeight: SetWeight, toUnit: WeightUnit): string => {
   const lbToKg = 0.45359237;
   const kgToLb = 2.20462262185;
@@ -116,9 +123,10 @@ export const WeightConvert = (setWeight: SetWeight, toUnit: WeightUnit): string 
   return convertedWeight;
 };
 
+//Format the time in hours, minutes and seconds
 export const formatTime = (time: number) => {
   if (time === 0) {
-      return "0s";
+    return "0s";
   }
   const hours = Math.floor(time / 3600);
   const minutes = Math.floor((time % 3600) / 60);
@@ -126,14 +134,92 @@ export const formatTime = (time: number) => {
   let timeString = "";
 
   if (hours > 0) {
-      timeString += `${hours}h`;
+    timeString += `${hours}h`;
   }
   if (minutes > 0) {
-      timeString += ` ${minutes}m`;
+    timeString += ` ${minutes}m`;
   }
   if (seconds > 0) {
-      timeString += `${seconds}s`;
+    timeString += `${seconds.toFixed(0)}s`;
   }
 
   return timeString;
+};
+
+//Calculate the average time of a user's workouts
+export const getAllWorkoutsAverageTime = (workouts: Workout[]): number => {
+  if (workouts.length === 0) {
+    return 0;
+  }
+
+  const totalDuration = workouts.reduce((acc, workout) => acc + (workout.duration || 0), 0);
+  return totalDuration / workouts.length;
+}
+
+//Calculate the total volume of a user's workouts in the last week
+export const getUserWeeklyVolume = (workouts: Workout[], userUnits: WeightUnit): number => {
+  const weekAgo = dayjs().subtract(7, 'day');
+  const weeklyWorkouts = workouts.filter((workout) => dayjs(workout.date).isAfter(weekAgo));
+
+  let totalVolume = 0;
+  for (const workout of weeklyWorkouts) {
+    for (const workoutExercise of workout.workout_exercises) {
+      for (const set of workoutExercise.sets) {
+        if (set.completed) {
+          let newReps: number | string = 0;
+          newReps = (typeof set.reps !== 'string' ? set.reps : 0);
+          if (set.weight.value) {
+            let weight: number | string = set.weight.value.toString().replace(',', '.');
+            weight = isNaN(parseFloat(weight)) ? 0 : parseFloat(weight);
+            totalVolume += parseFloat(WeightConvert(set.weight, userUnits)) * newReps;
+          }
+        }
+      }
+    }
+  }
+
+  return totalVolume;
+}
+
+//Returns the user's last exercise PR with the {date, weight,  reps} format
+export const getUserLastExercisePR = (workouts: Workout[], userUnits: WeightUnit): { date: dayjs.Dayjs, exercise: Exercise, set: ExerciseSet } | null => {
+  const exercisePRs: Record<string, { date: dayjs.Dayjs, set: ExerciseSet }> = {};
+
+  for (const workout of workouts) {
+    for (const workoutExercise of workout.workout_exercises) {
+      const { exercise, sets } = workoutExercise;
+
+      for (const set of sets) {
+        set.reps = parseInt(set.reps.toString());
+        set.weight.value = parseFloat(set.weight.value.toString());
+        const setWeight = parseFloat(WeightConvert(set.weight, userUnits));
+        const totalWeight = setWeight * set.reps;
+
+        if (!exercisePRs[exercise.id] || totalWeight > (parseFloat(exercisePRs[exercise.id].set.weight.value.toString()) * parseInt(exercisePRs[exercise.id].set.reps.toString()))) {
+          //If the current set is a PR, update the PR
+          exercisePRs[exercise.id] = {
+            date: workout.date,
+            set
+          };
+        }
+      }
+    }
+  }
+
+  //Find the last PR
+  let lastPR: { date: dayjs.Dayjs, exercise: Exercise, set: ExerciseSet } | null = null;
+
+  for (const [exerciseId, pr] of Object.entries(exercisePRs)) {
+    if (!lastPR || pr.date.isAfter(lastPR.date)) {
+      const exercise = workouts
+        .flatMap(workout => workout.workout_exercises)
+        .find(workoutExercise => workoutExercise.exercise.id === exerciseId)?.exercise;
+
+      if (exercise) {
+        lastPR = { date: pr.date, exercise, set: pr.set };
+      }
+    }
+  }
+
+  return lastPR;
 };

@@ -4,7 +4,7 @@ import { SetCounts } from "@/models/Workout";
 import { useUserStore } from "@/stores/userStore";
 import { useWorkoutStore } from "@/stores/workoutStore";
 import { formatTime, getTotalSets, getTotalVolume } from "@/utils/workoutUtils";
-import { Dumbbell, Hash, Play, Timer, X } from "lucide-react";
+import { Dumbbell, Hash, Play, Plus, Timer, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const CreateNewWorkoutSection = () => {
@@ -27,7 +27,7 @@ const CreateNewWorkoutSection = () => {
 	}
 
   if (!workout || workout.duration === null) return (
-    <Button className='w-full' onClick={createNewWorkout}>Create New Workout</Button>
+    <Button className='w-full' onClick={createNewWorkout}><Plus/> Create New Workout</Button>
   )
 
   return (

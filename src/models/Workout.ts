@@ -3,16 +3,15 @@ import { WorkoutExerciseType } from "./WorkoutExerciseType";
 
 export interface Workout {
     id: string | null;
-    user_id: string;
+    userId: string;
     title: string;
     description?: string;
     //routine: Routine | null; //TODO
-    startDate: dayjs.Dayjs;
+    date: dayjs.Dayjs;
     duration: number | null;
     sets: number;
     volume: number;
     workout_exercises: WorkoutExerciseType[];
-    completed: boolean;
 }
 
 export interface SetCounts {

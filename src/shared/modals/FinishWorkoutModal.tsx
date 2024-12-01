@@ -16,6 +16,7 @@ import FinishExerciseSummary from './FinishExerciseSummary';
 import { useUserStore } from '@/stores/userStore';
 import { z } from 'zod';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 
 const workoutSchema = z.object({
   title: z.string().nonempty("Workout title is required."),
@@ -27,12 +28,15 @@ const FinishWorkoutModal = ({ open, onOpenChange }: { open: boolean, onOpenChang
   const { user } = useUserStore();
   const [spinner, setSpinner] = useState(false);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const [workoutTitle, setWorkoutTitle] = useState('');
   const [workoutDescription, setWorkoutDescription] = useState('');
 
   const setsDetail: SetCounts = getTotalSets(workout);
   const totalVolume = getTotalVolume(workout);
+
+
 
   useEffect(() => {
     setWorkoutTitle(workout?.title || '');
@@ -46,22 +50,22 @@ const FinishWorkoutModal = ({ open, onOpenChange }: { open: boolean, onOpenChang
       title: workoutTitle,
       description: workoutDescription,
     };
-  
+
     const validation = workoutSchema.safeParse(workoutData);
     if (!validation.success) {
       toast.error(validation.error.errors[0].message);
       return;
     }
-  
+
     setSpinner(true);
-  
+
     try {
       const { data: workoutDataResponse, error: workoutError } = await supabase
         .from('Workouts')
         .insert([{
           title: workoutTitle,
           description: workoutDescription,
-          date: workout?.startDate,
+          date: workout?.date,
           duration: workout?.duration,
           sets: setsDetail.done,
           volume: totalVolume,
@@ -69,13 +73,13 @@ const FinishWorkoutModal = ({ open, onOpenChange }: { open: boolean, onOpenChang
           userId: user?.id,
         }])
         .select();
-  
+
       if (workoutError) {
         throw new Error('Error saving workout, please try again.');
       }
-  
+
       const workoutId = workoutDataResponse[0].id;
-  
+
       const workoutExercises = workout?.workout_exercises;
       if (workoutExercises) {
         const exerciseDetailsData = workoutExercises.map((exercise, index) => ({
@@ -85,30 +89,41 @@ const FinishWorkoutModal = ({ open, onOpenChange }: { open: boolean, onOpenChang
           exerciseId: exercise.exercise.id,
           sets: exercise.sets,
         }));
-  
+
         const { data: exerciseDetailsResponse, error: exerciseDetailsError } = await supabase
           .from('ExerciseDetails')
           .insert(exerciseDetailsData)
           .select();
-  
+
         if (exerciseDetailsError) {
           throw new Error('Error saving exercises, please try again.');
         }
-  
+
         const workoutExerciseDetailsData = exerciseDetailsResponse.map((exerciseDetail) => ({
           workoutId,
           exerciseDetailsId: exerciseDetail.id,
         }));
-  
+
         const { error: workoutExerciseDetailsError } = await supabase
           .from('WorkoutExerciseDetails')
           .insert(workoutExerciseDetailsData);
-  
+
         if (workoutExerciseDetailsError) {
           throw new Error('Error linking exercises to workout, please try again.');
         }
       }
-  
+
+      await queryClient.invalidateQueries(
+        {
+          queryKey: ["workouts", user?.id],
+          refetchType: 'active',
+        },
+        {
+          cancelRefetch: true,
+          throwOnError: true,
+        }
+      );
+
       toast.success('Workout saved successfully!');
       onOpenChange(false);
       navigate('/training');
@@ -123,7 +138,7 @@ const FinishWorkoutModal = ({ open, onOpenChange }: { open: boolean, onOpenChang
       setSpinner(false);
     }
   };
-  
+
 
   return (
     <ResponsiveModal open={open} onOpenChange={onOpenChange} title="Finish Workout" titleClassName="text-lg font-semibold leading-none tracking-tight" footer={
