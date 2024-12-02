@@ -10,6 +10,8 @@ import { Check, Trash2 } from 'lucide-react';
 import { motion, useAnimation } from 'motion/react';
 import { useState } from 'react';
 import RepsInput from './workout-exercise-sets/RepsInput';
+import { useUserStore } from '@/stores/userStore';
+import { Intensity } from '@/models/Intensity';
 
 type WorkoutExerciseSingleSetProps = {
   set: ExerciseSet;
@@ -20,6 +22,7 @@ type WorkoutExerciseSingleSetProps = {
 };
 
 function WorkoutExerciseSingleSet({ set, setIndex, currentExercise, callShowIntensityModal, onChangeSetType }: WorkoutExerciseSingleSetProps) {
+  const { user } = useUserStore();
   const { toggleSetCompletion, deleteSetToExercise } = useWorkoutStore();
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const [isSwiped, setIsSwiped] = useState(false);
@@ -80,7 +83,7 @@ function WorkoutExerciseSingleSet({ set, setIndex, currentExercise, callShowInte
           initial={{ x: 0 }}
           style={{ zIndex: 1 }}
         >
-          <div className="w-1/5">
+          <div className={clsx(user?.intensitySetting !== "none" ? "w-1/5" : "w-1/4")}>
             <Button
               onClick={onChangeSetType}
               variant="ghost"
@@ -89,30 +92,31 @@ function WorkoutExerciseSingleSet({ set, setIndex, currentExercise, callShowInte
               <IconSet setType={set.type} setNumber={set.number} />
             </Button>
           </div>
-          <div className="w-1/5 px-1 md:px-10">
+          <div className={clsx(user?.intensitySetting !== "none" ? "w-1/5" : "w-1/4", "px-1 md:px-10")}>
             <WeightInput
               set={set}
               setIndex={setIndex}
               currentExercise={currentExercise}
             />
           </div>
-          <div className="w-1/5 px-1 md:px-10">
+          <div className={clsx(user?.intensitySetting !== "none" ? "w-1/5" : "w-1/4", "px-1 md:px-10")}>
             <RepsInput
               set={set}
               setIndex={setIndex}
               currentExercise={currentExercise}
             />
           </div>
-          <div className="w-1/5">
-            <Button
-              variant="ghost"
-              onClick={() => callShowIntensityModal(setIndex)}
-              className="px-4 py-1 rounded text-lg text-gray-500"
-            >
-              {set.intensity ? `@ ${set.intensity.toFixed(1)}` : "@"}
-            </Button>
-          </div>
-          <div className="w-1/5">
+          {((user?.intensitySetting) && ([Intensity.RPE, Intensity.RIR].includes(user?.intensitySetting as Intensity))) && (
+            <div className="w-1/5">
+              <Button
+                variant="ghost"
+                onClick={() => callShowIntensityModal(setIndex)}
+                className="px-4 py-1 rounded text-lg text-gray-500"
+              >
+                {set.intensity ? `@ ${set.intensity.value.toFixed(1)}` : "@"}
+              </Button>
+            </div>)}
+          <div className={clsx(user?.intensitySetting !== "none" ? "w-1/5" : "w-1/4")}>
             <Button
               onClick={() => handleSetCompleted(setIndex)}
               variant={set.completed ? "default" : "outline"}

@@ -24,7 +24,7 @@ export default function WorkoutLayout() {
             <Plus className='w-6 h-6' />
             Add Exercise
           </Button>
-          <Button className='w-40 md:w-96' onClick={() => navigate("/training/reorder-exercises")} disabled={(workout && workout?.workout_exercises.length > 0) ? false : true}>
+          <Button className='w-40 md:w-96' onClick={() => navigate("/training/reorder-exercises")} disabled={(workout && workout?.workout_exercises.length > 1) ? false : true}>
               <ListOrderedIcon className='w-6 h-6' />
               Reorder Exercises
           </Button>

@@ -6,17 +6,17 @@ import { Textarea } from '@/components/ui/textarea';
 import { SetCounts } from '@/models/Workout';
 import MuscleIcon from '@/shared/icons/MuscleIcon';
 import { ResponsiveModal } from '@/shared/modals/ResponsiveModal';
+import { useUserStore } from '@/stores/userStore';
 import { useWorkoutStore } from '@/stores/workoutStore';
 import { supabase } from '@/utils/supabaseClient';
-import { formatTime, getTotalSets, getTotalVolume } from '@/utils/workoutUtils';
+import { calculateElapsedSecondsFromDate, formatTime, getTotalSets, getTotalVolume } from '@/utils/workoutUtils';
+import { useQueryClient } from '@tanstack/react-query';
 import { Dumbbell, Hash, Hourglass, Loader, Save } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import FinishExerciseSummary from './FinishExerciseSummary';
-import { useUserStore } from '@/stores/userStore';
-import { z } from 'zod';
 import { toast } from 'sonner';
-import { useQueryClient } from '@tanstack/react-query';
+import { z } from 'zod';
+import FinishExerciseSummary from './FinishExerciseSummary';
 
 const workoutSchema = z.object({
   title: z.string().nonempty("Workout title is required."),
@@ -24,7 +24,7 @@ const workoutSchema = z.object({
 });
 
 const FinishWorkoutModal = ({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) => {
-  const { setIsTimerEnabled, workout, weightUnits, emptyWorkout } = useWorkoutStore();
+  const { workout, emptyWorkout } = useWorkoutStore();
   const { user } = useUserStore();
   const [spinner, setSpinner] = useState(false);
   const navigate = useNavigate();
@@ -35,15 +35,16 @@ const FinishWorkoutModal = ({ open, onOpenChange }: { open: boolean, onOpenChang
 
   const setsDetail: SetCounts = getTotalSets(workout);
   const totalVolume = getTotalVolume(workout);
+  const [workoutDuration, setWorkoutDuration] = useState(0);
 
 
 
   useEffect(() => {
-    setWorkoutTitle(workout?.title || '');
-    return () => {
-      setIsTimerEnabled(true);
-    };
-  }, [workout, setIsTimerEnabled]);
+    if (workout) {
+      setWorkoutTitle(workout?.title || '');
+      setWorkoutDuration(calculateElapsedSecondsFromDate(workout.date));
+    }
+  }, [open, workout]);
 
   const finishWorkoutPress = async () => {
     const workoutData = {
@@ -66,10 +67,10 @@ const FinishWorkoutModal = ({ open, onOpenChange }: { open: boolean, onOpenChang
           title: workoutTitle,
           description: workoutDescription,
           date: workout?.date,
-          duration: workout?.duration,
+          duration: workoutDuration,
           sets: setsDetail.done,
           volume: totalVolume,
-          units: weightUnits,
+          units: user?.unitPreference,
           userId: user?.id,
         }])
         .select();
@@ -172,7 +173,7 @@ const FinishWorkoutModal = ({ open, onOpenChange }: { open: boolean, onOpenChang
               <div className="flex justify-start gap-2 flex-wrap py-4">
                 <Badge variant={`outline`} className='gap-1 flex items-center justify-start'>
                   <Hourglass className='h-4 w-4' />
-                  <span>{formatTime(workout?.duration ?? 0)}</span>
+                  <span>{formatTime(workoutDuration ?? 0)}</span>
                 </Badge>
 
                 <Badge variant={`outline`} className='gap-1 flex items-center justify-start'>
@@ -188,7 +189,7 @@ const FinishWorkoutModal = ({ open, onOpenChange }: { open: boolean, onOpenChang
 
                 <Badge variant={`outline`} className='gap-1 flex items-center justify-start'>
                   <Dumbbell className='h-4 w-4' />
-                  <span>{totalVolume} {weightUnits}</span>
+                  <span>{totalVolume} {user?.unitPreference}</span>
                   total
                 </Badge>
               </div>

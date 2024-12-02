@@ -99,8 +99,6 @@ export const WeightConvert = (setWeight: SetWeight, toUnit: WeightUnit): string 
   const lbToKg = 0.45359237;
   const kgToLb = 2.20462262185;
 
-  let convertedWeight: string;
-
   if (setWeight.value === "") {
     return "";
   }
@@ -110,18 +108,25 @@ export const WeightConvert = (setWeight: SetWeight, toUnit: WeightUnit): string 
   if (isNaN(numericValue)) {
     return "";
   }
+
+  let convertedWeight: number;
+
   if (setWeight.unit === toUnit) {
-    convertedWeight = numericValue.toString();
+    convertedWeight = numericValue;
   } else if (setWeight.unit === WeightUnit.LB && toUnit === WeightUnit.KG) {
-    convertedWeight = (numericValue * lbToKg).toString();
+    convertedWeight = numericValue * lbToKg;
   } else if (setWeight.unit === WeightUnit.KG && toUnit === WeightUnit.LB) {
-    convertedWeight = (numericValue * kgToLb).toString();
+    convertedWeight = numericValue * kgToLb;
   } else {
     throw new Error("Unsupported unit conversion");
   }
 
-  return convertedWeight;
+  return formatWeightDecimals(convertedWeight);
 };
+
+export const formatWeightDecimals = (weight: number): string => {
+  return weight % 1 === 0 ? weight.toFixed(0) : weight.toFixed(2);
+}
 
 //Format the time in hours, minutes and seconds
 export const formatTime = (time: number) => {
@@ -165,20 +170,18 @@ export const getUserWeeklyVolume = (workouts: Workout[], userUnits: WeightUnit):
   for (const workout of weeklyWorkouts) {
     for (const workoutExercise of workout.workout_exercises) {
       for (const set of workoutExercise.sets) {
-        if (set.completed) {
-          let newReps: number | string = 0;
-          newReps = (typeof set.reps !== 'string' ? set.reps : 0);
-          if (set.weight.value) {
-            let weight: number | string = set.weight.value.toString().replace(',', '.');
-            weight = isNaN(parseFloat(weight)) ? 0 : parseFloat(weight);
-            totalVolume += parseFloat(WeightConvert(set.weight, userUnits)) * newReps;
-          }
+        let newReps: number | string = 0;
+        newReps = (typeof set.reps !== 'string' ? set.reps : 0);
+        if (set.weight.value) {
+          let weight: number | string = set.weight.value.toString().replace(',', '.');
+          weight = isNaN(parseFloat(weight)) ? 0 : parseFloat(weight);
+          totalVolume += parseFloat(WeightConvert(set.weight, userUnits)) * newReps;
         }
       }
     }
   }
 
-  return totalVolume;
+  return parseFloat(totalVolume.toFixed(2));
 }
 
 //Returns the user's last exercise PR with the {date, weight,  reps} format
@@ -199,7 +202,7 @@ export const getUserLastExercisePR = (workouts: Workout[], userUnits: WeightUnit
           //If the current set is a PR, update the PR
           exercisePRs[exercise.id] = {
             date: workout.date,
-            set
+            set: { ...set, weight: { ...set.weight, unit: userUnits, value: parseFloat(setWeight.toFixed(2)) } }
           };
         }
       }
@@ -223,3 +226,11 @@ export const getUserLastExercisePR = (workouts: Workout[], userUnits: WeightUnit
 
   return lastPR;
 };
+
+//Calculate the elapsed time from a date (in seconds)
+export const calculateElapsedSecondsFromDate = (date: dayjs.Dayjs): number => {
+  const now = dayjs();
+  const diff = now.diff(date, 'second');
+
+  return (diff);
+}

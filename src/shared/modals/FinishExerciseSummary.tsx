@@ -13,7 +13,7 @@ const FinishExerciseSummary = ({ currentExercise }: { currentExercise: WorkoutEx
             <IconSet setType={set.type} setNumber={set.number} size="sm" />
           </div>
           <p className="text-sm">
-            {set.weight.value || 0} {set.weight.unit} x {set.reps || 0} {set.intensity ? `@ ${set.intensity.toFixed(1)} (${user?.intensitySetting.toUpperCase()})` : ''}
+            {set.weight.value || 0} {set.weight.unit} x {set.reps || 0} {set.intensity ? `@ ${set.intensity.value.toFixed(1)} (${user?.intensitySetting.toUpperCase()})` : ''}
           </p>
         </div>
       ))}

@@ -1,27 +1,26 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Drawer, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { WeightUnit } from '@/models/ExerciseSet'
 import { Workout } from '@/models/Workout'
+import UserSettingsModal from '@/shared/modals/UserSettingsModal'
 import { useUserStore } from '@/stores/userStore'
 import { fetchWorkoutsWithExercises } from '@/utils/userDataLoader'
-import { formatTime, getAllWorkoutsAverageTime, getCategoryColor, getUserLastExercisePR, getUserWeeklyVolume } from '@/utils/workoutUtils'
+import { formatTime, formatWeightDecimals, getAllWorkoutsAverageTime, getCategoryColor, getUserLastExercisePR, getUserWeeklyVolume } from '@/utils/workoutUtils'
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { Edit, EllipsisVertical, Eye, ImageIcon, Settings, Trash, Trophy } from 'lucide-react'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import LoadingPage from '../LoadingPage'
 
 const Profile = () => {
 	const { user } = useUserStore();
+	const [showSettingsModal, setShowSettingsModal] = useState(false);
 	const { data: workouts, isLoading, isError, error } = useQuery<Workout[], Error>({
-		queryKey: ["workouts", user?.id],
-		queryFn: () => fetchWorkoutsWithExercises(user?.id as string),
+		queryKey: ["workouts", user?.id, user?.unitPreference, user?.intensitySetting],
+		queryFn: () => fetchWorkoutsWithExercises(user?.id as string, user?.unitPreference as WeightUnit),
 		enabled: !!user,
 		staleTime: 1000 * 60 * 5,
 	});
@@ -50,67 +49,9 @@ const Profile = () => {
 				<div>
 					<h1 className="text-5xl font-bold tracking-tighter ">Profile</h1>
 				</div>
-				<Drawer>
-					<DrawerTrigger asChild>
-						<Settings />
-					</DrawerTrigger>
-					<DrawerContent>
-						<DrawerHeader>
-							<DrawerTitle><h1 className='text-3xl text-bold text-center'>Settings</h1></DrawerTitle>
-							<DrawerDescription>
-								<div className="grid w-full max-w-xs my-8 text-left gap-4">
-									<div className='flex flex-col gap-2'>
-										<Label htmlFor="firstName">First Name <span className="text-red-600">*</span></Label>
-										<Input id="firstName" type="text" placeholder="Enter your first name" />
-									</div>
-									<div className='flex flex-col gap-2'>
-										<Label htmlFor="lastName">Last Name <span className="text-red-600">*</span></Label>
-										<Input id="lastName" type="text" className='w-full' placeholder="Enter your last name" />
-									</div>
-									<div className='flex flex-col gap-2'>
-										<Label htmlFor="alias">Alias <span className="text-xs text-gray-500">(optional)</span></Label>
-										<Input id="alias" type="text" placeholder="Enter your alias" />
-									</div>
-									<div className='flex flex-col gap-2'>
-										<Label htmlFor="alias">Unit System <span className="text-red-600">*</span></Label>
-										<Tabs defaultValue="account" className="w-[400px]">
-											<TabsList>
-												<TabsTrigger value="account">Kilograms</TabsTrigger>
-												<TabsTrigger value="password">Pounds</TabsTrigger>
-											</TabsList>
-										</Tabs>
-									</div>
-									<div className='flex flex-col gap-2'>
-										<Label htmlFor="alias">Intensity Setting</Label>
-										<Tabs defaultValue="none" className="w-[400px]">
-											<TabsList>
-												<TabsTrigger value="account">RPE</TabsTrigger>
-												<TabsTrigger value="password">RIR</TabsTrigger>
-												<TabsTrigger value="none">None</TabsTrigger>
-											</TabsList>
-										</Tabs>
-									</div>
-									<div className='flex flex-col gap-2'>
-										<Label htmlFor="alias">Theme</Label>
-										<Tabs defaultValue="account" className="w-[400px]">
-											<TabsList>
-												<TabsTrigger value="account">Light</TabsTrigger>
-												<TabsTrigger value="password">Dark</TabsTrigger>
-												<TabsTrigger value="system">System</TabsTrigger>
-											</TabsList>
-										</Tabs>
-									</div>
-								</div>
-							</DrawerDescription>
-						</DrawerHeader>
-						<DrawerFooter>
-							<Button className='w-full'>Save</Button>
-							<Button variant="destructive" className='w-full mt-4 flex flex-row items-center gap-2'>
-								Log out
-							</Button>
-						</DrawerFooter>
-					</DrawerContent>
-				</Drawer>
+				<button onClick={() => setShowSettingsModal(true)}>
+					<Settings />
+				</button>
 			</div>
 			<div className='flex flex-col gap-5'>
 				<div className='flex flex-row text-center justify-between'>
@@ -201,7 +142,7 @@ const Profile = () => {
 											<div>Time</div>
 										</div>
 										<div>
-											<div className="font-bold">{workout.volume} {user?.unitPreference}</div>
+											<div className="font-bold">{formatWeightDecimals(workout.volume)} {user?.unitPreference}</div>
 											<div>Volume</div>
 										</div>
 									</div>
@@ -242,6 +183,7 @@ const Profile = () => {
 					}
 				</div>
 			</div>
+			<UserSettingsModal isOpen={showSettingsModal} setShowUserSettingsModal={setShowSettingsModal} />
 		</div>
 	)
 }

@@ -3,12 +3,12 @@ import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/comp
 import { SetCounts } from "@/models/Workout";
 import { useUserStore } from "@/stores/userStore";
 import { useWorkoutStore } from "@/stores/workoutStore";
-import { formatTime, getTotalSets, getTotalVolume } from "@/utils/workoutUtils";
+import { calculateElapsedSecondsFromDate, formatTime, getTotalSets, getTotalVolume } from "@/utils/workoutUtils";
 import { Dumbbell, Hash, Play, Plus, Timer, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const CreateNewWorkoutSection = () => {
-  const { workout, weightUnits, newWorkout, setIsTimerEnabled, emptyWorkout  } = useWorkoutStore();
+  const { workout, newWorkout, emptyWorkout  } = useWorkoutStore();
   const { user } = useUserStore();
 	const navigate = useNavigate();
 
@@ -23,10 +23,9 @@ const CreateNewWorkoutSection = () => {
 	const startNewWorkout = () => {
 		navigate('/training/create-new-workout');
 		newWorkout(user!.id);
-		setIsTimerEnabled(true);
 	}
 
-  if (!workout || workout.duration === null) return (
+  if (!workout) return (
     <Button className='w-full' onClick={createNewWorkout}><Plus/> Create New Workout</Button>
   )
 
@@ -45,12 +44,12 @@ const CreateNewWorkoutSection = () => {
             <div className="flex flex-col items-center">
               <Dumbbell className="w-6 h-6" />
               <span className="text-sm font-semibold">Volume</span>
-              <span className="">{totalVolume}{weightUnits}</span>
+              <span className="">{totalVolume} {user?.unitPreference}</span>
             </div>
             <div className="flex flex-col items-center">
               <Timer className="w-6 h-6" />
               <span className="text-sm font-semibold">Time</span>
-              <span className="">{formatTime(workout.duration)}</span>
+              <span className="">{formatTime(calculateElapsedSecondsFromDate(workout.date))}</span>
             </div>
           </CardDescription>
         </CardHeader>

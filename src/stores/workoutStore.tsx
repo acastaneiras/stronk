@@ -5,19 +5,22 @@ import { v4 as uuidv4 } from 'uuid';
 import { create } from 'zustand';
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 import { Exercise } from '../models/Exercise';
-import { ExerciseSet, SetType, SetWeight, WeightUnit } from '../models/ExerciseSet';
+import { ExerciseSet, ExerciseSetIntensity, SetType, SetWeight, WeightUnit } from '../models/ExerciseSet';
 import { Workout } from '../models/Workout';
 import { WorkoutExerciseType } from '../models/WorkoutExerciseType';
+import { useUserStore } from './userStore';
+import { WeightConvert } from '@/utils/workoutUtils';
 
 
-const createNewSet = (weightUnits: WeightUnit) => {
-  //ToDO: Need to modify, there's gonna be more logic in here... 
-  //EG: remember previous set and match the weight * reps of that exact set (number)
+const createNewSet = () => {
+
+  const { user } = useUserStore.getState();
+
   return {
     id: 1,
     type: SetType.NormalSet,
     weight: {
-      unit: WeightUnit.KG,
+      unit: user?.unitPreference || WeightUnit.KG,
       value: ''
     },
     reps: '',
@@ -28,13 +31,10 @@ const createNewSet = (weightUnits: WeightUnit) => {
 
 export interface WorkoutState {
   workout: Workout | null,
-  isTimerEnabled: boolean,
-  weightUnits: WeightUnit,
   workouts: Workout[],
   exerciseSearchMode: ExerciseSearchMode,
   selectedExerciseIndex: number,
   newWorkout: (user_id: string) => void,
-  setUserWeightUnits: (userWeightUnits: WeightUnit) => void,
   addExercisesToWorkout: (exercises: Exercise[]) => void,
   addSetToExercise: (exerciseId: string | number[]) => void,
   deleteSetToExercise: (exerciseId: string | number[], setIndex: number) => void,
@@ -47,14 +47,14 @@ export interface WorkoutState {
   changeWeightFromExercise: (exerciseId: string | number[], setIndex: number, setWeight: SetWeight) => void,
   reorderExercises: (data: WorkoutExerciseType[]) => void,
   updateWorkoutDuration: (duration: number) => void,
-  setIsTimerEnabled: (boolean: boolean) => void,
   cleanupIncompleteSets: () => void,
   emptyWorkout: () => void,
   setWorkouts: (workouts: Workout[]) => void,
   setExerciseSearchMode: (mode: ExerciseSearchMode) => void,
   setSelectedExerciseIndex: (index: number) => void,
-  setIntensityToExerciseSet: (exerciseId: string | number[], setIndex: number, intensity: number | undefined) => void,
+  setIntensityToExerciseSet: (exerciseId: string | number[], setIndex: number, intensity: ExerciseSetIntensity | undefined) => void,
   setRestTimeToExercise: (selectedExerciseIndex: number, seconds: number) => void,
+  convertAllWorkoutUnits: () => void,
 }
 
 export const useWorkoutStore = create<WorkoutState>()(
@@ -63,7 +63,6 @@ export const useWorkoutStore = create<WorkoutState>()(
       (set) => ({
         workout: null,
         isTimerEnabled: false,
-        weightUnits: WeightUnit.KG,
         workouts: [],
         exerciseSearchMode: ExerciseSearchMode.ADD_EXERCISE,
         selectedExerciseIndex: -1,
@@ -94,17 +93,13 @@ export const useWorkoutStore = create<WorkoutState>()(
             },
           }
         }, true),
-        setUserWeightUnits: (userWeightUnits: WeightUnit) =>
-          set({
-            weightUnits: userWeightUnits,
-          }),
         addExercisesToWorkout: (exercises: Exercise[]) => {
           set((state) => {
             if (state.workout) {
               const workoutExercises: WorkoutExerciseType[] = exercises.map(exercise => ({
                 id: uuidv4(),
                 exercise,
-                sets: [createNewSet(state.weightUnits)],
+                sets: [createNewSet()],
                 notes: '',
                 setInterval: null,
               }));
@@ -132,7 +127,7 @@ export const useWorkoutStore = create<WorkoutState>()(
               workout_exercises: state.workout.workout_exercises.map((workout_exercise) => {
                 if (workout_exercise.id === exerciseId) {
                   const lastSetId = workout_exercise.sets[workout_exercise.sets.length - 1]?.id || 0;
-                  const defaultSet = createNewSet(state.weightUnits);
+                  const defaultSet = createNewSet();
                   const newSet: ExerciseSet = { ...defaultSet, id: lastSetId + 1 };
                   const newSets = [...workout_exercise.sets, newSet];
                   workout_exercise = {
@@ -244,7 +239,7 @@ export const useWorkoutStore = create<WorkoutState>()(
               return {
                 id: uuidv4(),
                 exercise,
-                sets: [createNewSet(state.weightUnits)],
+                sets: [createNewSet()],
                 notes: '',
                 setInterval: null,
               };
@@ -391,8 +386,8 @@ export const useWorkoutStore = create<WorkoutState>()(
           });
         },
         setExerciseSearchMode: (mode: ExerciseSearchMode) => set({ exerciseSearchMode: mode }),
-        setSelectedExerciseIndex: (index: number) => set({ selectedExerciseIndex: index}),
-        setIntensityToExerciseSet: (exerciseId: string | number[], setIndex: number, intensity: number | undefined) => set((state) => {
+        setSelectedExerciseIndex: (index: number) => set({ selectedExerciseIndex: index }),
+        setIntensityToExerciseSet: (exerciseId: string | number[], setIndex: number, intensity: ExerciseSetIntensity | undefined) => set((state) => {
           if (!state.workout || !state.workout.workout_exercises) return state;
 
           return {
@@ -427,6 +422,34 @@ export const useWorkoutStore = create<WorkoutState>()(
             }
           };
         }),
+        convertAllWorkoutUnits: () => set((state) => {
+          if (!state.workout || !state.workout.workout_exercises) return state;
+          const { user } = useUserStore.getState();
+          const userUnits = user?.unitPreference || WeightUnit.KG;
+          const newWorkoutExercises = state.workout.workout_exercises.map((workoutExercise) => {
+            const newSets = workoutExercise.sets.map((set) => {
+              return {
+                ...set,
+                weight: {
+                  unit: userUnits,
+                  value: WeightConvert(set.weight, userUnits),
+                }
+              };
+            }
+            );
+            return { ...workoutExercise, sets: newSets };
+          }
+          );
+
+          return {
+            ...state,
+            workout: {
+              ...state.workout,
+              workout_exercises: newWorkoutExercises
+            }
+          };
+        }
+        )
       }),
       {
         name: 'currentWorkoutStore',

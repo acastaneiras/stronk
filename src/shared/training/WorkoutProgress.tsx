@@ -7,7 +7,6 @@ const WorkoutProgress = ({ workoutPercentage }: WorkoutProgressProps) => {
   const maxPercentage = 55;
   const clampedPercentage = Math.min(Math.max(workoutPercentage * 100, minPercentage), maxPercentage);
   const interpolatedWidth = ((clampedPercentage - minPercentage) / (maxPercentage - minPercentage)) * 100;
-
   return (
     <div className="relative w-full flex flex-col">
       <div className="absolute h-[10px] w-full">

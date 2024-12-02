@@ -11,18 +11,28 @@ export enum SetType {
     RestPauseSet = 'Rest Pause Set',
 }
 
+export enum IntensityScale {
+    RPE = 'rpe',
+    RIR = 'rir',
+    None = 'none',
+}
+
 export type SetWeight = {
     value: number | string; //it can be string if its empty, otherwise it's an int
     unit: WeightUnit;
 }
 
+export type ExerciseSetIntensity = {
+    scale: IntensityScale,
+    value: number;
+}
 export type ExerciseSet = {
     id: number,
     previous?: ExerciseSet;
     weight: SetWeight;
     reps: number | string; //it can be string if its empty, otherwise it's an int
     completed: boolean;
-    intensity?: number; //ToDo: conversion form RPE to RIR and vice versa
+    intensity?: ExerciseSetIntensity;
     type: SetType;
     number?: number;
 }

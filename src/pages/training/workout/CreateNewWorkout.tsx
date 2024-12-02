@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
-import { SelectedSet, SetType } from '@/models/ExerciseSet'
+import { ExerciseSetIntensity, SelectedSet, SetType } from '@/models/ExerciseSet'
 import { Intensity } from '@/models/Intensity'
 import FinishWorkoutModal from '@/shared/modals/FinishWorkoutModal'
 import NotesModal from '@/shared/modals/NotesModal'
@@ -16,8 +16,8 @@ import { useUserStore } from '@/stores/userStore'
 import { useWorkoutStore } from '@/stores/workoutStore'
 import { Trash } from 'lucide-react'
 import { useState } from 'react'
-import NoExercises from '../NoExercises'
 import { useNavigate } from 'react-router-dom'
+import NoExercises from '../NoExercises'
 
 const CreateNewWorkout = () => {
   const { workout, changeSetType, deleteExercise, selectedExerciseIndex, setSelectedExerciseIndex, updateNoteToExercise, setIntensityToExerciseSet, setRestTimeToExercise } = useWorkoutStore();
@@ -114,7 +114,7 @@ const CreateNewWorkout = () => {
     }
   }
 
-  const handleSaveRPE = (rpe: number) => {
+  const handleSaveRPE = (rpe: ExerciseSetIntensity) => {
     if (selectedSet) {
       setIntensityToExerciseSet(selectedSet.exerciseIndex, selectedSet.setIndex, rpe);
       setSelectedSet(null);
@@ -122,7 +122,7 @@ const CreateNewWorkout = () => {
     }
   }
 
-  const handleSaveRIR = (rir: number) => {
+  const handleSaveRIR = (rir: ExerciseSetIntensity) => {
     if (selectedSet) {
       setIntensityToExerciseSet(selectedSet.exerciseIndex, selectedSet.setIndex, rir);
       setSelectedSet(null);
@@ -141,7 +141,6 @@ const CreateNewWorkout = () => {
   return (
     <div className='flex flex-col flex-1'>
       <WorkoutHeader onClose={handleGoBack} onFinish={handleOpenFinishDrawer} />
-
       <div className='flex flex-col flex-grow pt-4'>
         {((workout?.workout_exercises) && (workout.workout_exercises.length > 0)) ? (
           <ScrollArea type="always" className="flex-grow max-h-full h-1">

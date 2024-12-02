@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { SelectedSet } from "@/models/ExerciseSet";
+import { ExerciseSetIntensity, IntensityScale, SelectedSet } from "@/models/ExerciseSet";
 import { Workout } from "@/models/Workout";
 import { ResponsiveModal } from "@/shared/modals/ResponsiveModal";
 import { useEffect, useMemo, useState } from "react";
@@ -9,7 +9,7 @@ type CreateExerciseModalProps = {
   showRPEModal: boolean;
   setShowRPEModal: (open: boolean) => void;
   onUnsetIntensity: () => void;
-  onSaveIntensity: (rpe: number) => void;
+  onSaveIntensity: (rpe: ExerciseSetIntensity) => void;
   selectedSet: SelectedSet | null;
   workout: Workout | null;
 };
@@ -31,7 +31,7 @@ const RPEModal = ({ showRPEModal, setShowRPEModal, onUnsetIntensity, onSaveInten
 
   useEffect(() => {
     if (currentSet?.intensity) {
-      setRpeValue(currentSet.intensity);
+      setRpeValue(currentSet.intensity.value);
     } else if (showRPEModal) {
       setRpeValue(DEFAULT_RPE);
     }
@@ -71,7 +71,7 @@ const RPEModal = ({ showRPEModal, setShowRPEModal, onUnsetIntensity, onSaveInten
       titleClassName="text-lg font-semibold leading-none tracking-tight text-center"
       footer={
         <>
-          <Button onClick={() => onSaveIntensity(rpeValue)} className="w-full">
+          <Button onClick={() => onSaveIntensity({ scale: IntensityScale.RPE, value: rpeValue } as ExerciseSetIntensity)} className="w-full">
             Save
           </Button>
           <Button variant={`outline`} onClick={onUnsetIntensity} className="w-full">

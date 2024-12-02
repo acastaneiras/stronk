@@ -1,9 +1,11 @@
 import { Button } from '@/components/ui/button';
+import { Intensity } from '@/models/Intensity';
 import { WorkoutExerciseType } from '@/models/WorkoutExerciseType';
 import WorkoutExerciseSingleSet from '@/shared/training/workout-exercise/WorkoutExerciseSingleSet';
 import { useUserStore } from '@/stores/userStore';
 import { useWorkoutStore } from '@/stores/workoutStore';
 import { formatWeightUnit } from '@/utils/workoutUtils';
+import { clsx } from 'clsx';
 import { CheckCheckIcon, Hash, Plus, Weight, Zap } from 'lucide-react';
 import { GoNumber } from "react-icons/go";
 
@@ -21,11 +23,16 @@ function WorkoutExerciseSets({ currentExercise, onChangeSetTypePressEvent, onCal
   return (
     <div>
       {currentExercise.sets.length > 0 && (
-        <div className="grid grid-cols-5 text-center text-gray-500">
+        <div className={clsx(user?.intensitySetting !== "none" ? "grid-cols-5" : "grid-cols-4", "grid text-center text-gray-500")}>
           <span className='flex gap-1 items-center justify-center'><Hash className='w-4' /> Set</span>
           <span className='flex gap-1 items-center justify-center'><Weight className='w-4' /> {user?.unitPreference && formatWeightUnit(user.unitPreference)}</span>
           <span className='flex gap-1 items-center justify-center'><GoNumber className='w-4' /> Reps</span>
-          <span className='flex gap-1 items-center justify-center uppercase'><Zap className='w-4' />{user?.intensitySetting}</span>
+          {((user?.intensitySetting) && ([Intensity.RPE, Intensity.RIR].includes(user?.intensitySetting as Intensity))) && (
+            <span className='flex gap-1 items-center justify-center uppercase'>
+              <Zap className='w-4' />
+              {user?.intensitySetting}
+            </span>
+          )}
           <span className='flex gap-1 items-center justify-center'><CheckCheckIcon className='w-4' /></span>
         </div>
       )}

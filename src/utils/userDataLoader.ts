@@ -4,8 +4,9 @@ import { Workout } from "@/models/Workout";
 import { WorkoutExerciseType } from "@/models/WorkoutExerciseType";
 import { supabase } from "@/utils/supabaseClient";
 import dayjs from "dayjs";
+import { WeightConvert } from "./workoutUtils";
 
-export const fetchWorkoutsWithExercises = async (userId: string | number): Promise<Workout[]> => {
+export const fetchWorkoutsWithExercises = async (userId: string | number, userUnits: WeightUnit): Promise<Workout[]> => {
   const { data, error } = await supabase
     .from('Workouts')
     .select(`
@@ -34,12 +35,12 @@ export const fetchWorkoutsWithExercises = async (userId: string | number): Promi
     console.error('Error fetching workouts with exercises:', error);
     return [];
   }
-  return data ? transformWorkoutData(data) : []; 
+  return data ? transformWorkoutData(data, userUnits) : []; 
 };
 
 
 
-const transformWorkoutData = (data: any[]): Workout[] => {
+const transformWorkoutData = (data: any[], userUnits: WeightUnit): Workout[] => {
   return data.map((rawWorkout) => ({
     id: rawWorkout.id,
     userId: rawWorkout.userId,
@@ -54,10 +55,12 @@ const transformWorkoutData = (data: any[]): Workout[] => {
     volume: rawWorkout.WorkoutExerciseDetails.reduce(
       (acc, detail) =>
         acc +
-        detail.ExerciseDetails.sets.reduce(
-          (setAcc, set) => setAcc + (parseFloat(set.weight.value || "0") * set.reps),
-          0
-        ),
+        detail.ExerciseDetails.sets.reduce((setAcc, set) => {
+          const convertedWeight = parseFloat(
+            WeightConvert(set.weight, userUnits)
+          );
+          return setAcc + (convertedWeight * set.reps);
+        }, 0),
       0
     ),
     workout_exercises: rawWorkout.WorkoutExerciseDetails.map((detail): WorkoutExerciseType => ({
@@ -84,8 +87,8 @@ const transformWorkoutData = (data: any[]): Workout[] => {
           unit: set.weight.unit as WeightUnit,
           value: parseFloat(set.weight.value),
         },
-        completed: set.completed,
         type: set.type,
+        intensity: set.intensity,
         number: set.number,
       })),
       setInterval: detail.ExerciseDetails.setInterval || null,
