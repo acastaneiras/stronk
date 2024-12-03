@@ -7,7 +7,7 @@ import { useSession } from "../context/SessionContext";
 const AuthProtectedRoute = () => {
 	const { session } = useSession();
 	const exercisesStore = useExercisesStore();
-
+	
 	useEffect(() => {
 		if (session && exercisesStore.isHydrated) {
 			//load data if there is a session, the store is hydrated and there *IS* a change of version

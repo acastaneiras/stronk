@@ -31,10 +31,12 @@ const createNewSet = () => {
 
 export interface WorkoutState {
   workout: Workout | null,
-  workouts: Workout[],
+  onGoingWorkout: Workout | null, //This is used to store the workout in progress
+  fetchedWorkout: Workout | null, //This is used to store the workout fetched from the server, in order to compare it with the current workout while editing
   exerciseSearchMode: ExerciseSearchMode,
   selectedExerciseIndex: number,
-  newWorkout: (user_id: string) => void,
+  isEditing: boolean,
+  newWorkout: (userId: string) => void,
   addExercisesToWorkout: (exercises: Exercise[]) => void,
   addSetToExercise: (exerciseId: string | number[]) => void,
   deleteSetToExercise: (exerciseId: string | number[], setIndex: number) => void,
@@ -49,12 +51,16 @@ export interface WorkoutState {
   updateWorkoutDuration: (duration: number) => void,
   cleanupIncompleteSets: () => void,
   emptyWorkout: () => void,
-  setWorkouts: (workouts: Workout[]) => void,
   setExerciseSearchMode: (mode: ExerciseSearchMode) => void,
   setSelectedExerciseIndex: (index: number) => void,
   setIntensityToExerciseSet: (exerciseId: string | number[], setIndex: number, intensity: ExerciseSetIntensity | undefined) => void,
   setRestTimeToExercise: (selectedExerciseIndex: number, seconds: number) => void,
   convertAllWorkoutUnits: () => void,
+  setOnGoingWorkout: (workout: Workout | null) => void,
+  setIsEditing: (isEditing: boolean) => void,
+  setWorkout: (workout: Workout | null) => void,
+  setFetchedWorkout: (workout: Workout | null) => void,
+  emptyEditWorkout: () => void,
 }
 
 export const useWorkoutStore = create<WorkoutState>()(
@@ -62,14 +68,14 @@ export const useWorkoutStore = create<WorkoutState>()(
     persist(
       (set) => ({
         workout: null,
-        isTimerEnabled: false,
-        workouts: [],
+        onGoingWorkout: null,
         exerciseSearchMode: ExerciseSearchMode.ADD_EXERCISE,
         selectedExerciseIndex: -1,
+        isEditing: false,
+        fetchedWorkout: null,
         emptyWorkout: () => set((state) => {
           return {
             ...state,
-            isTimerEnabled: false,
             workout: null,
           }
         }, true),
@@ -350,14 +356,6 @@ export const useWorkoutStore = create<WorkoutState>()(
 
           });
         },
-        setIsTimerEnabled: (boolean: boolean) => {
-          set((state) => {
-            return {
-              ...state,
-              isTimerEnabled: boolean
-            }
-          });
-        },
         cleanupIncompleteSets: () => {
           //Removes all sets that are not completed
           set((state) => {
@@ -375,14 +373,6 @@ export const useWorkoutStore = create<WorkoutState>()(
                 workout_exercises,
               },
             };
-          });
-        },
-        setWorkouts: (workouts: Workout[]) => {
-          set((state) => {
-            return {
-              ...state,
-              workouts: workouts
-            }
           });
         },
         setExerciseSearchMode: (mode: ExerciseSearchMode) => set({ exerciseSearchMode: mode }),
@@ -424,16 +414,16 @@ export const useWorkoutStore = create<WorkoutState>()(
         }),
         convertAllWorkoutUnits: () => set((state) => {
           if (!state.workout || !state.workout.workout_exercises) return state;
-        
+
           const { user } = useUserStore.getState();
           const userUnits = user?.unitPreference ?? WeightUnit.KG;
           const userIntensityScale: IntensityScale = user?.intensitySetting as IntensityScale ?? IntensityScale.NONE;
-        
+
           const newWorkoutExercises = state.workout.workout_exercises.map((workoutExercise) => {
             const newSets = workoutExercise.sets.map((set) => {
-              // Si el set tiene intensidad definida, la convertimos
+              //Convert the weight to the user's preference
               const currentIntensity: ExerciseSetIntensity = set.intensity as ExerciseSetIntensity;
-        
+
               let convertedIntensity = currentIntensity;
               if (currentIntensity) {
                 convertedIntensity = {
@@ -441,7 +431,7 @@ export const useWorkoutStore = create<WorkoutState>()(
                   value: convertIntensity(currentIntensity.value, currentIntensity.scale, userIntensityScale)
                 };
               }
-        
+
               return {
                 ...set,
                 weight: {
@@ -451,10 +441,10 @@ export const useWorkoutStore = create<WorkoutState>()(
                 intensity: convertedIntensity
               };
             });
-        
+
             return { ...workoutExercise, sets: newSets };
           });
-        
+
           return {
             ...state,
             workout: {
@@ -462,7 +452,23 @@ export const useWorkoutStore = create<WorkoutState>()(
               workout_exercises: newWorkoutExercises
             }
           };
-        })
+        }),
+        setOnGoingWorkout: (workout: Workout | null) => set({ onGoingWorkout: workout }),
+        setIsEditing: (isEditing: boolean) => set({ isEditing }),
+        setWorkout: (workout: Workout | null) => set({ workout }),
+        setFetchedWorkout: (workout: Workout | null) => set({ fetchedWorkout: workout }),
+        emptyEditWorkout: () => set((state) => {
+          if (!state.workout) return state;
+          const savedWorkout = state.onGoingWorkout ?? null;
+
+          return {
+            ...state,
+            workout: savedWorkout,
+            fetchedWorkout: null,
+            onGoingWorkout: null,
+            isEditing: false,
+          };
+        }),
       }),
       {
         name: 'currentWorkoutStore',

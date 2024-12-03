@@ -1,12 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { SetCounts } from '@/models/Workout';
-import { WorkoutExerciseType } from '@/models/WorkoutExerciseType';
 import WorkoutTimer from '@/shared/training/WorkoutTimer';
 import { useUserStore } from '@/stores/userStore';
 import { useWorkoutStore } from '@/stores/workoutStore';
-import { formatWeightUnit, getTotalSets, getTotalVolume, getWorkoutPercentage } from '@/utils/workoutUtils';
-import { ChevronLeft } from 'lucide-react';
+import { formatWeightUnit, getTotalSets, getTotalVolume, getWorkoutPercentage, incompleteSets } from '@/utils/workoutUtils';
+import { ChevronLeft, FlagIcon } from 'lucide-react';
 import WorkoutProgress from './WorkoutProgress';
 
 const WorkoutHeader = ({ onClose, onFinish }: { onClose: () => void; onFinish: (showBeofreFinishModal: boolean) => void; }) => {
@@ -21,21 +20,10 @@ const WorkoutHeader = ({ onClose, onFinish }: { onClose: () => void; onFinish: (
     onClose();
   };
 
-  const incompleteSets = () => {
-    let incomplete = false;
-    workout?.workout_exercises?.forEach((workoutExercise: WorkoutExerciseType) => {
-      workoutExercise.sets.forEach(set => {
-        if (!set.completed) {
-          incomplete = true;
-        }
-      });
-    });
-    return incomplete;
-  }
-
   const beforeOnFinish = () => {
+    if (!workout) return;
     let showBeofreFinishModal = false;
-    if (incompleteSets() || workout?.workout_exercises?.length === 0) {
+    if (incompleteSets(workout) || workout?.workout_exercises?.length === 0) {
       showBeofreFinishModal = true;
     }
     onFinish(showBeofreFinishModal);
@@ -52,8 +40,9 @@ const WorkoutHeader = ({ onClose, onFinish }: { onClose: () => void; onFinish: (
         <h1 className="text-xl font-bold tracking-tighter w-full text-center ">Ongoing Workout</h1>
         <div className='flex gap-2'>
           <Button variant="outline" onClick={beforeOnFinish}>
-            Finish
+            <FlagIcon/><span className='hidden md:block'>Finish</span>
           </Button>
+
         </div>
       </div>
       <div className="grid grid-cols-3 text-center gap-8">

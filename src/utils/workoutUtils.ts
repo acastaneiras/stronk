@@ -2,6 +2,7 @@ import { Exercise } from "@/models/Exercise";
 import { ExerciseSet, IntensityScale, SetWeight, WeightUnit } from "@/models/ExerciseSet";
 import dayjs from "dayjs";
 import { SetCounts, Workout } from "../models/Workout";
+import { WorkoutExerciseType } from "@/models/WorkoutExerciseType";
 
 //Get the total sets of a workout
 export const getTotalSets = (workout: Workout | null): SetCounts => {
@@ -246,3 +247,15 @@ export const convertIntensity = (intensity: number, fromScale: IntensityScale, t
   }
   return intensity;
 };
+
+export const incompleteSets = (workout: Workout) => {
+  let incomplete = false;
+  workout?.workout_exercises?.forEach((workoutExercise: WorkoutExerciseType) => {
+    workoutExercise.sets.forEach(set => {
+      if (!set.completed) {
+        incomplete = true;
+      }
+    });
+  });
+  return incomplete;
+}

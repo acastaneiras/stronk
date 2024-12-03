@@ -140,10 +140,10 @@ const CreateNewWorkout = () => {
   return (
     <div className='flex flex-col flex-1'>
       <WorkoutHeader onClose={handleGoBack} onFinish={handleOpenFinishDrawer} />
-      <div className='flex flex-col flex-grow pt-4'>
+      <div className='flex flex-col flex-grow'>
         {((workout?.workout_exercises) && (workout.workout_exercises.length > 0)) ? (
           <ScrollArea type="always" className="flex-grow max-h-full h-1">
-            <div className="flex flex-col gap-4 flex-grow">
+            <div className="flex flex-col gap-4 flex-grow pt-4">
               {workout?.workout_exercises?.map((exercise, index) => (
                 <WorkoutExercise
                   id={index}

@@ -90,6 +90,7 @@ const transformWorkoutData = (data: any[], userUnits: WeightUnit): Workout[] => 
         type: set.type,
         intensity: set.intensity,
         number: set.number,
+        completed: set.completed,
       })),
       setInterval: detail.ExerciseDetails.setInterval || null,
       notes: detail.ExerciseDetails.notes || "",

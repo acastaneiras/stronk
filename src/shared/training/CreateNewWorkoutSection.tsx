@@ -5,6 +5,7 @@ import { useUserStore } from "@/stores/userStore";
 import { useWorkoutStore } from "@/stores/workoutStore";
 import { calculateElapsedSecondsFromDate, formatTime, getTotalSets, getTotalVolume } from "@/utils/workoutUtils";
 import { Dumbbell, Hash, Play, Plus, Timer, X } from "lucide-react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const CreateNewWorkoutSection = () => {

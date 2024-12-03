@@ -9,21 +9,31 @@ import UserSettingsModal from '@/shared/modals/UserSettingsModal'
 import { useUserStore } from '@/stores/userStore'
 import { fetchWorkoutsWithExercises } from '@/utils/userDataLoader'
 import { formatTime, formatWeightDecimals, getAllWorkoutsAverageTime, getCategoryColor, getUserLastExercisePR, getUserWeeklyVolume } from '@/utils/workoutUtils'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { Edit, EllipsisVertical, Eye, ImageIcon, Settings, Trash, Trophy } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import LoadingPage from '../LoadingPage'
+import { useWorkoutStore } from '@/stores/workoutStore'
+import { useNavigate } from 'react-router-dom'
+import { ResponsiveModal } from '@/shared/modals/ResponsiveModal'
+import { supabase } from '@/utils/supabaseClient'
+import { toast } from 'sonner'
 
 const Profile = () => {
 	const { user } = useUserStore();
+	const { setOnGoingWorkout, setWorkout, workout, setIsEditing, setFetchedWorkout } = useWorkoutStore();
+	const navigate = useNavigate();
 	const [showSettingsModal, setShowSettingsModal] = useState(false);
+	const queryClient = useQueryClient();
 	const { data: workouts, isLoading, isError, error } = useQuery<Workout[], Error>({
 		queryKey: ["workouts", user?.id, user?.unitPreference, user?.intensitySetting],
 		queryFn: () => fetchWorkoutsWithExercises(user?.id as string, user?.unitPreference as WeightUnit),
 		enabled: !!user,
 		staleTime: 1000 * 60 * 5,
 	});
+
+	const [deleteWorkout, setDeleteWorkout] = useState<Workout | null>(null);
 
 	const averageTime = useMemo(() => {
 		if (!workouts) return [];
@@ -42,6 +52,64 @@ const Profile = () => {
 
 	if (isLoading) return <LoadingPage />;
 	if (isError) return <p>Error: {error?.message}</p>;
+
+	const handleEditWorkoutClick = (workoutToEdit: Workout) => {
+		if (workout) { // If there is a workout, set the ongoing workout to the current workout
+			setOnGoingWorkout(workout);
+		}
+		setWorkout(workoutToEdit);
+		setFetchedWorkout(workoutToEdit);
+		setIsEditing(true);
+		navigate('/training/edit-workout');
+	}
+
+	const handleDeleteWorkoutPress = (workout: Workout) => () => {
+		setDeleteWorkout(workout);
+	}
+
+	const handleConfirmDeleteWorkout = async () => {
+		if (deleteWorkout) {
+			try {
+				const exerciseDetailsIds = deleteWorkout.workout_exercises.map(exercise => exercise.id);
+				const { error: exerciseDetailsError } = await supabase
+					.from('ExerciseDetails')
+					.delete()
+					.in('id', exerciseDetailsIds);
+
+				if (exerciseDetailsError) {
+					throw new Error('Error deleting exercise details');
+				}
+				const { error: workoutError } = await supabase
+					.from('Workouts')
+					.delete()
+					.eq('id', deleteWorkout.id);
+
+				if (workoutError) {
+					throw new Error('Error deleting workout');
+				}
+
+				await queryClient.invalidateQueries(
+					{
+						queryKey: ["workouts", user?.id],
+						refetchType: 'active',
+					},
+					{
+						cancelRefetch: true,
+						throwOnError: true,
+					}
+				);
+				toast.success('Workout deleted successfully');
+				setDeleteWorkout(null);
+
+			} catch (err: unknown) {
+				if (err instanceof Error) {
+					toast.error(err.message);
+				} else {
+					toast.error('An unknown error occurred.');
+				}
+			}
+		}
+	};
 
 	return (
 		<div>
@@ -120,12 +188,12 @@ const Profile = () => {
 												</DropdownMenuTrigger>
 												<DropdownMenuContent align="end" className="w-56 flex flex-col gap-1">
 													<DropdownMenuItem asChild>
-														<Button variant="ghost" className="w-full justify-start border-none cursor-pointer" onClick={() => console.log('Edit workout!')}>
+														<Button variant="ghost" className="w-full justify-start border-none cursor-pointer" onClick={() => handleEditWorkoutClick(workout)}>
 															<Edit className="h-4 w-4 mr-2" /> Edit workout
 														</Button>
 													</DropdownMenuItem>
 													<DropdownMenuItem asChild>
-														<Button variant="destructive" onClick={() => console.log('Delete workout!')} className="w-full justify-start border-none cursor-pointer">
+														<Button variant="destructive" onClick={handleDeleteWorkoutPress(workout)} className="w-full justify-start border-none cursor-pointer">
 															<Trash className="h-4 w-4 mr-2" /> Delete workout
 														</Button>
 													</DropdownMenuItem>
@@ -166,7 +234,7 @@ const Profile = () => {
 										))}
 										{workout.workout_exercises.length > 2 && (
 											<div className="text-gray-500 text-sm">
-												({workout.workout_exercises.length - 2} more {workout.workout_exercises.length - 2 > 1 ? "exercises" :  "exercise"})
+												({workout.workout_exercises.length - 2} more {workout.workout_exercises.length - 2 > 1 ? "exercises" : "exercise"})
 											</div>
 										)}
 									</div>
@@ -184,6 +252,28 @@ const Profile = () => {
 				</div>
 			</div>
 			<UserSettingsModal isOpen={showSettingsModal} setShowUserSettingsModal={setShowSettingsModal} />
+			<ResponsiveModal
+				open={deleteWorkout !== null}
+				onOpenChange={() => setDeleteWorkout(null)}
+				dismissable={true}
+				title="Delete Workout"
+				titleClassName="text-lg font-semibold leading-none tracking-tight"
+				footer={
+					<>
+						<Button
+							variant='destructive'
+							onClick={handleConfirmDeleteWorkout}
+						>
+							<Trash /> Confirm
+						</Button>
+						<Button variant='outline' onClick={() => setDeleteWorkout(null)}>
+							Cancel
+						</Button>
+					</>
+				}
+			>
+				<p>Are you sure you want to delete this workout?</p>
+			</ResponsiveModal>
 		</div>
 	)
 }
