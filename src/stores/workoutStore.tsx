@@ -1,15 +1,15 @@
 import { ExerciseSearchMode } from '@/models/ExerciseSearchMode';
 import { indexedDBStorage } from '@/utils/indexedDBStorage';
+import { convertIntensity, WeightConvert } from '@/utils/workoutUtils';
 import dayjs from 'dayjs';
 import { v4 as uuidv4 } from 'uuid';
 import { create } from 'zustand';
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 import { Exercise } from '../models/Exercise';
-import { ExerciseSet, ExerciseSetIntensity, SetType, SetWeight, WeightUnit } from '../models/ExerciseSet';
+import { ExerciseSet, ExerciseSetIntensity, IntensityScale, SetType, SetWeight, WeightUnit } from '../models/ExerciseSet';
 import { Workout } from '../models/Workout';
 import { WorkoutExerciseType } from '../models/WorkoutExerciseType';
 import { useUserStore } from './userStore';
-import { WeightConvert } from '@/utils/workoutUtils';
 
 
 const createNewSet = () => {
@@ -424,23 +424,37 @@ export const useWorkoutStore = create<WorkoutState>()(
         }),
         convertAllWorkoutUnits: () => set((state) => {
           if (!state.workout || !state.workout.workout_exercises) return state;
+        
           const { user } = useUserStore.getState();
-          const userUnits = user?.unitPreference || WeightUnit.KG;
+          const userUnits = user?.unitPreference ?? WeightUnit.KG;
+          const userIntensityScale: IntensityScale = user?.intensitySetting as IntensityScale ?? IntensityScale.NONE;
+        
           const newWorkoutExercises = state.workout.workout_exercises.map((workoutExercise) => {
             const newSets = workoutExercise.sets.map((set) => {
+              // Si el set tiene intensidad definida, la convertimos
+              const currentIntensity: ExerciseSetIntensity = set.intensity as ExerciseSetIntensity;
+        
+              let convertedIntensity = currentIntensity;
+              if (currentIntensity) {
+                convertedIntensity = {
+                  ...currentIntensity,
+                  value: convertIntensity(currentIntensity.value, currentIntensity.scale, userIntensityScale)
+                };
+              }
+        
               return {
                 ...set,
                 weight: {
                   unit: userUnits,
                   value: WeightConvert(set.weight, userUnits),
-                }
+                },
+                intensity: convertedIntensity
               };
-            }
-            );
+            });
+        
             return { ...workoutExercise, sets: newSets };
-          }
-          );
-
+          });
+        
           return {
             ...state,
             workout: {
@@ -448,8 +462,7 @@ export const useWorkoutStore = create<WorkoutState>()(
               workout_exercises: newWorkoutExercises
             }
           };
-        }
-        )
+        })
       }),
       {
         name: 'currentWorkoutStore',

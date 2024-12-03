@@ -14,7 +14,7 @@ export enum SetType {
 export enum IntensityScale {
     RPE = 'rpe',
     RIR = 'rir',
-    None = 'none',
+    NONE = 'none',
 }
 
 export type SetWeight = {

@@ -1,5 +1,5 @@
 import { Exercise } from "@/models/Exercise";
-import { ExerciseSet, SetWeight, WeightUnit } from "@/models/ExerciseSet";
+import { ExerciseSet, IntensityScale, SetWeight, WeightUnit } from "@/models/ExerciseSet";
 import dayjs from "dayjs";
 import { SetCounts, Workout } from "../models/Workout";
 
@@ -234,3 +234,15 @@ export const calculateElapsedSecondsFromDate = (date: dayjs.Dayjs): number => {
 
   return (diff);
 }
+
+//Convert Intensity from one scale to another
+export const convertIntensity = (intensity: number, fromScale: IntensityScale, toScale: IntensityScale): number => {
+  if (!intensity || fromScale === toScale) return intensity;
+
+  if (fromScale === IntensityScale.RPE && toScale === IntensityScale.RIR) {
+    return Math.ceil(10 - intensity);
+  } else if (fromScale === IntensityScale.RIR && toScale === IntensityScale.RPE) {
+    return 10 - intensity;
+  }
+  return intensity;
+};

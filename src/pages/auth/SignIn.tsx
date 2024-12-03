@@ -6,9 +6,9 @@ import NotificationAlert from '@/shared/AlertMessage';
 import PendingButton from '@/shared/PendingButton';
 import { handleGoogleSignIn, handleSignIn } from '@/utils/authUtils';
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 
 const schema = z.object({
@@ -16,8 +16,9 @@ const schema = z.object({
   password: z.string(),
 });
 
-export default function LoginPage() {  
+export default function LoginPage() {
   const navigate = useNavigate();
+  const { state } = useLocation();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -29,13 +30,19 @@ export default function LoginPage() {
     }
   });
 
+  useEffect(() => {
+    if (state?.oauthError) {
+      setErrorMessage(`${state.oauthError} ${state.oauthErrorDescription}`);
+    }
+  }, [state]);
+
   const onSubmit = async (data: z.infer<typeof schema>) => {
     const success = await handleSignIn(data.email, data.password, setErrorMessage);
     if (success) {
       navigate('/training');
     }
   };
-  
+
   return (
     <Card className="w-full md:w-1/3 m-2">
       <CardHeader>

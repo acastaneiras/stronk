@@ -1,8 +1,9 @@
 import { Button } from '@/components/ui/button';
-import { ExerciseSet } from '@/models/ExerciseSet';
+import { ExerciseSet, IntensityScale } from '@/models/ExerciseSet';
 import { WorkoutExerciseType } from '@/models/WorkoutExerciseType';
 import IconSet from '@/shared/icons/IconSet';
 import WeightInput from '@/shared/training/workout-exercise/workout-exercise-sets/WeightInput';
+import { useUserStore } from '@/stores/userStore';
 import { useWorkoutStore } from '@/stores/workoutStore';
 import { useMediaQuery } from '@uidotdev/usehooks';
 import clsx from 'clsx';
@@ -10,8 +11,6 @@ import { Check, Trash2 } from 'lucide-react';
 import { motion, useAnimation } from 'motion/react';
 import { useState } from 'react';
 import RepsInput from './workout-exercise-sets/RepsInput';
-import { useUserStore } from '@/stores/userStore';
-import { Intensity } from '@/models/Intensity';
 
 type WorkoutExerciseSingleSetProps = {
   set: ExerciseSet;
@@ -106,7 +105,7 @@ function WorkoutExerciseSingleSet({ set, setIndex, currentExercise, callShowInte
               currentExercise={currentExercise}
             />
           </div>
-          {((user?.intensitySetting) && ([Intensity.RPE, Intensity.RIR].includes(user?.intensitySetting as Intensity))) && (
+          {((user?.intensitySetting) && ([IntensityScale.RPE, IntensityScale.RIR].includes(user?.intensitySetting as IntensityScale))) && (
             <div className="w-1/5">
               <Button
                 variant="ghost"

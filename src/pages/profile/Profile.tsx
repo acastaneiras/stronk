@@ -111,7 +111,7 @@ const Profile = () => {
 												{user?.firstName} {user?.lastName} {`(${user?.alias})`}
 											</h3>
 										</div>
-										<div className='px-4 py-3'>
+										<div className='pl-4 py-3'>
 											<DropdownMenu>
 												<DropdownMenuTrigger asChild>
 													<Button variant="ghost">
@@ -166,7 +166,7 @@ const Profile = () => {
 										))}
 										{workout.workout_exercises.length > 2 && (
 											<div className="text-gray-500 text-sm">
-												({workout.workout_exercises.length - 2} more {workout.workout_exercises.length - 2} exercises)
+												({workout.workout_exercises.length - 2} more {workout.workout_exercises.length - 2 > 1 ? "exercises" :  "exercise"})
 											</div>
 										)}
 									</div>

@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Intensity } from '@/models/Intensity';
+import { IntensityScale } from '@/models/ExerciseSet';
 import { WorkoutExerciseType } from '@/models/WorkoutExerciseType';
 import WorkoutExerciseSingleSet from '@/shared/training/workout-exercise/WorkoutExerciseSingleSet';
 import { useUserStore } from '@/stores/userStore';
@@ -27,7 +27,7 @@ function WorkoutExerciseSets({ currentExercise, onChangeSetTypePressEvent, onCal
           <span className='flex gap-1 items-center justify-center'><Hash className='w-4' /> Set</span>
           <span className='flex gap-1 items-center justify-center'><Weight className='w-4' /> {user?.unitPreference && formatWeightUnit(user.unitPreference)}</span>
           <span className='flex gap-1 items-center justify-center'><GoNumber className='w-4' /> Reps</span>
-          {((user?.intensitySetting) && ([Intensity.RPE, Intensity.RIR].includes(user?.intensitySetting as Intensity))) && (
+          {((user?.intensitySetting) && ([IntensityScale.RPE, IntensityScale.RIR].includes(user?.intensitySetting as IntensityScale))) && (
             <span className='flex gap-1 items-center justify-center uppercase'>
               <Zap className='w-4' />
               {user?.intensitySetting}

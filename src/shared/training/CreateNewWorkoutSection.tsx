@@ -8,25 +8,25 @@ import { Dumbbell, Hash, Play, Plus, Timer, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const CreateNewWorkoutSection = () => {
-  const { workout, newWorkout, emptyWorkout  } = useWorkoutStore();
+  const { workout, newWorkout, emptyWorkout } = useWorkoutStore();
   const { user } = useUserStore();
-	const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const setsDetail: SetCounts = getTotalSets(workout);
   const totalVolume = getTotalVolume(workout);
 
 
   const createNewWorkout = () => {
-		startNewWorkout();
-	};
+    startNewWorkout();
+  };
 
-	const startNewWorkout = () => {
-		navigate('/training/create-new-workout');
-		newWorkout(user!.id);
-	}
+  const startNewWorkout = () => {
+    navigate('/training/create-new-workout');
+    newWorkout(user!.id);
+  }
 
   if (!workout) return (
-    <Button className='w-full' onClick={createNewWorkout}><Plus/> Create New Workout</Button>
+    <Button className='w-full' onClick={createNewWorkout}><Plus /> Create New Workout</Button>
   )
 
   return (
@@ -34,8 +34,7 @@ const CreateNewWorkoutSection = () => {
       <Card>
         <CardHeader className="flex justify-around py-4">
           <CardTitle className="text-2xl font-bold">Ongoing Workout</CardTitle>
-
-          <CardDescription className="flex flex-row justify-around mt-2">
+          <div className="flex flex-row justify-around mt-2 text-gray-600 dark:text-gray-400">
             <div className="flex flex-col items-center">
               <Hash className="w-6 h-6 " />
               <span className="text-sm font-semibold">Sets</span>
@@ -51,6 +50,9 @@ const CreateNewWorkoutSection = () => {
               <span className="text-sm font-semibold">Time</span>
               <span className="">{formatTime(calculateElapsedSecondsFromDate(workout.date))}</span>
             </div>
+          </div>
+          <CardDescription >
+
           </CardDescription>
         </CardHeader>
         <CardFooter className="flex justify-between gap-4">

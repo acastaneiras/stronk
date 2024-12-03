@@ -1,8 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
-import { ExerciseSetIntensity, SelectedSet, SetType } from '@/models/ExerciseSet'
-import { Intensity } from '@/models/Intensity'
+import { ExerciseSetIntensity, IntensityScale, SelectedSet, SetType } from '@/models/ExerciseSet'
 import FinishWorkoutModal from '@/shared/modals/FinishWorkoutModal'
 import NotesModal from '@/shared/modals/NotesModal'
 import { ResponsiveModal } from '@/shared/modals/ResponsiveModal'
@@ -98,7 +97,7 @@ const CreateNewWorkout = () => {
       setIndex: setIndex,
     });
 
-    if (user?.intensitySetting === Intensity.RIR) {
+    if (user?.intensitySetting === IntensityScale.RIR) {
       setShowRIRModal(true);
     } else {
       setShowRPEModal(true);

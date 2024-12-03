@@ -31,7 +31,7 @@ const RIRModal = ({ showRIRModal, setShowRIRModal, onUnsetIntensity, onSaveInten
   useEffect(() => {
     if (currentSet?.intensity !== undefined) {
       setRirValue(currentSet.intensity.value);
-    } else if (showRIRModal){
+    } else if (showRIRModal) {
       setRirValue(DEFAULT_RIR);
     }
   }, [currentSet, showRIRModal]);
@@ -56,7 +56,7 @@ const RIRModal = ({ showRIRModal, setShowRIRModal, onUnsetIntensity, onSaveInten
       titleClassName="text-lg font-semibold leading-none tracking-tight text-center"
       footer={
         <>
-          <Button onClick={() => onSaveIntensity({scale: IntensityScale.RIR, value: rirValue }as ExerciseSetIntensity)} className="w-full">
+          <Button onClick={() => onSaveIntensity({ scale: IntensityScale.RIR, value: rirValue } as ExerciseSetIntensity)} className="w-full">
             Save
           </Button>
           <Button variant={`outline`} onClick={onUnsetIntensity} className="w-full">
@@ -66,14 +66,14 @@ const RIRModal = ({ showRIRModal, setShowRIRModal, onUnsetIntensity, onSaveInten
       }
     >
       <div className="flex flex-col gap-4 items-center py-4">
-          <div
-            key={rirValue}
-            className={`text-center text-6xl font-bold bg-clip-text text-transparent ${getGradient(
-              rirValue
-            )}`}
-          >
-            {rirValue}
-          </div>
+        <div
+          key={rirValue}
+          className={`text-center text-6xl font-bold bg-clip-text text-transparent ${getGradient(
+            rirValue
+          )}`}
+        >
+          {rirValue}
+        </div>
 
         <div className="text-center text-xs md:text-sm mt-4 text-foreground/75">
           {getDescription(rirValue)}
