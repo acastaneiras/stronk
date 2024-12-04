@@ -1,9 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { ExerciseSet, SetWeight } from "@/models/ExerciseSet";
 import { WorkoutExerciseType } from "@/models/WorkoutExerciseType";
-import { useUserStore } from "@/stores/userStore";
 import { useWorkoutStore } from "@/stores/workoutStore";
-import { WeightConvert } from "@/utils/workoutUtils";
 import { z } from "zod";
 
 type WeightInputProps = {
@@ -13,7 +11,6 @@ type WeightInputProps = {
 };
 
 const WeightInput = ({ set, setIndex, currentExercise }: WeightInputProps) => {
-  const { user } = useUserStore();
   const { changeWeightFromExercise } = useWorkoutStore();
 
   //Only allow numbers and a dot for decimal numbers for the weight input

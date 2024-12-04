@@ -49,11 +49,11 @@ const transformWorkoutData = (data: any[], userUnits: WeightUnit): Workout[] => 
     date: dayjs(rawWorkout.date),
     duration: rawWorkout.duration || null,
     sets: rawWorkout.WorkoutExerciseDetails.reduce(
-      (acc, detail) => acc + detail.ExerciseDetails.sets.length,
+      (acc: any, detail: { ExerciseDetails: { sets: string | any[]; }; }) => acc + detail.ExerciseDetails.sets.length,
       0
     ),
     volume: rawWorkout.WorkoutExerciseDetails.reduce(
-      (acc, detail) =>
+      (acc: any, detail: { ExerciseDetails: { sets: any[]; }; }) =>
         acc +
         detail.ExerciseDetails.sets.reduce((setAcc, set) => {
           const convertedWeight = parseFloat(
@@ -63,7 +63,7 @@ const transformWorkoutData = (data: any[], userUnits: WeightUnit): Workout[] => 
         }, 0),
       0
     ),
-    workout_exercises: rawWorkout.WorkoutExerciseDetails.map((detail): WorkoutExerciseType => ({
+    workout_exercises: rawWorkout.WorkoutExerciseDetails.map((detail: { ExerciseDetails: { id: any; Exercises: { id: any; name: any; guid: any; instructions: any; images: any; isCustom: any; category: any; equipment: any; primaryMuscles: any; secondaryMuscles: any; createdAt: Date | null; }; sets: any[]; setInterval: any; notes: any; }; }): WorkoutExerciseType => ({
       id: detail.ExerciseDetails.id,
       exercise: {
         id: detail.ExerciseDetails.Exercises.id,

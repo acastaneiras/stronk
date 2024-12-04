@@ -2,8 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { WeightUnit } from '@/models/ExerciseSet';
-import { Intensity } from '@/models/Intensity';
+import { IntensityScale, WeightUnit } from '@/models/ExerciseSet';
 import { ResponsiveModal } from '@/shared/modals/ResponsiveModal';
 import { useUserStore } from '@/stores/userStore';
 import { useWorkoutStore } from '@/stores/workoutStore';
@@ -59,7 +58,7 @@ function UserSettingsModal({ isOpen, setShowUserSettingsModal }: UserSettingsMod
       setValue('lastName', user.lastName || '');
       setValue('alias', user.alias || '');
       setValue('unitPreference', user.unitPreference || 'kg');
-      setValue('intensitySetting', user.intensitySetting as Intensity || 'none');
+      setValue('intensitySetting', user.intensitySetting as IntensityScale || 'none');
     }
   }, [user, setValue]);
 
@@ -193,7 +192,7 @@ function UserSettingsModal({ isOpen, setShowUserSettingsModal }: UserSettingsMod
                 <FormLabel>Intensity Setting</FormLabel>
                 <Tabs
                   defaultValue={form.getValues('intensitySetting')}
-                  onValueChange={(value) => form.setValue('intensitySetting', value as Intensity)}
+                  onValueChange={(value) => form.setValue('intensitySetting', value as IntensityScale)}
                 >
                   <TabsList>
                     <TabsTrigger value="rpe">RPE</TabsTrigger>
