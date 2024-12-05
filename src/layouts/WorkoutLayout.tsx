@@ -1,17 +1,21 @@
 import { Button } from '@/components/ui/button';
 import { ExerciseSearchMode } from '@/models/ExerciseSearchMode';
-import { useWorkoutStore } from '@/stores/workoutStore';
+import { StoreMode, useWorkoutStore } from '@/stores/workoutStore';
 import { ListOrderedIcon, Plus } from 'lucide-react';
 import { Outlet, useNavigate } from 'react-router-dom';
 
 export default function WorkoutLayout() {
-  const { setExerciseSearchMode, workout } = useWorkoutStore();
+  const { setExerciseSearchMode, workout, routine, storeMode } = useWorkoutStore();
   const navigate = useNavigate();
 
   const handleAddExercise = () => {
     setExerciseSearchMode(ExerciseSearchMode.ADD_EXERCISE);
     navigate("/training/exercise-list");
   }
+
+  const exercisesLength = storeMode === StoreMode.WORKOUT
+    ? workout?.workout_exercises?.length || 0
+    : routine?.workout_exercises?.length || 0;
 
   return (
     <main className="min-h-screen flex flex-col">
@@ -24,9 +28,9 @@ export default function WorkoutLayout() {
             <Plus className='w-6 h-6' />
             Add Exercise
           </Button>
-          <Button className='w-40 md:w-96' onClick={() => navigate("/training/reorder-exercises")} disabled={(workout && workout?.workout_exercises.length > 1) ? false : true}>
-              <ListOrderedIcon className='w-6 h-6' />
-              Reorder Exercises
+          <Button className='w-40 md:w-96' onClick={() => navigate("/training/reorder-exercises")} disabled={exercisesLength <= 1} >
+            <ListOrderedIcon className='w-6 h-6' />
+            Reorder Exercises
           </Button>
         </div>
       </div>

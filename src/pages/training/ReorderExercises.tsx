@@ -14,18 +14,20 @@ interface ReorderItem {
 }
 
 const ReorderExercises = () => {
-  const { workout, reorderExercises } = useWorkoutStore();
+  const { workout, routine, reorderExercises, storeMode } = useWorkoutStore();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (workout?.workout_exercises) {
-      const initialItems = workout.workout_exercises.map((exercise, index) => ({
-        id: `${exercise.id.toString()}-${index}`,
-        exercise: exercise,
-      }));
-      setItems(initialItems);
-    }
-  }, [workout]);
+    const exercises = storeMode === "ROUTINE"
+      ? routine?.workout_exercises || []
+      : workout?.workout_exercises || [];
+
+    const initialItems = exercises.map((exercise, index) => ({
+      id: `${exercise.id.toString()}-${index}`,
+      exercise: exercise,
+    }));
+    setItems(initialItems);
+  }, [workout, routine, storeMode]);
 
   const [items, setItems] = useState<ReorderItem[]>([]);
 
@@ -64,7 +66,7 @@ const ReorderExercises = () => {
                 <ChevronLeft />
               </button>
             </div>
-            <h1 className="text-xl font-bold tracking-tighter w-full text-center">
+            <h1 className="text-xl font-bold tracking-tighter w-full text-center mr-10">
               Reorder Exercises
             </h1>
           </div>

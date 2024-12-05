@@ -33,10 +33,7 @@ const ExerciseListHeader = ({ searchValue, categoryFilter, equipmentFilter, musc
         <div className="w-10 cursor-pointer" onClick={() => navigate(-1)}>
           <ChevronLeft className="cursor-pointer" />
         </div>
-        <h1 className="text-xl font-bold tracking-tighter w-full text-center">Exercise List</h1>
-        <div className="w-10">
-          <PlusCircle className="cursor-pointer" onClick={() => setCreateExerciseOpen(true)} />
-        </div>
+        <h1 className="text-xl font-bold tracking-tighter w-full text-center mr-6">Exercise List</h1>
       </div>
 
       <div className="relative">

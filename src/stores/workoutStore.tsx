@@ -7,7 +7,7 @@ import { create } from 'zustand';
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 import { Exercise } from '../models/Exercise';
 import { ExerciseSet, ExerciseSetIntensity, IntensityScale, SetType, SetWeight, WeightUnit } from '../models/ExerciseSet';
-import { Workout } from '../models/Workout';
+import { Routine, Workout } from '@/models/Workout';
 import { WorkoutExerciseType } from '../models/WorkoutExerciseType';
 import { useUserStore } from './userStore';
 
@@ -29,6 +29,12 @@ const createNewSet = () => {
   } as ExerciseSet
 }
 
+
+export enum StoreMode {
+  WORKOUT = 'WORKOUT',
+  ROUTINE = 'ROUTINE'
+}
+
 export interface WorkoutState {
   workout: Workout | null,
   onGoingWorkout: Workout | null, //This is used to store the workout in progress
@@ -36,7 +42,10 @@ export interface WorkoutState {
   exerciseSearchMode: ExerciseSearchMode,
   selectedExerciseIndex: number,
   isEditing: boolean,
+  routine: Routine | null,
+  storeMode: StoreMode,
   newWorkout: (userId: string) => void,
+  newRoutine: (userId: string) => void,
   addExercisesToWorkout: (exercises: Exercise[]) => void,
   addSetToExercise: (exerciseId: string | number[]) => void,
   deleteSetToExercise: (exerciseId: string | number[], setIndex: number) => void,
@@ -48,8 +57,6 @@ export interface WorkoutState {
   changeRepsFromExercise: (exerciseId: string | number[], setIndex: number, reps: number | string) => void,
   changeWeightFromExercise: (exerciseId: string | number[], setIndex: number, setWeight: SetWeight) => void,
   reorderExercises: (data: WorkoutExerciseType[]) => void,
-  updateWorkoutDuration: (duration: number) => void,
-  cleanupIncompleteSets: () => void,
   emptyWorkout: () => void,
   setExerciseSearchMode: (mode: ExerciseSearchMode) => void,
   setSelectedExerciseIndex: (index: number) => void,
@@ -61,6 +68,8 @@ export interface WorkoutState {
   setWorkout: (workout: Workout | null) => void,
   setFetchedWorkout: (workout: Workout | null) => void,
   emptyEditWorkout: () => void,
+  setStoreMode: (mode: StoreMode) => void,
+  emptyRoutine: () => void,
 }
 
 export const useWorkoutStore = create<WorkoutState>()(
@@ -73,6 +82,8 @@ export const useWorkoutStore = create<WorkoutState>()(
         selectedExerciseIndex: -1,
         isEditing: false,
         fetchedWorkout: null,
+        routine: null,
+        storeMode: StoreMode.WORKOUT,
         emptyWorkout: () => set((state) => {
           return {
             ...state,
@@ -97,11 +108,33 @@ export const useWorkoutStore = create<WorkoutState>()(
                 completed: false,
               }
             },
+            storeMode: StoreMode.WORKOUT
+          }
+        }, true),
+        newRoutine: (userId: string) => set((state) => {
+          const date = dayjs();
+          return {
+            ...state,
+            routine: {
+              ...state.workout, ...{
+                id: null,
+                userId,
+                title: ``,
+                date: date,
+                duration: null,
+                sets: 0,
+                volume: 0,
+                workout_exercises: [],
+                completed: false,
+              }
+            },
+            storeMode: StoreMode.ROUTINE
           }
         }, true),
         addExercisesToWorkout: (exercises: Exercise[]) => {
           set((state) => {
-            if (state.workout) {
+            const targetState = state.storeMode === StoreMode.WORKOUT ? state.workout : state.routine;
+            if (targetState) {
               const workoutExercises: WorkoutExerciseType[] = exercises.map(exercise => ({
                 id: uuidv4(),
                 exercise,
@@ -110,27 +143,32 @@ export const useWorkoutStore = create<WorkoutState>()(
                 setInterval: null,
               }));
 
-              //Create a new array with the added workout exercises without mutating the existing one
-              const newWorkoutExercises = state.workout.workout_exercises
-                ? [...state.workout.workout_exercises, ...workoutExercises]
+              const newWorkoutExercises = targetState.workout_exercises
+                ? [...targetState.workout_exercises, ...workoutExercises]
                 : workoutExercises;
 
-              //Create a new workout object with the updated workout exercises
-              const newWorkout = { ...state.workout, workout_exercises: newWorkoutExercises };
+              const newState = {
+                ...targetState,
+                workout_exercises: newWorkoutExercises
+              };
 
-              return { ...state, workout: newWorkout };
+              return {
+                ...state,
+                [state.storeMode === StoreMode.WORKOUT ? 'workout' : 'routine']: newState,
+              };
             }
             return state;
           });
         },
         addSetToExercise: (exerciseId: string | number[]) => set((state) => {
-          if (!state.workout || !state.workout.workout_exercises) return state;
+          const targetState = state.storeMode === StoreMode.WORKOUT ? state.workout : state.routine;
+          if (!targetState || !targetState.workout_exercises) return state;
 
           return {
             ...state,
-            workout: {
-              ...state.workout,
-              workout_exercises: state.workout.workout_exercises.map((workout_exercise) => {
+            [state.storeMode === StoreMode.WORKOUT ? 'workout' : 'routine']: {
+              ...targetState,
+              workout_exercises: targetState.workout_exercises.map((workout_exercise) => {
                 if (workout_exercise.id === exerciseId) {
                   const lastSetId = workout_exercise.sets[workout_exercise.sets.length - 1]?.id || 0;
                   const defaultSet = createNewSet();
@@ -147,13 +185,14 @@ export const useWorkoutStore = create<WorkoutState>()(
           };
         }),
         deleteSetToExercise: (exerciseId: string | number[], setIndex: number) => set((state) => {
-          if (!state.workout || !state.workout.workout_exercises) return state;
+          const targetState = state.storeMode === StoreMode.WORKOUT ? state.workout : state.routine;
+          if (!targetState || !targetState.workout_exercises) return state;
 
           return {
             ...state,
-            workout: {
-              ...state.workout,
-              workout_exercises: state.workout.workout_exercises.map(workout_exercise => {
+            [state.storeMode === StoreMode.WORKOUT ? 'workout' : 'routine']: {
+              ...targetState,
+              workout_exercises: targetState.workout_exercises.map(workout_exercise => {
                 if (workout_exercise.id === exerciseId) {
                   const newSets = [...workout_exercise.sets];
                   newSets.splice(setIndex, 1);
@@ -167,12 +206,14 @@ export const useWorkoutStore = create<WorkoutState>()(
           };
         }),
         changeRepsFromExercise: (exerciseId: string | number[], setIndex: number, reps: number | string) => set((state) => {
-          if (!state.workout || !state.workout.workout_exercises) return state;
+          const targetState = state.storeMode === StoreMode.WORKOUT ? state.workout : state.routine;
+          if (!targetState || !targetState.workout_exercises) return state;
+
           return {
             ...state,
-            workout: {
-              ...state.workout,
-              workout_exercises: state.workout.workout_exercises.map(workout_exercise => {
+            [state.storeMode === StoreMode.WORKOUT ? 'workout' : 'routine']: {
+              ...targetState,
+              workout_exercises: targetState.workout_exercises.map(workout_exercise => {
                 if (workout_exercise.id === exerciseId) {
                   const newSets = [...workout_exercise.sets];
                   newSets[setIndex] = { ...newSets[setIndex], reps: reps };
@@ -185,18 +226,19 @@ export const useWorkoutStore = create<WorkoutState>()(
           };
         }),
         changeWeightFromExercise: (exerciseId: string | number[], setIndex: number, setWeight: SetWeight) => set((state) => {
-          if (!state.workout || !state.workout.workout_exercises) return state;
+          const targetState = state.storeMode === StoreMode.WORKOUT ? state.workout : state.routine;
+          if (!targetState || !targetState.workout_exercises) return state;
 
           return {
             ...state,
-            workout: {
-              ...state.workout,
-              workout_exercises: state.workout.workout_exercises.map(workout_exercise => {
+            [state.storeMode === StoreMode.WORKOUT ? 'workout' : 'routine']: {
+              ...targetState,
+              workout_exercises: targetState.workout_exercises.map(workout_exercise => {
                 if (workout_exercise.id === exerciseId) {
                   const newSets = [...workout_exercise.sets];
                   newSets[setIndex] = {
                     ...newSets[setIndex],
-                    weight: setWeight //Create a new set object with updated weight
+                    weight: setWeight // Create a new set object with updated weight
                   };
                   const reorderedSets = reorderExerciseSetNumber(newSets);
                   return { ...workout_exercise, sets: reorderedSets };
@@ -207,13 +249,14 @@ export const useWorkoutStore = create<WorkoutState>()(
           };
         }),
         changeSetType: (exerciseId, setIndex, setType) => set((state) => {
-          if (!state.workout || !state.workout.workout_exercises) return state;
+          const targetState = state.storeMode === StoreMode.WORKOUT ? state.workout : state.routine;
+          if (!targetState || !targetState.workout_exercises) return state;
 
           return {
             ...state,
-            workout: {
-              ...state.workout,
-              workout_exercises: state.workout.workout_exercises.map(workout_exercise => {
+            [state.storeMode === StoreMode.WORKOUT ? 'workout' : 'routine']: {
+              ...targetState,
+              workout_exercises: targetState.workout_exercises.map(workout_exercise => {
                 if (workout_exercise.id === exerciseId) {
                   const newSets = workout_exercise.sets.map((set, i) => {
                     if (i === setIndex) {
@@ -238,9 +281,10 @@ export const useWorkoutStore = create<WorkoutState>()(
           };
         }),
         replaceExerciseInWorkout: (workingExerciseKey: number, exercise: Exercise) => set((state) => {
-          if (!state.workout || !state.workout.workout_exercises) return state;
+          const targetState = state.storeMode === StoreMode.WORKOUT ? state.workout : state.routine;
+          if (!targetState || !targetState.workout_exercises) return state;
 
-          const newWorkoutExercises = state.workout.workout_exercises.map((workoutExercise: WorkoutExerciseType, index: number) => {
+          const newWorkoutExercises = targetState.workout_exercises.map((workoutExercise: WorkoutExerciseType, index: number) => {
             if (index === workingExerciseKey) {
               return {
                 id: uuidv4(),
@@ -255,16 +299,17 @@ export const useWorkoutStore = create<WorkoutState>()(
 
           return {
             ...state,
-            workout: {
-              ...state.workout,
+            [state.storeMode === StoreMode.WORKOUT ? 'workout' : 'routine']: {
+              ...targetState,
               workout_exercises: newWorkoutExercises
             }
           };
         }),
         updateNoteToExercise: (workingExerciseKey: number, note: string) => set((state) => {
-          if (!state.workout || !state.workout.workout_exercises) return state;
+          const targetState = state.storeMode === StoreMode.WORKOUT ? state.workout : state.routine;
+          if (!targetState || !targetState.workout_exercises) return state;
 
-          const newWorkoutExercises = state.workout.workout_exercises.map((workoutExercise: WorkoutExerciseType, index: number) => {
+          const newWorkoutExercises = targetState.workout_exercises.map((workoutExercise: WorkoutExerciseType, index: number) => {
             if (index === workingExerciseKey) {
               return {
                 ...workoutExercise,
@@ -276,29 +321,31 @@ export const useWorkoutStore = create<WorkoutState>()(
 
           return {
             ...state,
-            workout: {
-              ...state.workout,
+            [state.storeMode === StoreMode.WORKOUT ? 'workout' : 'routine']: {
+              ...targetState,
               workout_exercises: newWorkoutExercises
             }
           };
         }),
         deleteExercise: (workingExerciseKey: number) => set((state) => {
-          if (!state.workout || !state.workout.workout_exercises) return state;
+          const targetState = state.storeMode === StoreMode.WORKOUT ? state.workout : state.routine;
+          if (!targetState || !targetState.workout_exercises) return state;
 
-          const newWorkoutExercises = state.workout.workout_exercises.filter((_exercise, index) => index !== workingExerciseKey);
+          const newWorkoutExercises = targetState.workout_exercises.filter((_exercise, index) => index !== workingExerciseKey);
 
           return {
             ...state,
-            workout: {
-              ...state.workout,
+            [state.storeMode === StoreMode.WORKOUT ? 'workout' : 'routine']: {
+              ...targetState,
               workout_exercises: newWorkoutExercises
             }
           };
         }),
         toggleSetCompletion: (exerciseId: string | number[], setIndex: number) => set((state) => {
-          if (!state.workout || !state.workout.workout_exercises) return state;
+          const targetState = state.storeMode === StoreMode.WORKOUT ? state.workout : state.routine;
+          if (!targetState || !targetState.workout_exercises) return state;
 
-          const workout_exercises = state.workout.workout_exercises.map((workout_exercise) => {
+          const updatedWorkoutExercises = targetState.workout_exercises.map((workout_exercise) => {
             if (workout_exercise.id === exerciseId) {
               const newSets = workout_exercise.sets.map((set, i) => {
                 if (i === setIndex) {
@@ -321,56 +368,24 @@ export const useWorkoutStore = create<WorkoutState>()(
 
           return {
             ...state,
-            workout: {
-              ...state.workout,
-              workout_exercises,
+            [state.storeMode === StoreMode.WORKOUT ? 'workout' : 'routine']: {
+              ...targetState,
+              workout_exercises: updatedWorkoutExercises,
             },
           };
         }),
         reorderExercises: (data: WorkoutExerciseType[]) => {
           set((state) => {
-            if (!state.workout || !state.workout.workout_exercises) return state;
+            const targetState = state.storeMode === StoreMode.WORKOUT ? state.workout : state.routine;
+            if (!targetState || !targetState.workout_exercises) return state;
 
             const copy = [...data];
 
             return {
               ...state,
-              workout: {
-                ...state.workout,
+              [state.storeMode === StoreMode.WORKOUT ? 'workout' : 'routine']: {
+                ...targetState,
                 workout_exercises: copy,
-              },
-            };
-          });
-        },
-        updateWorkoutDuration: (duration: number) => {
-          set((state) => {
-            if (!state.workout) return state;
-            const updatedWorkout = {
-              ...state.workout,
-              duration: duration,
-            };
-            return {
-              ...state,
-              workout: updatedWorkout
-            };
-
-          });
-        },
-        cleanupIncompleteSets: () => {
-          //Removes all sets that are not completed
-          set((state) => {
-            if (!state.workout || !state.workout.workout_exercises) return state;
-
-            const workout_exercises = state.workout.workout_exercises.map((workout_exercise) => {
-              const newSets = workout_exercise.sets.filter((set) => set.completed);
-              return { ...workout_exercise, sets: newSets };
-            });
-
-            return {
-              ...state,
-              workout: {
-                ...state.workout,
-                workout_exercises,
               },
             };
           });
@@ -378,13 +393,14 @@ export const useWorkoutStore = create<WorkoutState>()(
         setExerciseSearchMode: (mode: ExerciseSearchMode) => set({ exerciseSearchMode: mode }),
         setSelectedExerciseIndex: (index: number) => set({ selectedExerciseIndex: index }),
         setIntensityToExerciseSet: (exerciseId: string | number[], setIndex: number, intensity: ExerciseSetIntensity | undefined) => set((state) => {
-          if (!state.workout || !state.workout.workout_exercises) return state;
+          const targetState = state.storeMode === StoreMode.WORKOUT ? state.workout : state.routine;
+          if (!targetState || !targetState.workout_exercises) return state;
 
           return {
             ...state,
-            workout: {
-              ...state.workout,
-              workout_exercises: state.workout.workout_exercises.map(workout_exercise => {
+            [state.storeMode === StoreMode.WORKOUT ? 'workout' : 'routine']: {
+              ...targetState,
+              workout_exercises: targetState.workout_exercises.map(workout_exercise => {
                 if (workout_exercise.id === exerciseId) {
                   const newSets = [...workout_exercise.sets];
                   newSets[setIndex] = { ...newSets[setIndex], intensity: intensity };
@@ -397,13 +413,14 @@ export const useWorkoutStore = create<WorkoutState>()(
           };
         }),
         setRestTimeToExercise: (selectedExerciseIndex: number, seconds: number) => set((state) => {
-          if (!state.workout || !state.workout.workout_exercises) return state;
+          const targetState = state.storeMode === StoreMode.WORKOUT ? state.workout : state.routine;
+          if (!targetState || !targetState.workout_exercises) return state;
 
           return {
             ...state,
-            workout: {
-              ...state.workout,
-              workout_exercises: state.workout.workout_exercises.map((workout_exercise, index) => {
+            [state.storeMode === StoreMode.WORKOUT ? 'workout' : 'routine']: {
+              ...targetState,
+              workout_exercises: targetState.workout_exercises.map((workout_exercise, index) => {
                 if (index === selectedExerciseIndex) {
                   return { ...workout_exercise, setInterval: seconds };
                 }
@@ -467,8 +484,18 @@ export const useWorkoutStore = create<WorkoutState>()(
             fetchedWorkout: null,
             onGoingWorkout: null,
             isEditing: false,
+            storeMode: StoreMode.WORKOUT
           };
         }),
+        setStoreMode: (mode: StoreMode) => set({ storeMode: mode }),
+        emptyRoutine: () => set((state) => {
+          return {
+            ...state,
+            routine: null,
+            storeMode: StoreMode.WORKOUT
+          }
+        }
+        )
       }),
       {
         name: 'currentWorkoutStore',

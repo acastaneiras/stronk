@@ -1,17 +1,19 @@
 import dayjs from "dayjs";
 import { WorkoutExerciseType } from "./WorkoutExerciseType";
 
-export interface Workout {
+export interface Routine {
     id: string | null;
     userId: string;
     title: string;
-    description?: string;
-    //routine: Routine | null; //TODO
     date: dayjs.Dayjs;
     duration: number | null;
     sets: number;
     volume: number;
     workout_exercises: WorkoutExerciseType[];
+}
+
+export interface Workout extends Routine {
+    description?: string;
 }
 
 export interface SetCounts {

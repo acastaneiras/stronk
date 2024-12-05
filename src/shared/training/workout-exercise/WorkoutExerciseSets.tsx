@@ -3,7 +3,7 @@ import { IntensityScale } from '@/models/ExerciseSet';
 import { WorkoutExerciseType } from '@/models/WorkoutExerciseType';
 import WorkoutExerciseSingleSet from '@/shared/training/workout-exercise/WorkoutExerciseSingleSet';
 import { useUserStore } from '@/stores/userStore';
-import { useWorkoutStore } from '@/stores/workoutStore';
+import { StoreMode, useWorkoutStore } from '@/stores/workoutStore';
 import { formatWeightUnit } from '@/utils/workoutUtils';
 import { clsx } from 'clsx';
 import { CheckCheckIcon, Hash, Plus, Weight, Zap } from 'lucide-react';
@@ -18,12 +18,17 @@ type WorkoutExerciseSetsProps = {
 
 function WorkoutExerciseSets({ currentExercise, onChangeSetTypePressEvent, onCallShowIntensityModalEvent }: WorkoutExerciseSetsProps) {
   const { user } = useUserStore();
-  const { addSetToExercise } = useWorkoutStore();
+  const { addSetToExercise, storeMode } = useWorkoutStore();
 
   return (
     <div>
       {currentExercise.sets.length > 0 && (
-        <div className={clsx(user?.intensitySetting !== "none" ? "grid-cols-5" : "grid-cols-4", "grid text-center text-gray-500")}>
+        <div className={clsx(
+          "grid text-center text-gray-500",
+          storeMode === StoreMode.WORKOUT
+            ? user?.intensitySetting !== "none" ? "grid-cols-5" : "grid-cols-4"
+            : user?.intensitySetting !== "none" ? "grid-cols-4" : "grid-cols-3"
+        )}>
           <span className='flex gap-1 items-center justify-center'><Hash className='w-4' /> Set</span>
           <span className='flex gap-1 items-center justify-center'><Weight className='w-4' /> {user?.unitPreference && formatWeightUnit(user.unitPreference)}</span>
           <span className='flex gap-1 items-center justify-center'><GoNumber className='w-4' /> Reps</span>
@@ -33,7 +38,11 @@ function WorkoutExerciseSets({ currentExercise, onChangeSetTypePressEvent, onCal
               {user?.intensitySetting}
             </span>
           )}
-          <span className='flex gap-1 items-center justify-center'><CheckCheckIcon className='w-4' /></span>
+          {
+            storeMode === StoreMode.WORKOUT && (
+              <span className='flex gap-1 items-center justify-center'><CheckCheckIcon className='w-4' /></span>
+            )
+          }
         </div>
       )}
       {currentExercise.sets.map((set, index) => (

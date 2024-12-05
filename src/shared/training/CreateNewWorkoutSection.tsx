@@ -17,13 +17,9 @@ const CreateNewWorkoutSection = () => {
 
 
   const createNewWorkout = () => {
-    startNewWorkout();
-  };
-
-  const startNewWorkout = () => {
-    navigate('/training/create-new-workout');
     newWorkout(user!.id);
-  }
+    navigate('/training/create-new-workout');
+  };
 
   if (!workout) return (
     <Button className='w-full' onClick={createNewWorkout}><Plus /> Create New Workout</Button>

@@ -1,6 +1,6 @@
 import { Dumbbell } from "lucide-react";
 
-const NoExercises = () => {
+const NoExercises = ({ type = "workout" }: { type?: string }) => {
   return (
     <div
       className="flex flex-col items-center justify-center space-y-4 px-6 pb-12"
@@ -10,7 +10,7 @@ const NoExercises = () => {
         <h2 className="text-xl font-bold">No exercises</h2>
       </div>
       <p className="text-center">
-        You can add new exercises to the workout by clicking the{' '}
+        You can add new exercises to the {type} by clicking the{' '}
         <span className="font-semibold text-primary">"Add Exercises"</span> button.
       </p>
     </div>

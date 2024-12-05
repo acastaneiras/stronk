@@ -13,6 +13,8 @@ const WorkoutRoutes = () => {
         "/training/edit-workout",
         "/training/reorder-exercises",
         "/training/exercise-list",
+        "/training/create-routine",
+        "/training/edit-routine",
       ].includes(location.pathname);
       
     //Prevent emptying the workout when the user is editing it, and clear the workout when the user is not editing it

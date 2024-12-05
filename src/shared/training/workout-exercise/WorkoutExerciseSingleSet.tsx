@@ -4,7 +4,7 @@ import { WorkoutExerciseType } from '@/models/WorkoutExerciseType';
 import IconSet from '@/shared/icons/IconSet';
 import WeightInput from '@/shared/training/workout-exercise/workout-exercise-sets/WeightInput';
 import { useUserStore } from '@/stores/userStore';
-import { useWorkoutStore } from '@/stores/workoutStore';
+import { StoreMode, useWorkoutStore } from '@/stores/workoutStore';
 import { useMediaQuery } from '@uidotdev/usehooks';
 import clsx from 'clsx';
 import { Check, Trash2 } from 'lucide-react';
@@ -22,7 +22,7 @@ type WorkoutExerciseSingleSetProps = {
 
 function WorkoutExerciseSingleSet({ set, setIndex, currentExercise, callShowIntensityModal, onChangeSetType }: WorkoutExerciseSingleSetProps) {
   const { user } = useUserStore();
-  const { toggleSetCompletion, deleteSetToExercise } = useWorkoutStore();
+  const { toggleSetCompletion, deleteSetToExercise, storeMode } = useWorkoutStore();
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const [isSwiped, setIsSwiped] = useState(false);
   const controls = useAnimation();
@@ -82,7 +82,15 @@ function WorkoutExerciseSingleSet({ set, setIndex, currentExercise, callShowInte
           initial={{ x: 0 }}
           style={{ zIndex: 1 }}
         >
-          <div className={clsx(user?.intensitySetting !== "none" ? "w-1/5" : "w-1/4")}>
+          <div className={clsx(
+            storeMode === StoreMode.ROUTINE
+              ? user?.intensitySetting !== "none"
+                ? "w-1/4"
+                : "w-1/3"
+              : user?.intensitySetting !== "none"
+                ? "w-1/5"
+                : "w-1/4"
+          )}>
             <Button
               onClick={onChangeSetType}
               variant="ghost"
@@ -91,14 +99,32 @@ function WorkoutExerciseSingleSet({ set, setIndex, currentExercise, callShowInte
               <IconSet setType={set.type} setNumber={set.number} />
             </Button>
           </div>
-          <div className={clsx(user?.intensitySetting !== "none" ? "w-1/5" : "w-1/4", "px-1 md:px-10")}>
+          <div className={clsx(
+            storeMode === StoreMode.ROUTINE
+              ? user?.intensitySetting !== "none"
+                ? "w-1/4"
+                : "w-1/3"
+              : user?.intensitySetting !== "none"
+                ? "w-1/5"
+                : "w-1/4",
+            "px-1 md:px-10"
+          )}>
             <WeightInput
               set={set}
               setIndex={setIndex}
               currentExercise={currentExercise}
             />
           </div>
-          <div className={clsx(user?.intensitySetting !== "none" ? "w-1/5" : "w-1/4", "px-1 md:px-10")}>
+          <div className={clsx(
+            storeMode === StoreMode.ROUTINE
+              ? user?.intensitySetting !== "none"
+                ? "w-1/4"
+                : "w-1/3"
+              : user?.intensitySetting !== "none"
+                ? "w-1/5"
+                : "w-1/4",
+            "px-1 md:px-10"
+          )}>
             <RepsInput
               set={set}
               setIndex={setIndex}
@@ -106,7 +132,9 @@ function WorkoutExerciseSingleSet({ set, setIndex, currentExercise, callShowInte
             />
           </div>
           {((user?.intensitySetting) && ([IntensityScale.RPE, IntensityScale.RIR].includes(user?.intensitySetting as IntensityScale))) && (
-            <div className="w-1/5">
+            <div className={clsx(
+              storeMode === StoreMode.ROUTINE ? "w-1/4" : "w-1/5"
+            )}>
               <Button
                 variant="ghost"
                 onClick={() => callShowIntensityModal(setIndex)}
@@ -114,15 +142,20 @@ function WorkoutExerciseSingleSet({ set, setIndex, currentExercise, callShowInte
               >
                 {set.intensity ? `@ ${set.intensity.value.toFixed(1)}` : "@"}
               </Button>
-            </div>)}
-          <div className={clsx(user?.intensitySetting !== "none" ? "w-1/5" : "w-1/4")}>
-            <Button
-              onClick={() => handleSetCompleted(setIndex)}
-              variant={set.completed ? "default" : "outline"}
-            >
-              <Check className="h-4 w-4" />
-            </Button>
-          </div>
+            </div>
+          )}
+          {storeMode == StoreMode.WORKOUT && (
+            <div className={clsx(user?.intensitySetting !== "none" ? "w-1/5" : "w-1/4")}>
+              <Button
+                onClick={() => handleSetCompleted(setIndex)}
+                variant={set.completed ? "default" : "outline"}
+              >
+                <Check className="h-4 w-4" />
+              </Button>
+            </div>
+          )
+          }
+
         </motion.div>
       </div>
     </motion.div>

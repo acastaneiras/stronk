@@ -18,13 +18,13 @@ export const getTotalSets = (workout: Workout | null): SetCounts => {
 }
 
 //Get the total volume of a workout
-export const getTotalVolume = (workout: Workout | null): number => {
+export const getTotalVolume = (workout: Workout | null, isRoutine: boolean = false): number => {
   if (!workout || !workout.workout_exercises) return 0;
 
   let totalVolume = 0;
   for (const workoutExercise of workout.workout_exercises) {
     for (const set of workoutExercise.sets) {
-      if (set.completed) {
+      if (set.completed || isRoutine) {
         let newReps: number | string = 0;
         newReps = (typeof set.reps !== 'string' ? set.reps : 0);
         if (set.weight.value) {
