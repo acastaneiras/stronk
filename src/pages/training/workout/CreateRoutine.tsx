@@ -21,6 +21,7 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import NoExercises from '../NoExercises'
+import { useQueryClient } from '@tanstack/react-query'
 
 const workoutSchema = z.object({
   title: z.string().min(1, { message: 'Routine title is required.' }),
@@ -28,13 +29,13 @@ const workoutSchema = z.object({
 
 const CreateRoutine = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { user } = useUserStore();
-  const { routine, emptyRoutine, changeSetType, deleteExercise, selectedExerciseIndex, setSelectedExerciseIndex, updateNoteToExercise, setIntensityToExerciseSet, setRestTimeToExercise } = useWorkoutStore();
+  const { routine, emptyRoutine, changeSetType, deleteExercise, selectedExerciseIndex, setSelectedExerciseIndex, updateNoteToExercise, setIntensityToExerciseSet, setRestTimeToExercise, setRoutineTitle } = useWorkoutStore();
 
   const setsDetail: SetCounts = getTotalSets(routine);
   const totalVolume = getTotalVolume(routine, true);
 
-  const [routineTitle, setRoutineTitle] = useState('');
   const [showExerciseNotes, setShowExerciseNotes] = useState(false);
   const [showRestTime, setShowRestTime] = useState(false);
   const [removeExerciseOpen, setRemoveExerciseOpen] = useState(false);
@@ -50,8 +51,9 @@ const CreateRoutine = () => {
   }
 
   const handleSaveRoutine = async () => {
+    if (!routine) return;
     const routineData = {
-      title: routineTitle,
+      title: routine.title,
     };
 
     const validation = workoutSchema.safeParse(routineData);
@@ -64,7 +66,7 @@ const CreateRoutine = () => {
       const { data: routineDataResponse, error: routineErr } = await supabase
         .from('Routines')
         .insert([{
-          title: routineTitle,
+          title: routine.title,
           userId: user?.id,
         }])
         .select();
@@ -107,10 +109,19 @@ const CreateRoutine = () => {
         }
       }
 
-      /* Todo: Invalidate the cache */
+      await queryClient.invalidateQueries(
+        {
+          queryKey: ["routines", user?.id],
+          refetchType: 'active',
+        },
+        {
+          cancelRefetch: true,
+          throwOnError: true,
+        }
+      );
+
 
       toast.success('Routine saved successfully!');
-      
       emptyRoutine();
       navigate('/training');
     } catch (err: unknown) {
@@ -220,7 +231,7 @@ const CreateRoutine = () => {
           </div>
         </div>
         <div className='flex flex-col gap-2'>
-          <Input placeholder='Routine title' className='w-full' value={routineTitle}
+          <Input placeholder='Routine title' className='w-full' value={routine?.title}
             onChange={(e) => setRoutineTitle(e.target.value)} />
         </div>
         <div className='flex flex-row text-center justify-center gap-24'>

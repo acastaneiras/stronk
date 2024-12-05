@@ -144,7 +144,7 @@ const Profile = () => {
 				</div>
 				{
 					userLastPR && (
-						<Card className='shadow-none'>
+						<Card className='shadow-none bg-accent'>
 							<CardHeader className='flex flex-row items-center justify-between'>
 								<div>
 									<CardTitle className='text-2xl flex flex-row items-center gap-2'>Last PR <Trophy className='text-yellow-600' /></CardTitle>
@@ -152,7 +152,6 @@ const Profile = () => {
 								</div>
 								<div>
 									<h1 className='text-2xl font-bold text-right'>{userLastPR.set.weight.value} {userLastPR.set.weight.unit} x {userLastPR.set.reps}</h1>
-
 									<div className='text-right'>
 										{userLastPR.exercise.name} ({userLastPR.exercise.category})
 									</div>
@@ -168,14 +167,14 @@ const Profile = () => {
 				<div className='flex flex-col gap-4'>
 					{workouts && workouts.length > 0 ? (
 						workouts?.map((workout) => (
-							<Card key={workout.id} className="shadow-none">
+							<Card key={workout.id} className="shadow-none bg-secondary/80">
 								<CardHeader>
 									<CardTitle className='flex flex-row justify-between'>
 										<div className='flex flex-col'>
 											<h1 className="text-2xl flex flex-row items-center gap-2">
 												{workout.title}
 											</h1>
-											<h3 className="text-sm font-extralight text-gray-500">
+											<h3 className="text-sm font-extralight text-gray-500 dark:text-gray-100">
 												{user?.firstName} {user?.lastName} {`(${user?.alias})`}
 											</h3>
 										</div>
@@ -224,7 +223,7 @@ const Profile = () => {
 													<ImageIcon />
 													<div>
 														<h1 className="text-xl font-bold">{exercise.exercise.name}</h1>
-														<p className="text-gray-500">{exercise.sets.length} {exercise.sets.length > 1 ? 'sets' : 'set'}</p>
+														<p className="text-gray-500 dark:text-gray-100">{exercise.sets.length} {exercise.sets.length > 1 ? 'sets' : 'set'}</p>
 													</div>
 												</div>
 												<div>
@@ -233,7 +232,7 @@ const Profile = () => {
 											</div>
 										))}
 										{workout.workout_exercises.length > 2 && (
-											<div className="text-gray-500 text-sm">
+											<div className="text-gray-500 dark:text-gray-100 text-sm">
 												({workout.workout_exercises.length - 2} more {workout.workout_exercises.length - 2 > 1 ? "exercises" : "exercise"})
 											</div>
 										)}

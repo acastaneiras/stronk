@@ -70,6 +70,7 @@ export interface WorkoutState {
   emptyEditWorkout: () => void,
   setStoreMode: (mode: StoreMode) => void,
   emptyRoutine: () => void,
+  setRoutineTitle: (title: string) => void,
 }
 
 export const useWorkoutStore = create<WorkoutState>()(
@@ -494,8 +495,18 @@ export const useWorkoutStore = create<WorkoutState>()(
             routine: null,
             storeMode: StoreMode.WORKOUT
           }
-        }
-        )
+        }),
+        setRoutineTitle: (title: string) => set((state) => {
+          if (!state.routine) return state;
+
+          return {
+            ...state,
+            routine: {
+              ...state.routine,
+              title
+            }
+          };
+        }),
       }),
       {
         name: 'currentWorkoutStore',

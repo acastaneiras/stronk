@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { WeightUnit } from "@/models/ExerciseSet";
-import { Workout } from "@/models/Workout";
+import { Routine, Workout } from "@/models/Workout";
 import { WorkoutExerciseType } from "@/models/WorkoutExerciseType";
 import { supabase } from "@/utils/supabaseClient";
 import dayjs from "dayjs";
@@ -35,24 +35,55 @@ export const fetchWorkoutsWithExercises = async (userId: string | number, userUn
     console.error('Error fetching workouts with exercises:', error);
     return [];
   }
-  return data ? transformWorkoutData(data, userUnits) : []; 
+  return data ? transformData(data, userUnits, 'WorkoutExerciseDetails') : [];
+};
+
+export const fetchRoutinesWithExercises = async (userId: string | number, userUnits: WeightUnit): Promise<Routine[]> => {
+  const { data, error } = await supabase
+    .from('Routines')
+    .select(`
+      id,
+      title,
+      userId,
+      createdAt,
+      RoutineExerciseDetails (
+        ExerciseDetails (
+          id,
+          notes,
+          sets,
+          setInterval,
+          Exercises (
+            *
+          )
+        )
+      )
+        `)
+    .eq('userId', userId)
+    .order('createdAt', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching routines with exercises:', error);
+    return [];
+  }
+
+  return data ? transformData(data, userUnits, 'RoutineExerciseDetails') : [];
 };
 
 
-
-const transformWorkoutData = (data: any[], userUnits: WeightUnit): Workout[] => {
-  return data.map((rawWorkout) => ({
-    id: rawWorkout.id,
-    userId: rawWorkout.userId,
-    title: rawWorkout.title,
-    description: rawWorkout.description || "",
-    date: dayjs(rawWorkout.date),
-    duration: rawWorkout.duration || null,
-    sets: rawWorkout.WorkoutExerciseDetails.reduce(
+//Function that parses the data from the database into the Workout or Routine model
+const transformData = ( data: any[], userUnits: WeightUnit, detailsKey: 'WorkoutExerciseDetails' | 'RoutineExerciseDetails'): Routine[] | Workout[] => {
+  return data.map((rawItem) => ({
+    id: rawItem.id,
+    userId: rawItem.userId,
+    title: rawItem.title,
+    description: rawItem.description || "",
+    date: dayjs(rawItem.date),
+    duration: rawItem.duration || null,
+    sets: rawItem[detailsKey].reduce(
       (acc: any, detail: { ExerciseDetails: { sets: string | any[]; }; }) => acc + detail.ExerciseDetails.sets.length,
       0
     ),
-    volume: rawWorkout.WorkoutExerciseDetails.reduce(
+    volume: rawItem[detailsKey].reduce(
       (acc: any, detail: { ExerciseDetails: { sets: any[]; }; }) =>
         acc +
         detail.ExerciseDetails.sets.reduce((setAcc, set) => {
@@ -63,7 +94,7 @@ const transformWorkoutData = (data: any[], userUnits: WeightUnit): Workout[] => 
         }, 0),
       0
     ),
-    workout_exercises: rawWorkout.WorkoutExerciseDetails.map((detail: { ExerciseDetails: { id: any; Exercises: { id: any; name: any; guid: any; instructions: any; images: any; isCustom: any; category: any; equipment: any; primaryMuscles: any; secondaryMuscles: any; createdAt: Date | null; }; sets: any[]; setInterval: any; notes: any; }; }): WorkoutExerciseType => ({
+    workout_exercises: rawItem[detailsKey].map((detail: { ExerciseDetails: { id: any; Exercises: { id: any; name: any; guid: any; instructions: any; images: any; isCustom: any; category: any; equipment: any; primaryMuscles: any; secondaryMuscles: any; createdAt: Date | null; }; sets: any[]; setInterval: any; notes: any; }; }): WorkoutExerciseType => ({
       id: detail.ExerciseDetails.id,
       exercise: {
         id: detail.ExerciseDetails.Exercises.id,
@@ -77,7 +108,7 @@ const transformWorkoutData = (data: any[], userUnits: WeightUnit): Workout[] => 
         primaryMuscles: detail.ExerciseDetails.Exercises.primaryMuscles || [],
         secondaryMuscles: detail.ExerciseDetails.Exercises.secondaryMuscles || [],
         createdAt: detail.ExerciseDetails.Exercises.createdAt
-          ? (detail.ExerciseDetails.Exercises.createdAt)
+          ? detail.ExerciseDetails.Exercises.createdAt
           : null,
       },
       sets: detail.ExerciseDetails.sets.map((set) => ({

@@ -27,31 +27,29 @@ const CreateNewWorkoutSection = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      <Card>
-        <CardHeader className="flex justify-around py-4">
-          <CardTitle className="text-2xl font-bold">Ongoing Workout</CardTitle>
-          <div className="flex flex-row justify-around mt-2 text-gray-600 dark:text-gray-400">
-            <div className="flex flex-col items-center">
-              <Hash className="w-6 h-6 " />
-              <span className="text-sm font-semibold">Sets</span>
-              <span className="">{setsDetail.done} of {setsDetail.total}</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <Dumbbell className="w-6 h-6" />
-              <span className="text-sm font-semibold">Volume</span>
-              <span className="">{totalVolume} {user?.unitPreference}</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <Timer className="w-6 h-6" />
-              <span className="text-sm font-semibold">Time</span>
-              <span className="">{formatTime(calculateElapsedSecondsFromDate(workout.date))}</span>
-            </div>
-          </div>
-          <CardDescription >
-
-          </CardDescription>
+      <Card className="bg-secondary/80 shadow-none">
+        <CardHeader className="pb-0 space-y-0">
+          <CardTitle className="text-2xl font-semibold">Ongoing Workout</CardTitle>
+          <CardDescription />
         </CardHeader>
-        <CardFooter className="flex justify-between gap-4">
+        <div className="flex flex-row justify-between px-10 py-4">
+          <div className="flex flex-col items-center">
+            <Hash className="w-6 h-6" />
+            <span className="text-sm font-semibold">Sets</span>
+            <span className="">{setsDetail.done} of {setsDetail.total}</span>
+          </div>
+          <div className="flex flex-col items-center">
+            <Dumbbell className="w-6 h-6" />
+            <span className="text-sm font-semibold">Volume</span>
+            <span className="">{totalVolume} {user?.unitPreference}</span>
+          </div>
+          <div className="flex flex-col items-center">
+            <Timer className="w-6 h-6" />
+            <span className="text-sm font-semibold">Time</span>
+            <span className="">{formatTime(calculateElapsedSecondsFromDate(workout.date))}</span>
+          </div>
+        </div>
+        <CardFooter className="gap-4">
           <Button
             onClick={() => navigate('/training/create-new-workout')}
             className="w-full">
