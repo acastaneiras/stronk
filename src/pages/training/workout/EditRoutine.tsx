@@ -2,8 +2,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
-import { ExerciseSetIntensity, IntensityScale, SelectedSet, SetType } from '@/models/ExerciseSet'
+import { ExerciseSetIntensity, IntensityScale, SelectedSet, SetType, WeightUnit } from '@/models/ExerciseSet'
 import { SetCounts } from '@/models/Workout'
+import ErrorPage from '@/pages/ErrorPage'
+import LoadingPage from '@/pages/LoadingPage'
 import NotesModal from '@/shared/modals/NotesModal'
 import { ResponsiveModal } from '@/shared/modals/ResponsiveModal'
 import RestTimeModal from '@/shared/modals/RestTimeModal'
@@ -12,13 +14,14 @@ import RPEModal from '@/shared/modals/RPEModal'
 import SetTypeModal from '@/shared/modals/SetTypeModal'
 import WorkoutExercise from '@/shared/training/workout-exercise/WorkoutExercise'
 import { useUserStore } from '@/stores/userStore'
-import { useWorkoutStore } from '@/stores/workoutStore'
-import { supabase } from '@/utils/supabaseClient'
+import { StoreMode, useWorkoutStore } from '@/stores/workoutStore'
+import { editRoutine } from '@/utils/apiCalls'
+import { fetchRoutineById } from '@/utils/userDataLoader'
 import { formatWeightUnit, getTotalSets, getTotalVolume } from '@/utils/workoutUtils'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { ChevronLeft, Save, Trash } from 'lucide-react'
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import NoExercises from '../NoExercises'
@@ -29,10 +32,10 @@ const workoutSchema = z.object({
 
 const EditRoutine = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
   const queryClient = useQueryClient();
   const { user } = useUserStore();
-  const { routine, emptyRoutine, fetchedRoutine, changeSetType, deleteExercise, selectedExerciseIndex, setSelectedExerciseIndex, updateNoteToExercise, setIntensityToExerciseSet, setRestTimeToExercise, setRoutineTitle } = useWorkoutStore();
-
+  const { isHydrated, routine, setRoutine, setStoreMode, setIsEditing, emptyRoutine, changeSetType, deleteExercise, selectedExerciseIndex, setSelectedExerciseIndex, updateNoteToExercise, setIntensityToExerciseSet, setRestTimeToExercise, setRoutineTitle } = useWorkoutStore();
   const setsDetail: SetCounts = getTotalSets(routine);
   const totalVolume = getTotalVolume(routine, true);
 
@@ -43,6 +46,26 @@ const EditRoutine = () => {
   const [setTypeShown, setSetTypeShown] = useState(false);
   const [showRPEModal, setShowRPEModal] = useState(false);
   const [showRIRModal, setShowRIRModal] = useState(false);
+  
+  const { isLoading, isError, data: fetchedRoutine, error } = useQuery({
+    queryKey: ['routines', id],
+    queryFn: async () => {
+      if (!id) throw new Error("No routine ID provided.");
+      return await fetchRoutineById(id as string, user?.unitPreference as WeightUnit);
+    },
+    staleTime: 1000 * 60 * 5,
+    enabled: !!id,
+  });
+
+  useEffect(() => {
+    if (isHydrated && fetchedRoutine) {
+      if (!routine || routine.id !== fetchedRoutine.id) {
+        setRoutine(fetchedRoutine);
+      }
+      setStoreMode(StoreMode.ROUTINE);
+      setIsEditing(true);
+    }
+  }, [fetchedRoutine, routine, isHydrated, setRoutine, setStoreMode, setIsEditing]);
 
   const handleSaveRestTime = (seconds: number) => {
     setRestTimeToExercise(selectedExerciseIndex, seconds)
@@ -51,7 +74,7 @@ const EditRoutine = () => {
   }
 
   const handleSaveRoutine = async () => {
-    if (!routine) return;
+    if (!routine || !fetchedRoutine) return;
     const routineData = {
       title: routine.title,
     };
@@ -62,73 +85,11 @@ const EditRoutine = () => {
       return;
     }
 
-    try {
-      const routineId = routine.id;
-      const { error: routineError } = await supabase
-        .from('Routines')
-        .update({
-          title: routine.title,
-        })
-        .eq('id', routineId)
-        .select();
-
-      if (routineError) {
-        throw new Error('Error saving routine, please try again.');
-      }
-
-      const routineExercises = routine?.workout_exercises;
-      if (routineExercises) {
-        const exerciseDetailsData = routineExercises.map((exerciseDetail, index) => ({
-          id: exerciseDetail.id,
-          notes: exerciseDetail.notes,
-          setInterval: exerciseDetail.setInterval,
-          order: index,
-          exerciseId: exerciseDetail.exercise.id,
-          sets: exerciseDetail.sets,
-        }));
-
-        const { data: exerciseDetailsResponse, error: exerciseDetailsError } = await supabase
-          .from('ExerciseDetails')
-          .upsert(exerciseDetailsData)
-          .select();
-
-        if (exerciseDetailsError) {
-          throw new Error('Error saving exercises, please try again.');
-        }
-
-        const routineExerciseDetailsData = exerciseDetailsResponse.map((exerciseDetail) => ({
-          routineId,
-          exerciseDetailsId: exerciseDetail.id,
-        }));
-
-        const { error: routineExerciseDetailsError } = await supabase
-          .from('RoutineExerciseDetails')
-          .upsert(routineExerciseDetailsData);
-
-        if (routineExerciseDetailsError) {
-          throw new Error('Error linking exercises to routine, please try again.');
-        }
-        //Find deleted exercises from routine
-        const originalExercises = fetchedRoutine!.workout_exercises || [];
-        const currentExercises = routine!.workout_exercises || [];
-
-        const deletedExercises = originalExercises.filter((originalExercise) => !currentExercises.some((currentExercise) => currentExercise.id === originalExercise.id));
-        const deletedExerciseIds = deletedExercises.map((exercise) => exercise.id);
-
-        if (deletedExerciseIds.length > 0) {
-          const { error: exerciseError } = await supabase
-            .from('ExerciseDetails')
-            .delete()
-            .in('id', deletedExerciseIds).select();
-          if (exerciseError) {
-            throw new Error('Error deleting exercises, please try again.');
-          }
-        }
-      }
-
+    try {      
+      await editRoutine(routine, fetchedRoutine);
       await queryClient.invalidateQueries(
         {
-          queryKey: ["routines", user?.id],
+          queryKey: ["routines"],
           refetchType: 'active',
         },
         {
@@ -232,6 +193,13 @@ const EditRoutine = () => {
     setShowRestTime(true);
   }
 
+  if (isLoading) {
+    return <LoadingPage />;
+  }
+  if (isError) {
+    return <ErrorPage errorMessage={error.message} />;
+  }
+
   return (
     <div className='flex flex-col flex-1'>
       <div className='flex flex-col gap-4'>
@@ -247,13 +215,13 @@ const EditRoutine = () => {
           </div>
         </div>
         <div className='flex flex-col gap-2'>
-          <Input placeholder='Routine title' className='w-full' value={routine?.title}
+          <Input placeholder='Routine title' className='w-full' value={routine?.title ?? ''}
             onChange={(e) => setRoutineTitle(e.target.value)} />
         </div>
         <div className='flex flex-row text-center justify-center gap-24'>
           <div>
             <div className='font-bold'>Sets</div>
-            <div>{setsDetail.done}/{setsDetail.total}</div>
+            <div>{setsDetail.total}</div>
           </div>
           <div>
             <div className='font-bold'>Volume</div>

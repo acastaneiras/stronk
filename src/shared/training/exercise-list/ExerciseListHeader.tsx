@@ -4,7 +4,7 @@ import { Separator } from '@/components/ui/separator';
 import ExerciseFilterButton from '@/shared/buttons/ExerciseFilterButton';
 import MuscleIcon from '@/shared/icons/MuscleIcon';
 import { getCategoryColor } from '@/utils/workoutUtils';
-import { ChevronLeft, DumbbellIcon, PlusCircle, Search } from 'lucide-react';
+import { ChevronLeft, DumbbellIcon, Search } from 'lucide-react';
 import { MdOutlineFilterList } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 
@@ -24,7 +24,7 @@ type ExerciseListHeaderProps = {
 };
 
 
-const ExerciseListHeader = ({ searchValue, categoryFilter, equipmentFilter, muscleGroupFilter, setSearchValue, setCreateExerciseOpen, setCategoryDrawerOpen, setEquipmentDrawerOpen, setGroupDrawerOpen, setCategoryFilter, setEquipmentFilter, setMuscleGroupFilter }: ExerciseListHeaderProps) => {
+const ExerciseListHeader = ({ searchValue, categoryFilter, equipmentFilter, muscleGroupFilter, setSearchValue, setCategoryDrawerOpen, setEquipmentDrawerOpen, setGroupDrawerOpen, setCategoryFilter, setEquipmentFilter, setMuscleGroupFilter }: ExerciseListHeaderProps) => {
   const navigate = useNavigate();
 
   return (

@@ -12,14 +12,14 @@ import SetTypeModal from '@/shared/modals/SetTypeModal'
 import WorkoutExercise from '@/shared/training/workout-exercise/WorkoutExercise'
 import WorkoutHeader from '@/shared/training/WorkoutHeader'
 import { useUserStore } from '@/stores/userStore'
-import { useWorkoutStore } from '@/stores/workoutStore'
+import { StoreMode, useWorkoutStore } from '@/stores/workoutStore'
 import { Trash } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import NoExercises from '../NoExercises'
 
 const CreateNewWorkout = () => {
-  const { workout, changeSetType, deleteExercise, selectedExerciseIndex, setSelectedExerciseIndex, updateNoteToExercise, setIntensityToExerciseSet, setRestTimeToExercise } = useWorkoutStore();
+  const { workout, changeSetType, deleteExercise, setIsEditing, selectedExerciseIndex, setStoreMode, storeMode, setSelectedExerciseIndex, updateNoteToExercise, setIntensityToExerciseSet, setRestTimeToExercise } = useWorkoutStore();
   const { user } = useUserStore();
   const navigate = useNavigate();
   const [showExerciseNotes, setShowExerciseNotes] = useState(false);
@@ -32,6 +32,13 @@ const CreateNewWorkout = () => {
   const [showRPEModal, setShowRPEModal] = useState(false);
   const [showRIRModal, setShowRIRModal] = useState(false);
   const [showIncompleteExerciseModal, setShowIncompleteExerciseModal] = useState(false);
+
+  useEffect(() => {
+    if (storeMode !== StoreMode.WORKOUT) {
+      setStoreMode(StoreMode.WORKOUT);
+    }
+    setIsEditing(false);
+  },[storeMode, setStoreMode, setIsEditing])
 
   const handleOpenFinishDrawer = (showBeofreFinishModal: boolean) => {
     if (showBeofreFinishModal) {

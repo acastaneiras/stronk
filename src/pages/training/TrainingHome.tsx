@@ -11,6 +11,7 @@ import { Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import LoadingPage from '../LoadingPage';
 import { fetchRoutinesWithExercises } from '@/utils/userDataLoader';
+import ErrorPage from "@/pages/ErrorPage";
 
 const TrainingHome = () => {
 	const navigate = useNavigate();
@@ -31,7 +32,7 @@ const TrainingHome = () => {
 	}
 
 	if (isLoading) return <LoadingPage />;
-	if (isError) return <p>Error: {error?.message}</p>; //TODO: Create a custom error page
+	if (isError) return <ErrorPage errorMessage={error.message} />;
 
 	return (
 		<>

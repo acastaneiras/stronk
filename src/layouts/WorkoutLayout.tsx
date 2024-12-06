@@ -11,11 +11,16 @@ export default function WorkoutLayout() {
   const handleAddExercise = () => {
     setExerciseSearchMode(ExerciseSearchMode.ADD_EXERCISE);
     navigate("/training/exercise-list");
-  }
+  };
 
   const exercisesLength = storeMode === StoreMode.WORKOUT
     ? workout?.workout_exercises?.length || 0
     : routine?.workout_exercises?.length || 0;
+
+  const isAddDisabled = (storeMode === StoreMode.WORKOUT && !workout) ||
+    (storeMode === StoreMode.ROUTINE && !routine);
+
+  const isReorderDisabled = exercisesLength <= 1 || isAddDisabled;
 
   return (
     <main className="min-h-screen flex flex-col">
@@ -24,11 +29,19 @@ export default function WorkoutLayout() {
       </div>
       <div className="sticky bottom-0 left-0 w-full bg-background text-center p-4 border-t border-border z-10">
         <div className="flex flex-row items-center max-w-screen-lg mx-auto gap-4">
-          <Button className='w-full' onClick={handleAddExercise}>
+          <Button
+            className='w-full'
+            onClick={handleAddExercise}
+            disabled={isAddDisabled}
+          >
             <Plus className='w-6 h-6' />
             Add Exercise
           </Button>
-          <Button className='w-40 md:w-96' onClick={() => navigate("/training/reorder-exercises")} disabled={exercisesLength <= 1} >
+          <Button
+            className='w-40 md:w-96'
+            onClick={() => navigate("/training/reorder-exercises")}
+            disabled={isReorderDisabled}
+          >
             <ListOrderedIcon className='w-6 h-6' />
             Reorder Exercises
           </Button>

@@ -8,7 +8,7 @@ import MuscleIcon from '@/shared/icons/MuscleIcon';
 import { ResponsiveModal } from '@/shared/modals/ResponsiveModal';
 import { useUserStore } from '@/stores/userStore';
 import { useWorkoutStore } from '@/stores/workoutStore';
-import { supabase } from '@/utils/supabaseClient';
+import { createWorkout } from '@/utils/apiCalls';
 import { calculateElapsedSecondsFromDate, formatTime, getTotalSets, getTotalVolume } from '@/utils/workoutUtils';
 import { useQueryClient } from '@tanstack/react-query';
 import { Dumbbell, Hash, Hourglass, Loader, Save } from 'lucide-react';
@@ -47,6 +47,7 @@ const FinishWorkoutModal = ({ open, onOpenChange }: { open: boolean, onOpenChang
   }, [open, workout]);
 
   const finishWorkoutPress = async () => {
+    if (!workout || !user) return;
     const workoutData = {
       title: workoutTitle,
       description: workoutDescription,
@@ -61,58 +62,7 @@ const FinishWorkoutModal = ({ open, onOpenChange }: { open: boolean, onOpenChang
     setSpinner(true);
 
     try {
-      const { data: workoutDataResponse, error: workoutError } = await supabase
-        .from('Workouts')
-        .insert([{
-          title: workoutTitle,
-          description: workoutDescription,
-          date: workout?.date,
-          duration: workoutDuration,
-          sets: setsDetail.done,
-          volume: totalVolume,
-          units: user?.unitPreference,
-          userId: user?.id,
-        }])
-        .select();
-
-      if (workoutError) {
-        throw new Error('Error saving workout, please try again.');
-      }
-
-      const workoutId = workoutDataResponse[0].id;
-
-      const workoutExercises = workout?.workout_exercises;
-      if (workoutExercises) {
-        const exerciseDetailsData = workoutExercises.map((exercise, index) => ({
-          notes: exercise.notes,
-          setInterval: exercise.setInterval,
-          order: index,
-          exerciseId: exercise.exercise.id,
-          sets: exercise.sets,
-        }));
-
-        const { data: exerciseDetailsResponse, error: exerciseDetailsError } = await supabase
-          .from('ExerciseDetails')
-          .insert(exerciseDetailsData)
-          .select();
-
-        if (exerciseDetailsError) {
-          throw new Error('Error saving exercises, please try again.');
-        }
-
-        const workoutExerciseDetailsData = exerciseDetailsResponse.map((exerciseDetail) => ({
-          workoutId,
-          exerciseDetailsId: exerciseDetail.id,
-        }));
-
-        const { error: workoutExerciseDetailsError } = await supabase
-          .from('WorkoutExerciseDetails')
-          .insert(workoutExerciseDetailsData);
-
-        if (workoutExerciseDetailsError) {
-          throw new Error('Error linking exercises to workout, please try again.');
-        }
-      }
+      await createWorkout(workout, workoutTitle, workoutDescription, workoutDuration, setsDetail,totalVolume, user );
 
       await queryClient.invalidateQueries(
         {

@@ -12,16 +12,16 @@ import RPEModal from '@/shared/modals/RPEModal'
 import SetTypeModal from '@/shared/modals/SetTypeModal'
 import WorkoutExercise from '@/shared/training/workout-exercise/WorkoutExercise'
 import { useUserStore } from '@/stores/userStore'
-import { useWorkoutStore } from '@/stores/workoutStore'
-import { supabase } from '@/utils/supabaseClient'
+import { StoreMode, useWorkoutStore } from '@/stores/workoutStore'
 import { formatWeightUnit, getTotalSets, getTotalVolume } from '@/utils/workoutUtils'
+import { useQueryClient } from '@tanstack/react-query'
 import { ChevronLeft, Save, Trash } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import NoExercises from '../NoExercises'
-import { useQueryClient } from '@tanstack/react-query'
+import { createRoutine } from '@/utils/apiCalls'
 
 const workoutSchema = z.object({
   title: z.string().min(1, { message: 'Routine title is required.' }),
@@ -31,11 +31,7 @@ const CreateRoutine = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useUserStore();
-  const { routine, emptyRoutine, changeSetType, deleteExercise, selectedExerciseIndex, setSelectedExerciseIndex, updateNoteToExercise, setIntensityToExerciseSet, setRestTimeToExercise, setRoutineTitle } = useWorkoutStore();
-
-  const setsDetail: SetCounts = getTotalSets(routine);
-  const totalVolume = getTotalVolume(routine, true);
-
+  const { routine, emptyRoutine, changeSetType, deleteExercise, storeMode, setStoreMode, selectedExerciseIndex, setSelectedExerciseIndex, updateNoteToExercise, setIntensityToExerciseSet, setRestTimeToExercise, setRoutineTitle } = useWorkoutStore();
   const [showExerciseNotes, setShowExerciseNotes] = useState(false);
   const [showRestTime, setShowRestTime] = useState(false);
   const [removeExerciseOpen, setRemoveExerciseOpen] = useState(false);
@@ -43,6 +39,14 @@ const CreateRoutine = () => {
   const [setTypeShown, setSetTypeShown] = useState(false);
   const [showRPEModal, setShowRPEModal] = useState(false);
   const [showRIRModal, setShowRIRModal] = useState(false);
+  const setsDetail: SetCounts = getTotalSets(routine);
+  const totalVolume = getTotalVolume(routine, true);
+
+  useEffect(() => {
+    if (storeMode !== StoreMode.ROUTINE) {
+      setStoreMode(StoreMode.ROUTINE);
+    }
+  }, [storeMode, setStoreMode])
 
   const handleSaveRestTime = (seconds: number) => {
     setRestTimeToExercise(selectedExerciseIndex, seconds)
@@ -51,7 +55,7 @@ const CreateRoutine = () => {
   }
 
   const handleSaveRoutine = async () => {
-    if (!routine) return;
+    if (!routine || !user) return;
     const routineData = {
       title: routine.title,
     };
@@ -63,55 +67,10 @@ const CreateRoutine = () => {
     }
 
     try {
-      const { data: routineDataResponse, error: routineErr } = await supabase
-        .from('Routines')
-        .insert([{
-          title: routine.title,
-          userId: user?.id,
-        }])
-        .select();
-      if (routineErr) {
-        throw new Error('Error saving workout, please try again.');
-      }
-
-      const routineId = routineDataResponse[0].id;
-
-      const routineExercises = routine?.workout_exercises;
-      if (routineExercises) {
-        const exerciseDetailsData = routineExercises.map((exercise, index) => ({
-          notes: exercise.notes,
-          setInterval: exercise.setInterval,
-          order: index,
-          exerciseId: exercise.exercise.id,
-          sets: exercise.sets,
-        }));
-
-        const { data: routineDetailsResponse, error: routineDetailsError } = await supabase
-          .from('ExerciseDetails')
-          .insert(exerciseDetailsData)
-          .select();
-
-        if (routineDetailsError) {
-          throw new Error('Error saving exercises, please try again.');
-        }
-
-        const routineExerciseDetailsData = routineDetailsResponse.map((exerciseDetail) => ({
-          routineId,
-          exerciseDetailsId: exerciseDetail.id,
-        }));
-
-        const { error: routineExerciseDetailsError } = await supabase
-          .from('RoutineExerciseDetails')
-          .insert(routineExerciseDetailsData);
-
-        if (routineExerciseDetailsError) {
-          throw new Error('Error linking exercises to routine, please try again.');
-        }
-      }
-
+      await createRoutine(routine, user);
       await queryClient.invalidateQueries(
         {
-          queryKey: ["routines", user?.id],
+          queryKey: ["routines"],
           refetchType: 'active',
         },
         {
@@ -237,7 +196,7 @@ const CreateRoutine = () => {
         <div className='flex flex-row text-center justify-center gap-24'>
           <div>
             <div className='font-bold'>Sets</div>
-            <div>{setsDetail.done}/{setsDetail.total}</div>
+            <div>{setsDetail.total}</div>
           </div>
           <div>
             <div className='font-bold'>Volume</div>

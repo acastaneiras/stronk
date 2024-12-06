@@ -7,7 +7,7 @@ const WorkoutRoutes = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const shouldRunEffect =
+    /*const shouldRunEffect =
       (location.pathname.startsWith("/training") || location.pathname.startsWith("/profile")) &&
       ![
         "/training/edit-workout",
@@ -19,7 +19,7 @@ const WorkoutRoutes = () => {
     //Prevent emptying the workout when the user is editing it, and clear the workout when the user is not editing it
     if (shouldRunEffect && isEditing) {
       emptyEditWorkout();
-    }
+    }*/
   }, [location.pathname, isEditing, emptyEditWorkout]);
 
   return <Outlet />;

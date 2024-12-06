@@ -38,12 +38,12 @@ export interface WorkoutState {
   workout: Workout | null,
   onGoingWorkout: Workout | null, //This is used to store the workout in progress
   fetchedWorkout: Workout | null, //This is used to store the workout fetched from the server, in order to compare it with the current workout while editing
-  fetchedRoutine: Routine | null, //This is used to store the routine fetched from the server, in order to compare it with the current routine while editing
   exerciseSearchMode: ExerciseSearchMode,
   selectedExerciseIndex: number,
   isEditing: boolean,
   routine: Routine | null,
   storeMode: StoreMode,
+  isHydrated: boolean,
   newWorkout: (userId: string) => void,
   newRoutine: (userId: string) => void,
   addExercisesToWorkout: (exercises: Exercise[]) => void,
@@ -71,8 +71,8 @@ export interface WorkoutState {
   setStoreMode: (mode: StoreMode) => void,
   emptyRoutine: () => void,
   setRoutineTitle: (title: string) => void,
-  setFetchedRoutine: (routine: Routine | null) => void,
   setRoutine: (routine: Routine | null) => void,
+  setHydrated: () => void,
 }
 
 export const useWorkoutStore = create<WorkoutState>()(
@@ -87,7 +87,7 @@ export const useWorkoutStore = create<WorkoutState>()(
         fetchedWorkout: null,
         routine: null,
         storeMode: StoreMode.WORKOUT,
-        fetchedRoutine: null,
+        isHydrated: false,
         emptyWorkout: () => set((state) => {
           return {
             ...state,
@@ -95,7 +95,6 @@ export const useWorkoutStore = create<WorkoutState>()(
             isEditing: false,
             storeMode: StoreMode.WORKOUT,
             routine: null,
-            fetchedRoutine: null,
             onGoingWorkout: null,
           }
         }, true),
@@ -119,8 +118,6 @@ export const useWorkoutStore = create<WorkoutState>()(
             },
             isEditing: false,
             storeMode: StoreMode.WORKOUT,
-            routine: null,
-            fetchedRoutine: null,
             onGoingWorkout: null,
           }
         }, true),
@@ -499,7 +496,6 @@ export const useWorkoutStore = create<WorkoutState>()(
             onGoingWorkout: null,
             isEditing: false,
             storeMode: StoreMode.WORKOUT,
-            fetchedRoutine: null,
             routine: null,
           };
         }),
@@ -508,7 +504,6 @@ export const useWorkoutStore = create<WorkoutState>()(
           return {
             ...state,
             routine: null,
-            fetchedRoutine: null,
             storeMode: StoreMode.WORKOUT
           }
         }),
@@ -523,13 +518,18 @@ export const useWorkoutStore = create<WorkoutState>()(
             }
           };
         }),
-        setFetchedRoutine: (routine: Routine | null) => set({ fetchedRoutine: routine }),
         setRoutine: (routine: Routine | null) => set({ routine }),
+        setHydrated: () => set({ isHydrated: true }),
       }),
       {
         name: 'currentWorkoutStore',
         storage: createJSONStorage(() => indexedDBStorage),
         version: 1.0,
+        onRehydrateStorage: () => (state) => {
+          if (state) {
+            state.setHydrated();
+          }
+        },
       }
     )
   )

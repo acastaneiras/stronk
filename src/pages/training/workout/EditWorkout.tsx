@@ -14,7 +14,7 @@ import SetTypeModal from '@/shared/modals/SetTypeModal'
 import WorkoutExercise from '@/shared/training/workout-exercise/WorkoutExercise'
 import { useUserStore } from '@/stores/userStore'
 import { useWorkoutStore } from '@/stores/workoutStore'
-import { supabase } from '@/utils/supabaseClient'
+import { editWorkout } from '@/utils/apiCalls'
 import { formatTime, formatWeightUnit, getTotalSets, getTotalVolume, incompleteSets } from '@/utils/workoutUtils'
 import { useQueryClient } from '@tanstack/react-query'
 import { ChevronLeft, Save, Trash } from 'lucide-react'
@@ -85,73 +85,7 @@ const EditWorkout = () => {
     }
 
     try {
-      const workoutId = workout!.id;
-      const { error: workoutError } = await supabase
-        .from('Workouts')
-        .update({
-          title: workoutTitle,
-          description: workoutDescription,
-          sets: setsDetail.done,
-          volume: totalVolume,
-          units: user?.unitPreference,
-        })
-        .eq('id', workoutId)
-        .select();
-
-      if (workoutError) {
-        throw new Error('Error saving workout, please try again.');
-      }
-
-      const workoutExercises = workout?.workout_exercises;
-      if (workoutExercises) {
-        const exerciseDetailsData = workoutExercises.map((exerciseDetail, index) => ({
-          id: exerciseDetail.id,
-          notes: exerciseDetail.notes,
-          setInterval: exerciseDetail.setInterval,
-          order: index,
-          exerciseId: exerciseDetail.exercise.id,
-          sets: exerciseDetail.sets,
-        }));
-
-        const { data: exerciseDetailsResponse, error: exerciseDetailsError } = await supabase
-          .from('ExerciseDetails')
-          .upsert(exerciseDetailsData)
-          .select();
-
-        if (exerciseDetailsError) {
-          throw new Error('Error saving exercises, please try again.');
-        }
-
-        const workoutExerciseDetailsData = exerciseDetailsResponse.map((exerciseDetail) => ({
-          workoutId,
-          exerciseDetailsId: exerciseDetail.id,
-        }));
-
-        const { error: workoutExerciseDetailsError } = await supabase
-          .from('WorkoutExerciseDetails')
-          .upsert(workoutExerciseDetailsData);
-
-        if (workoutExerciseDetailsError) {
-          console.log(workoutExerciseDetailsError);
-          throw new Error('Error linking exercises to workout, please try again.');
-        }
-        //Find deleted exercises;
-        const originalExercises = fetchedWorkout!.workout_exercises || [];
-        const currentExercises = workout!.workout_exercises || [];
-
-        const deletedExercises = originalExercises.filter((originalExercise) => !currentExercises.some((currentExercise) => currentExercise.id === originalExercise.id));
-        const deletedExerciseIds = deletedExercises.map((exercise) => exercise.id);
-
-        if (deletedExerciseIds.length > 0) {
-          const { error: exerciseError } = await supabase
-            .from('ExerciseDetails')
-            .delete()
-            .in('id', deletedExerciseIds).select();
-          if (exerciseError) {
-            throw new Error('Error deleting exercises, please try again.');
-          }
-        }
-      }
+      await editWorkout(workout!, fetchedWorkout!, workoutTitle, workoutDescription, setsDetail, totalVolume, user!);
 
       await queryClient.invalidateQueries(
         {

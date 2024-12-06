@@ -133,7 +133,7 @@ const router = createBrowserRouter([
 										element: <CreateRoutine />,
 									},
 									{
-										path: 'edit-routine',
+										path: 'edit-routine/:id',
 										element: <EditRoutine />,
 									},
 									{

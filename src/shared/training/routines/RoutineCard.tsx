@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Routine } from '@/models/Workout';
-import { StoreMode, useWorkoutStore } from '@/stores/workoutStore';
+import { useWorkoutStore } from '@/stores/workoutStore';
 import { getCategoryColor } from "@/utils/workoutUtils";
 import { Edit, EllipsisVertical, Play, Trash } from 'lucide-react';
 import { useMemo } from 'react';
@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 
 const RoutineCard = ({ routine }: { routine: Routine }) => {
   const navigate = useNavigate();
-  const { setFetchedRoutine, setStoreMode, setRoutine, setIsEditing, workout, setOnGoingWorkout } = useWorkoutStore(); 
+  const { workout, setOnGoingWorkout } = useWorkoutStore(); 
   const categories = useMemo(
     () => Array.from(new Set(routine.workout_exercises.map((we) => we.exercise.category).filter(Boolean))),
     [routine.workout_exercises]
@@ -31,11 +31,7 @@ const RoutineCard = ({ routine }: { routine: Routine }) => {
 
   const handleEditRoutine = () => {
     setOnGoingWorkout(workout);
-    setFetchedRoutine(routine);
-    setRoutine(routine);
-    setStoreMode(StoreMode.ROUTINE);
-    setIsEditing(true);
-    navigate('/training/edit-routine');
+    navigate(`/training/edit-routine/${routine.id}`);
   }
 
   return (

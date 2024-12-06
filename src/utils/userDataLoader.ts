@@ -69,6 +69,44 @@ export const fetchRoutinesWithExercises = async (userId: string | number, userUn
   return data ? transformData(data, userUnits, 'RoutineExerciseDetails') : [];
 };
 
+export const fetchRoutineById = async (routineId: string | number, userUnits: WeightUnit): Promise<Routine | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('Routines')
+      .select(`
+        id,
+        title,
+        userId,
+        createdAt,
+        RoutineExerciseDetails (
+          ExerciseDetails (
+            id,
+            notes,
+            sets,
+            setInterval,
+            Exercises (
+              *
+            )
+          )
+        )
+      `)
+      .eq('id', routineId)
+      .single();
+
+    if (error) {
+      throw new Error(`Error fetching routine: ${error.message}`);
+    }
+
+    if (!data) {
+      throw new Error("No routine found with the given ID.");
+    }
+
+    return transformData([data], userUnits, 'RoutineExerciseDetails')[0];
+  } catch (err) {
+    throw err instanceof Error ? err : new Error('An unexpected error occurred');
+  }
+}; 
+
 
 //Function that parses the data from the database into the Workout or Routine model
 const transformData = ( data: any[], userUnits: WeightUnit, detailsKey: 'WorkoutExerciseDetails' | 'RoutineExerciseDetails'): Routine[] | Workout[] => {
@@ -116,7 +154,7 @@ const transformData = ( data: any[], userUnits: WeightUnit, detailsKey: 'Workout
         reps: set.reps,
         weight: {
           unit: set.weight.unit as WeightUnit,
-          value: parseFloat(set.weight.value ?? 0),
+          value: set.weight.value,
         },
         type: set.type,
         intensity: set.intensity,

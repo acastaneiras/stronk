@@ -14,9 +14,6 @@ const NotFound = () => {
           </Button>
         </div>
       </div>
-      <footer className="text-center p-4 bg-gray-100 w-full">
-        <p>2024 - Stronk</p>
-      </footer>
     </div>
 
   )
