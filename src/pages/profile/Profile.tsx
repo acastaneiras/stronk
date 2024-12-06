@@ -1,29 +1,23 @@
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Separator } from '@/components/ui/separator'
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { WeightUnit } from '@/models/ExerciseSet'
 import { Workout } from '@/models/Workout'
+import { ResponsiveModal } from '@/shared/modals/ResponsiveModal'
 import UserSettingsModal from '@/shared/modals/UserSettingsModal'
+import PastWorkoutCard from '@/shared/profile/PastWorkoutCard'
 import { useUserStore } from '@/stores/userStore'
+import { supabase } from '@/utils/supabaseClient'
 import { fetchWorkoutsWithExercises } from '@/utils/userDataLoader'
-import { formatTime, formatWeightDecimals, getAllWorkoutsAverageTime, getCategoryColor, getUserLastExercisePR, getUserWeeklyVolume } from '@/utils/workoutUtils'
+import { formatTime, getAllWorkoutsAverageTime, getUserLastExercisePR, getUserWeeklyVolume } from '@/utils/workoutUtils'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
-import { Edit, EllipsisVertical, Eye, ImageIcon, Settings, Trash, Trophy } from 'lucide-react'
+import { Settings, Trash, Trophy } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import LoadingPage from '../LoadingPage'
-import { useWorkoutStore } from '@/stores/workoutStore'
-import { useNavigate } from 'react-router-dom'
-import { ResponsiveModal } from '@/shared/modals/ResponsiveModal'
-import { supabase } from '@/utils/supabaseClient'
 import { toast } from 'sonner'
+import LoadingPage from '../LoadingPage'
 
 const Profile = () => {
 	const { user } = useUserStore();
-	const { setOnGoingWorkout, setWorkout, workout, setIsEditing, setFetchedWorkout } = useWorkoutStore();
-	const navigate = useNavigate();
 	const [showSettingsModal, setShowSettingsModal] = useState(false);
 	const queryClient = useQueryClient();
 	const { data: workouts, isLoading, isError, error } = useQuery<Workout[], Error>({
@@ -52,16 +46,6 @@ const Profile = () => {
 
 	if (isLoading) return <LoadingPage />;
 	if (isError) return <p>Error: {error?.message}</p>;
-
-	const handleEditWorkoutClick = (workoutToEdit: Workout) => {
-		if (workout) { // If there is a workout, set the ongoing workout to the current workout
-			setOnGoingWorkout(workout);
-		}
-		setWorkout(workoutToEdit);
-		setFetchedWorkout(workoutToEdit);
-		setIsEditing(true);
-		navigate('/training/edit-workout');
-	}
 
 	const handleDeleteWorkoutPress = (workout: Workout) => () => {
 		setDeleteWorkout(workout);
@@ -166,82 +150,8 @@ const Profile = () => {
 				</div>
 				<div className='flex flex-col gap-4'>
 					{workouts && workouts.length > 0 ? (
-						workouts?.map((workout) => (
-							<Card key={workout.id} className="shadow-none bg-secondary/80">
-								<CardHeader>
-									<CardTitle className='flex flex-row justify-between'>
-										<div className='flex flex-col'>
-											<h1 className="text-2xl flex flex-row items-center gap-2">
-												{workout.title}
-											</h1>
-											<h3 className="text-sm font-extralight text-gray-500 dark:text-gray-100">
-												{user?.firstName} {user?.lastName} {`(${user?.alias})`}
-											</h3>
-										</div>
-										<div className='pl-4 py-3'>
-											<DropdownMenu>
-												<DropdownMenuTrigger asChild>
-													<Button variant="ghost">
-														<EllipsisVertical className="h-5" />
-													</Button>
-												</DropdownMenuTrigger>
-												<DropdownMenuContent align="end" className="w-56 flex flex-col gap-1">
-													<DropdownMenuItem asChild>
-														<Button variant="ghost" className="w-full justify-start border-none cursor-pointer" onClick={() => handleEditWorkoutClick(workout)}>
-															<Edit className="h-4 w-4 mr-2" /> Edit workout
-														</Button>
-													</DropdownMenuItem>
-													<DropdownMenuItem asChild>
-														<Button variant="destructive" onClick={handleDeleteWorkoutPress(workout)} className="w-full justify-start border-none cursor-pointer">
-															<Trash className="h-4 w-4 mr-2" /> Delete workout
-														</Button>
-													</DropdownMenuItem>
-												</DropdownMenuContent>
-											</DropdownMenu>
-										</div>
-									</CardTitle>
-									<CardDescription>
-										{workout.date.format("dddd, MMMM D, YYYY")} at {workout.date.format("h:mm A")}
-									</CardDescription>
-									<div className="flex flex-row text-center gap-10">
-										<div>
-											<div className="font-bold">{workout?.duration ? formatTime(workout?.duration) : "N/A"}</div>
-											<div>Time</div>
-										</div>
-										<div>
-											<div className="font-bold">{formatWeightDecimals(workout.volume)} {user?.unitPreference}</div>
-											<div>Volume</div>
-										</div>
-									</div>
-								</CardHeader>
-								<Separator />
-								<CardContent className="pt-6">
-									<div className="flex flex-col gap-4">
-										{workout.workout_exercises.slice(0, 2).map((exercise, index) => (
-											<div key={`${exercise.id.toString()}-${index}`} className="flex flex-row items-center justify-between">
-												<div className="flex flex-row items-center gap-4">
-													<ImageIcon />
-													<div>
-														<h1 className="text-xl font-bold">{exercise.exercise.name}</h1>
-														<p className="text-gray-500 dark:text-gray-100">{exercise.sets.length} {exercise.sets.length > 1 ? 'sets' : 'set'}</p>
-													</div>
-												</div>
-												<div>
-													<Badge style={{ backgroundColor: getCategoryColor(exercise.exercise.category!) }}>{exercise.exercise.category}</Badge>
-												</div>
-											</div>
-										))}
-										{workout.workout_exercises.length > 2 && (
-											<div className="text-gray-500 dark:text-gray-100 text-sm">
-												({workout.workout_exercises.length - 2} more {workout.workout_exercises.length - 2 > 1 ? "exercises" : "exercise"})
-											</div>
-										)}
-									</div>
-								</CardContent>
-								<CardFooter>
-									<Button><Eye /> View Details</Button>
-								</CardFooter>
-							</Card>
+						workouts?.map((pastWorkout) => (
+							<PastWorkoutCard key={pastWorkout.id} pastWorkout={pastWorkout} handleDeleteWorkoutPress={handleDeleteWorkoutPress(pastWorkout)} />
 						))) : (
 						<div className="flex items-center  h-full">
 							<h2 className="text-lg">No workouts yet.</h2>

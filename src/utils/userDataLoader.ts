@@ -88,7 +88,7 @@ const transformData = ( data: any[], userUnits: WeightUnit, detailsKey: 'Workout
         acc +
         detail.ExerciseDetails.sets.reduce((setAcc, set) => {
           const convertedWeight = parseFloat(
-            WeightConvert(set.weight, userUnits)
+            WeightConvert(set.weight, userUnits) ?? 0
           );
           return setAcc + (convertedWeight * set.reps);
         }, 0),
@@ -116,7 +116,7 @@ const transformData = ( data: any[], userUnits: WeightUnit, detailsKey: 'Workout
         reps: set.reps,
         weight: {
           unit: set.weight.unit as WeightUnit,
-          value: parseFloat(set.weight.value),
+          value: parseFloat(set.weight.value ?? 0),
         },
         type: set.type,
         intensity: set.intensity,

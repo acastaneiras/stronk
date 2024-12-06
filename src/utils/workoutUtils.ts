@@ -100,7 +100,7 @@ export const WeightConvert = (setWeight: SetWeight, toUnit: WeightUnit): string 
   const lbToKg = 0.45359237;
   const kgToLb = 2.20462262185;
 
-  if (setWeight.value === "") {
+  if (!setWeight?.value) {
     return "";
   }
 

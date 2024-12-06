@@ -1,12 +1,17 @@
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Routine } from '@/models/Workout';
+import { StoreMode, useWorkoutStore } from '@/stores/workoutStore';
 import { getCategoryColor } from "@/utils/workoutUtils";
+import { Edit, EllipsisVertical, Play, Trash } from 'lucide-react';
 import { useMemo } from 'react';
-import { Play } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const RoutineCard = ({ routine }: { routine: Routine }) => {
+  const navigate = useNavigate();
+  const { setFetchedRoutine, setStoreMode, setRoutine, setIsEditing, workout, setOnGoingWorkout } = useWorkoutStore(); 
   const categories = useMemo(
     () => Array.from(new Set(routine.workout_exercises.map((we) => we.exercise.category).filter(Boolean))),
     [routine.workout_exercises]
@@ -24,11 +29,47 @@ const RoutineCard = ({ routine }: { routine: Routine }) => {
     [routine.workout_exercises]
   );
 
+  const handleEditRoutine = () => {
+    setOnGoingWorkout(workout);
+    setFetchedRoutine(routine);
+    setRoutine(routine);
+    setStoreMode(StoreMode.ROUTINE);
+    setIsEditing(true);
+    navigate('/training/edit-routine');
+  }
+
   return (
     <Card className="relative border shadow-none bg-secondary/80">
       <CardHeader>
         <div className="space-y-2">
-          <CardTitle className="text-2xl font-semibold line-clamp-2">{routine.title}</CardTitle>
+          <CardTitle className="flex flex-row justify-between">
+            <div>
+              <h3 className="tracking-tight text-2xl font-semibold line-clamp-2">
+                {routine.title}
+              </h3>
+            </div>
+            <div className='pl-4'>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost">
+                    <EllipsisVertical className="h-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 flex flex-col gap-1">
+                  <DropdownMenuItem asChild>
+                    <Button variant="ghost" className="w-full justify-start border-none cursor-pointer" onClick={handleEditRoutine}>
+                      <Edit className="h-4 w-4 mr-2" /> Edit routine
+                    </Button>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Button variant="destructive" onClick={() => console.log('Delete')} className="w-full justify-start border-none cursor-pointer">
+                      <Trash className="h-4 w-4 mr-2" /> Delete routine
+                    </Button>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </CardTitle>
           <CardDescription className="">
             <span className='line-clamp-2'><span className='font-bold text-sm text-muted-foreground'>{routine.workout_exercises.length} exercises:</span> {exerciseNames.join(', ')}</span>
             {primaryMuscles.length > 0 && (

@@ -21,6 +21,10 @@ const CreateNewWorkoutSection = () => {
     navigate('/training/create-new-workout');
   };
 
+  const continueWorkout = () => {
+    navigate('/training/create-new-workout')
+  };
+
   if (!workout) return (
     <Button className='w-full' onClick={createNewWorkout}><Plus /> Create New Workout</Button>
   )
@@ -51,7 +55,7 @@ const CreateNewWorkoutSection = () => {
         </div>
         <CardFooter className="gap-4">
           <Button
-            onClick={() => navigate('/training/create-new-workout')}
+            onClick={continueWorkout}
             className="w-full">
             <Play className="w-4 h-4" />
             Continue

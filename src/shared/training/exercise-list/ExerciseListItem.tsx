@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Exercise } from "@/models/Exercise";
 import { getCategoryColor } from "@/utils/workoutUtils";
+import clsx from "clsx";
 import { CheckCircle, ImageIcon } from "lucide-react";
 import { memo } from "react";
 
@@ -15,7 +16,7 @@ const ExerciseListItem = ({ exercise, onPress, selected }: { exercise: Exercise;
     <div
       onClick={onPress}
       className="cursor-pointer pb-4">
-      <Card className={selected ? "border-primary" : "border-border shadow-none"}>
+      <Card className={clsx("shadow-none bg-secondary/80", selected ? "border-primary" : "border-border")}>
         <CardContent className="flex flex-col items-start space-x-4 p-0">
           {exercise.category && (
             <div

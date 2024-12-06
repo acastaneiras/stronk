@@ -16,7 +16,6 @@ const WorkoutRoutes = () => {
         "/training/create-routine",
         "/training/edit-routine",
       ].includes(location.pathname);
-      
     //Prevent emptying the workout when the user is editing it, and clear the workout when the user is not editing it
     if (shouldRunEffect && isEditing) {
       emptyEditWorkout();

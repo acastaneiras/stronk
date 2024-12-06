@@ -29,7 +29,6 @@ const createNewSet = () => {
   } as ExerciseSet
 }
 
-
 export enum StoreMode {
   WORKOUT = 'WORKOUT',
   ROUTINE = 'ROUTINE'
@@ -39,6 +38,7 @@ export interface WorkoutState {
   workout: Workout | null,
   onGoingWorkout: Workout | null, //This is used to store the workout in progress
   fetchedWorkout: Workout | null, //This is used to store the workout fetched from the server, in order to compare it with the current workout while editing
+  fetchedRoutine: Routine | null, //This is used to store the routine fetched from the server, in order to compare it with the current routine while editing
   exerciseSearchMode: ExerciseSearchMode,
   selectedExerciseIndex: number,
   isEditing: boolean,
@@ -71,6 +71,8 @@ export interface WorkoutState {
   setStoreMode: (mode: StoreMode) => void,
   emptyRoutine: () => void,
   setRoutineTitle: (title: string) => void,
+  setFetchedRoutine: (routine: Routine | null) => void,
+  setRoutine: (routine: Routine | null) => void,
 }
 
 export const useWorkoutStore = create<WorkoutState>()(
@@ -85,10 +87,16 @@ export const useWorkoutStore = create<WorkoutState>()(
         fetchedWorkout: null,
         routine: null,
         storeMode: StoreMode.WORKOUT,
+        fetchedRoutine: null,
         emptyWorkout: () => set((state) => {
           return {
             ...state,
             workout: null,
+            isEditing: false,
+            storeMode: StoreMode.WORKOUT,
+            routine: null,
+            fetchedRoutine: null,
+            onGoingWorkout: null,
           }
         }, true),
         updateWorkout: (workout: Workout) => set(() => ({ workout })),
@@ -109,7 +117,11 @@ export const useWorkoutStore = create<WorkoutState>()(
                 completed: false,
               }
             },
-            storeMode: StoreMode.WORKOUT
+            isEditing: false,
+            storeMode: StoreMode.WORKOUT,
+            routine: null,
+            fetchedRoutine: null,
+            onGoingWorkout: null,
           }
         }, true),
         newRoutine: (userId: string) => set((state) => {
@@ -129,6 +141,7 @@ export const useWorkoutStore = create<WorkoutState>()(
                 completed: false,
               }
             },
+            isEditing: false,
             storeMode: StoreMode.ROUTINE
           }
         }, true),
@@ -485,7 +498,9 @@ export const useWorkoutStore = create<WorkoutState>()(
             fetchedWorkout: null,
             onGoingWorkout: null,
             isEditing: false,
-            storeMode: StoreMode.WORKOUT
+            storeMode: StoreMode.WORKOUT,
+            fetchedRoutine: null,
+            routine: null,
           };
         }),
         setStoreMode: (mode: StoreMode) => set({ storeMode: mode }),
@@ -493,6 +508,7 @@ export const useWorkoutStore = create<WorkoutState>()(
           return {
             ...state,
             routine: null,
+            fetchedRoutine: null,
             storeMode: StoreMode.WORKOUT
           }
         }),
@@ -507,6 +523,8 @@ export const useWorkoutStore = create<WorkoutState>()(
             }
           };
         }),
+        setFetchedRoutine: (routine: Routine | null) => set({ fetchedRoutine: routine }),
+        setRoutine: (routine: Routine | null) => set({ routine }),
       }),
       {
         name: 'currentWorkoutStore',
