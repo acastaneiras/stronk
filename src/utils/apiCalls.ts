@@ -286,7 +286,7 @@ export const fetchWorkoutById = async (workoutId: string | number, userUnits: We
     throw err instanceof Error ? err : new Error('An unexpected error occurred');
   }
 
-} 
+}
 
 export const fetchWorkoutsWithExercises = async (userId: string | number, userUnits: WeightUnit): Promise<Workout[]> => {
   const { data, error } = await supabase
@@ -390,4 +390,44 @@ export const fetchRoutineById = async (routineId: string | number, userUnits: We
   } catch (err) {
     throw err instanceof Error ? err : new Error('An unexpected error occurred');
   }
-}; 
+};
+
+export const deleteRoutine = async (routine: Routine) => {
+  const exerciseDetailsIds = routine.workout_exercises.map(exercise => exercise.id);
+  const { error: exerciseDetailsError } = await supabase
+    .from('ExerciseDetails')
+    .delete()
+    .in('id', exerciseDetailsIds);
+
+  if (exerciseDetailsError) {
+    throw new Error('Error deleting routine details');
+  }
+  const { error: routineError } = await supabase
+    .from('Routines')
+    .delete()
+    .eq('id', routine.id);
+
+  if (routineError) {
+    throw new Error('Error deleting routine');
+  }
+}
+
+export const deleteWorkout = async (workout: Workout) => {
+  const exerciseDetailsIds = workout.workout_exercises.map(exercise => exercise.id);
+  const { error: exerciseDetailsError } = await supabase
+    .from('ExerciseDetails')
+    .delete()
+    .in('id', exerciseDetailsIds);
+
+  if (exerciseDetailsError) {
+    throw new Error('Error deleting exercise details');
+  }
+  const { error: workoutError } = await supabase
+    .from('Workouts')
+    .delete()
+    .eq('id', workout.id);
+
+  if (workoutError) {
+    throw new Error('Error deleting workout');
+  }
+}

@@ -8,7 +8,7 @@ import { Edit, EllipsisVertical, Play, Trash } from 'lucide-react';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const RoutineCard = ({ routine }: { routine: Routine }) => {
+const RoutineCard = ({ routine, onDeleteRoutineClick }: { routine: Routine, onDeleteRoutineClick: () => void }) => {
   const navigate = useNavigate();
   const categories = useMemo(
     () => Array.from(new Set(routine.workout_exercises.map((we) => we.exercise.category).filter(Boolean))),
@@ -55,7 +55,7 @@ const RoutineCard = ({ routine }: { routine: Routine }) => {
                     </Button>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Button variant="destructive" onClick={() => console.log('Delete')} className="w-full justify-start border-none cursor-pointer">
+                    <Button variant="destructive" onClick={onDeleteRoutineClick} className="w-full justify-start border-none cursor-pointer">
                       <Trash className="h-4 w-4 mr-2" /> Delete routine
                     </Button>
                   </DropdownMenuItem>

@@ -6,8 +6,7 @@ import { ResponsiveModal } from '@/shared/modals/ResponsiveModal'
 import UserSettingsModal from '@/shared/modals/UserSettingsModal'
 import PastWorkoutCard from '@/shared/profile/PastWorkoutCard'
 import { useUserStore } from '@/stores/userStore'
-import { supabase } from '@/utils/supabaseClient'
-import { fetchWorkoutsWithExercises } from '@/utils/apiCalls'
+import { deleteWorkout, fetchWorkoutsWithExercises } from '@/utils/apiCalls'
 import { formatTime, getAllWorkoutsAverageTime, getUserLastExercisePR, getUserWeeklyVolume } from '@/utils/workoutUtils'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
@@ -27,7 +26,7 @@ const Profile = () => {
     staleTime: 1000 * 60 * 30,
 	});
 
-	const [deleteWorkout, setDeleteWorkout] = useState<Workout | null>(null);
+	const [workoutToDelete, setWorkoutToDelete] = useState<Workout | null>(null);
 
 	const averageTime = useMemo(() => {
 		if (!workouts) return [];
@@ -48,43 +47,16 @@ const Profile = () => {
 	if (isError) return <p>Error: {error?.message}</p>;
 
 	const handleDeleteWorkoutPress = (workout: Workout) => () => {
-		setDeleteWorkout(workout);
+		setWorkoutToDelete(workout);
 	}
 
 	const handleConfirmDeleteWorkout = async () => {
-		if (deleteWorkout) {
+		if (workoutToDelete) {
 			try {
-				const exerciseDetailsIds = deleteWorkout.workout_exercises.map(exercise => exercise.id);
-				const { error: exerciseDetailsError } = await supabase
-					.from('ExerciseDetails')
-					.delete()
-					.in('id', exerciseDetailsIds);
-
-				if (exerciseDetailsError) {
-					throw new Error('Error deleting exercise details');
-				}
-				const { error: workoutError } = await supabase
-					.from('Workouts')
-					.delete()
-					.eq('id', deleteWorkout.id);
-
-				if (workoutError) {
-					throw new Error('Error deleting workout');
-				}
-
-				await queryClient.invalidateQueries(
-					{
-						queryKey: ["workouts", user?.id],
-						refetchType: 'active',
-					},
-					{
-						cancelRefetch: true,
-						throwOnError: true,
-					}
-				);
+				await deleteWorkout(workoutToDelete);
+				await queryClient.invalidateQueries({ queryKey: ['workouts'] });
 				toast.success('Workout deleted successfully');
-				setDeleteWorkout(null);
-
+				setWorkoutToDelete(null);
 			} catch (err: unknown) {
 				if (err instanceof Error) {
 					toast.error(err.message);
@@ -162,8 +134,8 @@ const Profile = () => {
 			</div>
 			<UserSettingsModal isOpen={showSettingsModal} setShowUserSettingsModal={setShowSettingsModal} />
 			<ResponsiveModal
-				open={deleteWorkout !== null}
-				onOpenChange={() => setDeleteWorkout(null)}
+				open={workoutToDelete !== null}
+				onOpenChange={() => setWorkoutToDelete(null)}
 				dismissable={true}
 				title="Delete Workout"
 				titleClassName="text-lg font-semibold leading-none tracking-tight"
@@ -175,7 +147,7 @@ const Profile = () => {
 						>
 							<Trash /> Confirm
 						</Button>
-						<Button variant='outline' onClick={() => setDeleteWorkout(null)}>
+						<Button variant='outline' onClick={() => setWorkoutToDelete(null)}>
 							Cancel
 						</Button>
 					</>

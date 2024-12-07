@@ -10,7 +10,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider attribute="class" enableSystem defaultTheme="system">
       <RouterProvider router={router} />
-      <Toaster />
+      <Toaster position="top-right" />
     </ThemeProvider>
   </StrictMode>,
 )
