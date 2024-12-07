@@ -12,17 +12,12 @@ import { useNavigate } from 'react-router-dom'
 
 const PastWorkoutCard = ({pastWorkout, handleDeleteWorkoutPress}: {pastWorkout: Workout, handleDeleteWorkoutPress: (pastWorkout: Workout) => void}) => {
   const navigate = useNavigate();
+  const {setEditingWorkout} = useWorkoutStore();
   const {user} = useUserStore();
-  const {workout, setWorkout, setFetchedWorkout, setOnGoingWorkout, setIsEditing} = useWorkoutStore();
 
   const handleEditWorkoutClick = () => {
-		if (workout) { // If there is a workout, set the ongoing workout to the current workout
-			setOnGoingWorkout(workout);
-		}
-		setWorkout(pastWorkout);
-		setFetchedWorkout(pastWorkout);
-		setIsEditing(true);
-		navigate('/training/edit-workout');
+    setEditingWorkout(null);
+		navigate(`/training/edit-workout/${pastWorkout.id}`);
 	}
   return (
     <Card className="shadow-none bg-secondary/80">

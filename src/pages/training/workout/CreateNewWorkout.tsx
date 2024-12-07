@@ -19,7 +19,7 @@ import { useNavigate } from 'react-router-dom'
 import NoExercises from '../NoExercises'
 
 const CreateNewWorkout = () => {
-  const { workout, changeSetType, deleteExercise, setIsEditing, selectedExerciseIndex, setStoreMode, storeMode, setSelectedExerciseIndex, updateNoteToExercise, setIntensityToExerciseSet, setRestTimeToExercise } = useWorkoutStore();
+  const { workout, changeSetType, deleteExercise, selectedExerciseIndex, setStoreMode, storeMode, setSelectedExerciseIndex, updateNoteToExercise, setIntensityToExerciseSet, setRestTimeToExercise } = useWorkoutStore();
   const { user } = useUserStore();
   const navigate = useNavigate();
   const [showExerciseNotes, setShowExerciseNotes] = useState(false);
@@ -37,8 +37,7 @@ const CreateNewWorkout = () => {
     if (storeMode !== StoreMode.WORKOUT) {
       setStoreMode(StoreMode.WORKOUT);
     }
-    setIsEditing(false);
-  },[storeMode, setStoreMode, setIsEditing])
+  },[storeMode, setStoreMode])
 
   const handleOpenFinishDrawer = (showBeofreFinishModal: boolean) => {
     if (showBeofreFinishModal) {

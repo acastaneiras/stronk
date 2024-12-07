@@ -144,7 +144,7 @@ function WorkoutExerciseSingleSet({ set, setIndex, currentExercise, callShowInte
               </Button>
             </div>
           )}
-          {storeMode == StoreMode.WORKOUT && (
+          {storeMode !== StoreMode.ROUTINE && (
             <div className={clsx(user?.intensitySetting !== "none" ? "w-1/5" : "w-1/4")}>
               <Button
                 onClick={() => handleSetCompleted(setIndex)}

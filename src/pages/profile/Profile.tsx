@@ -7,7 +7,7 @@ import UserSettingsModal from '@/shared/modals/UserSettingsModal'
 import PastWorkoutCard from '@/shared/profile/PastWorkoutCard'
 import { useUserStore } from '@/stores/userStore'
 import { supabase } from '@/utils/supabaseClient'
-import { fetchWorkoutsWithExercises } from '@/utils/userDataLoader'
+import { fetchWorkoutsWithExercises } from '@/utils/apiCalls'
 import { formatTime, getAllWorkoutsAverageTime, getUserLastExercisePR, getUserWeeklyVolume } from '@/utils/workoutUtils'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
@@ -24,7 +24,7 @@ const Profile = () => {
 		queryKey: ["workouts", user?.id, user?.unitPreference, user?.intensitySetting],
 		queryFn: () => fetchWorkoutsWithExercises(user?.id as string, user?.unitPreference as WeightUnit),
 		enabled: !!user,
-		staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 30,
 	});
 
 	const [deleteWorkout, setDeleteWorkout] = useState<Workout | null>(null);

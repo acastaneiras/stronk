@@ -4,7 +4,7 @@ import { SetCounts } from '@/models/Workout';
 import WorkoutTimer from '@/shared/training/WorkoutTimer';
 import { useUserStore } from '@/stores/userStore';
 import { useWorkoutStore } from '@/stores/workoutStore';
-import { formatWeightUnit, getTotalSets, getTotalVolume, getWorkoutPercentage, incompleteSets } from '@/utils/workoutUtils';
+import { formatWeightDecimals, formatWeightUnit, getTotalSets, getTotalVolume, getWorkoutPercentage, incompleteSets } from '@/utils/workoutUtils';
 import { ChevronLeft, FlagIcon } from 'lucide-react';
 import WorkoutProgress from './WorkoutProgress';
 
@@ -42,7 +42,6 @@ const WorkoutHeader = ({ onClose, onFinish }: { onClose: () => void; onFinish: (
           <Button variant="outline" onClick={beforeOnFinish}>
             <FlagIcon/><span className='hidden md:block'>Finish</span>
           </Button>
-
         </div>
       </div>
       <div className="grid grid-cols-3 text-center gap-8">
@@ -52,7 +51,7 @@ const WorkoutHeader = ({ onClose, onFinish }: { onClose: () => void; onFinish: (
         </div>
         <div>
           <div className="font-bold">Volume</div>
-          <div>{totalVolume} {user ? formatWeightUnit(user.unitPreference) : "Kg"}</div>
+          <div>{formatWeightDecimals(totalVolume)} {user ? formatWeightUnit(user.unitPreference) : "Kg"}</div>
         </div>
         <div>
           <div className="font-bold">Time</div>

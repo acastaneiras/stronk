@@ -10,7 +10,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import LoadingPage from '../LoadingPage';
-import { fetchRoutinesWithExercises } from '@/utils/userDataLoader';
+import { fetchRoutinesWithExercises } from '@/utils/apiCalls';
 import ErrorPage from "@/pages/ErrorPage";
 
 const TrainingHome = () => {
@@ -22,7 +22,7 @@ const TrainingHome = () => {
 		queryKey: ["routines", user?.id, user?.unitPreference, user?.intensitySetting],
 		queryFn: () => fetchRoutinesWithExercises(user?.id as string, user?.unitPreference as WeightUnit),
 		enabled: (!!user),
-		staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 30,
 	});
 
 	const handleNewRoutineClick = () => {

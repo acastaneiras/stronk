@@ -25,7 +25,7 @@ function WorkoutExerciseSets({ currentExercise, onChangeSetTypePressEvent, onCal
       {currentExercise.sets.length > 0 && (
         <div className={clsx(
           "grid text-center text-gray-500",
-          storeMode === StoreMode.WORKOUT
+          storeMode !== StoreMode.ROUTINE
             ? user?.intensitySetting !== "none" ? "grid-cols-5" : "grid-cols-4"
             : user?.intensitySetting !== "none" ? "grid-cols-4" : "grid-cols-3"
         )}>
@@ -39,7 +39,7 @@ function WorkoutExerciseSets({ currentExercise, onChangeSetTypePressEvent, onCal
             </span>
           )}
           {
-            storeMode === StoreMode.WORKOUT && (
+            storeMode !== StoreMode.ROUTINE && (
               <span className='flex gap-1 items-center justify-center'><CheckCheckIcon className='w-4' /></span>
             )
           }

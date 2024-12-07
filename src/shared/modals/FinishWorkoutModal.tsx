@@ -63,17 +63,7 @@ const FinishWorkoutModal = ({ open, onOpenChange }: { open: boolean, onOpenChang
 
     try {
       await createWorkout(workout, workoutTitle, workoutDescription, workoutDuration, setsDetail,totalVolume, user );
-
-      await queryClient.invalidateQueries(
-        {
-          queryKey: ["workouts", user?.id],
-          refetchType: 'active',
-        },
-        {
-          cancelRefetch: true,
-          throwOnError: true,
-        }
-      );
+      await queryClient.invalidateQueries({ queryKey: ['workouts'] });
 
       toast.success('Workout saved successfully!');
       onOpenChange(false);

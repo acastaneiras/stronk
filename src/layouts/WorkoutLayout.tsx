@@ -5,7 +5,7 @@ import { ListOrderedIcon, Plus } from 'lucide-react';
 import { Outlet, useNavigate } from 'react-router-dom';
 
 export default function WorkoutLayout() {
-  const { setExerciseSearchMode, workout, routine, storeMode } = useWorkoutStore();
+  const { setExerciseSearchMode, workout, editingWorkout, routine, storeMode } = useWorkoutStore();
   const navigate = useNavigate();
 
   const handleAddExercise = () => {
@@ -13,12 +13,31 @@ export default function WorkoutLayout() {
     navigate("/training/exercise-list");
   };
 
-  const exercisesLength = storeMode === StoreMode.WORKOUT
-    ? workout?.workout_exercises?.length || 0
-    : routine?.workout_exercises?.length || 0;
+  const exercisesLength = (() => {
+    switch (storeMode) {
+      case StoreMode.WORKOUT:
+        return workout?.workout_exercises?.length || 0;
+      case StoreMode.EDIT_WORKOUT:
+        return editingWorkout?.workout_exercises?.length || 0;
+      case StoreMode.ROUTINE:
+        return routine?.workout_exercises?.length || 0;
+      default:
+        return 0;
+    }
+  })();
 
-  const isAddDisabled = (storeMode === StoreMode.WORKOUT && !workout) ||
-    (storeMode === StoreMode.ROUTINE && !routine);
+  const isAddDisabled = (() => {
+    switch (storeMode) {
+      case StoreMode.WORKOUT:
+        return !workout;
+      case StoreMode.ROUTINE:
+        return !routine;
+      case StoreMode.EDIT_WORKOUT:
+        return !editingWorkout;
+      default:
+        return true;
+    }
+  })();
 
   const isReorderDisabled = exercisesLength <= 1 || isAddDisabled;
 

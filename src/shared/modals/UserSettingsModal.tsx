@@ -33,7 +33,7 @@ interface UserSettingsModalProps {
 
 function UserSettingsModal({ isOpen, setShowUserSettingsModal }: UserSettingsModalProps) {
   const { user, setUser } = useUserStore();
-  const { workout, convertAllWorkoutUnits } = useWorkoutStore();
+  const { workout, convertAllWorkoutUnits, setEditingWorkout, setRoutine } = useWorkoutStore();
   const { setTheme, theme } = useTheme();
   const queryClient = useQueryClient();
 
@@ -75,17 +75,20 @@ function UserSettingsModal({ isOpen, setShowUserSettingsModal }: UserSettingsMod
     }
 
     setUser(updatedUser?.[0]);
+    setEditingWorkout(null);
+    setRoutine(null);
     toast.success('Settings updated successfully!');
-    setShowUserSettingsModal(false);
 
     //Check if user has a ongoing workout and update it's units
     if (workout) {
       convertAllWorkoutUnits();
     }
+    await queryClient.invalidateQueries({ queryKey: ['workouts', 'routines'] });
+    setShowUserSettingsModal(false);
   };
 
   const handleLogOut = async () => {
-    const {error } = await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
     if (error) {
       toast.error('An error occurred while logging out.');
       return;

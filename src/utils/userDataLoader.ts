@@ -1,117 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { WeightUnit } from "@/models/ExerciseSet";
+import { ExerciseSet, WeightUnit } from "@/models/ExerciseSet";
 import { Routine, Workout } from "@/models/Workout";
 import { WorkoutExerciseType } from "@/models/WorkoutExerciseType";
-import { supabase } from "@/utils/supabaseClient";
 import dayjs from "dayjs";
 import { WeightConvert } from "./workoutUtils";
 
-export const fetchWorkoutsWithExercises = async (userId: string | number, userUnits: WeightUnit): Promise<Workout[]> => {
-  const { data, error } = await supabase
-    .from('Workouts')
-    .select(`
-      id,
-      title,
-      description,
-      date,
-      duration,
-      userId,
-      WorkoutExerciseDetails (
-        ExerciseDetails (
-          id,
-          notes,
-          sets,
-          setInterval,
-          Exercises (
-            *
-          )
-        )
-      )
-    `)
-    .eq('userId', userId)
-    .order('date', { ascending: false });
-
-  if (error) {
-    console.error('Error fetching workouts with exercises:', error);
-    return [];
-  }
-  return data ? transformData(data, userUnits, 'WorkoutExerciseDetails') : [];
-};
-
-export const fetchRoutinesWithExercises = async (userId: string | number, userUnits: WeightUnit): Promise<Routine[]> => {
-  const { data, error } = await supabase
-    .from('Routines')
-    .select(`
-      id,
-      title,
-      userId,
-      createdAt,
-      RoutineExerciseDetails (
-        ExerciseDetails (
-          id,
-          notes,
-          sets,
-          setInterval,
-          Exercises (
-            *
-          )
-        )
-      )
-        `)
-    .eq('userId', userId)
-    .order('createdAt', { ascending: false });
-
-  if (error) {
-    console.error('Error fetching routines with exercises:', error);
-    return [];
-  }
-
-  return data ? transformData(data, userUnits, 'RoutineExerciseDetails') : [];
-};
-
-export const fetchRoutineById = async (routineId: string | number, userUnits: WeightUnit): Promise<Routine | null> => {
-  try {
-    const { data, error } = await supabase
-      .from('Routines')
-      .select(`
-        id,
-        title,
-        userId,
-        createdAt,
-        RoutineExerciseDetails (
-          ExerciseDetails (
-            id,
-            notes,
-            sets,
-            setInterval,
-            Exercises (
-              *
-            )
-          )
-        )
-      `)
-      .eq('id', routineId)
-      .single();
-
-    if (error) {
-      throw new Error(`Error fetching routine: ${error.message}`);
-    }
-
-    if (!data) {
-      throw new Error("No routine found with the given ID.");
-    }
-
-    return transformData([data], userUnits, 'RoutineExerciseDetails')[0];
-  } catch (err) {
-    throw err instanceof Error ? err : new Error('An unexpected error occurred');
-  }
-}; 
-
 
 //Function that parses the data from the database into the Workout or Routine model
-const transformData = ( data: any[], userUnits: WeightUnit, detailsKey: 'WorkoutExerciseDetails' | 'RoutineExerciseDetails'): Routine[] | Workout[] => {
+export const parseWorkoutData = ( data: any[], userUnits: WeightUnit, detailsKey: 'WorkoutExerciseDetails' | 'RoutineExerciseDetails'): Routine[] | Workout[] => {
   return data.map((rawItem) => ({
     id: rawItem.id,
+    units: userUnits,
     userId: rawItem.userId,
     title: rawItem.title,
     description: rawItem.description || "",
@@ -149,18 +48,33 @@ const transformData = ( data: any[], userUnits: WeightUnit, detailsKey: 'Workout
           ? detail.ExerciseDetails.Exercises.createdAt
           : null,
       },
-      sets: detail.ExerciseDetails.sets.map((set) => ({
-        id: set.id,
-        reps: set.reps,
-        weight: {
-          unit: set.weight.unit as WeightUnit,
-          value: set.weight.value,
-        },
-        type: set.type,
-        intensity: set.intensity,
-        number: set.number,
-        completed: set.completed,
-      })),
+      sets: detail.ExerciseDetails.sets.map((set: ExerciseSet) => {
+        const originalWeightValue = set.weight?.value ?? "";
+        
+        const weightValue = originalWeightValue === "" || originalWeightValue === null || originalWeightValue === 0
+          ? 0
+          : parseFloat(WeightConvert({ ...set.weight, value: originalWeightValue }, userUnits) ?? 0); 
+        
+        if (isNaN(weightValue)) {
+          console.warn("Unexpected NaN value in weight conversion", {
+            originalWeight: set.weight,
+            userUnits,
+          });
+        }
+      
+        return {
+          id: set.id,
+          reps: set.reps,
+          weight: {
+            unit: userUnits,
+            value: weightValue,
+          },
+          type: set.type,
+          intensity: set.intensity,
+          number: set.number,
+          completed: set.completed,
+        };
+      }),
       setInterval: detail.ExerciseDetails.setInterval || null,
       notes: detail.ExerciseDetails.notes || "",
     })),

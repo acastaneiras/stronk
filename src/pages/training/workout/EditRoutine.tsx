@@ -15,9 +15,8 @@ import SetTypeModal from '@/shared/modals/SetTypeModal'
 import WorkoutExercise from '@/shared/training/workout-exercise/WorkoutExercise'
 import { useUserStore } from '@/stores/userStore'
 import { StoreMode, useWorkoutStore } from '@/stores/workoutStore'
-import { editRoutine } from '@/utils/apiCalls'
-import { fetchRoutineById } from '@/utils/userDataLoader'
-import { formatWeightUnit, getTotalSets, getTotalVolume } from '@/utils/workoutUtils'
+import { editRoutine, fetchRoutineById } from '@/utils/apiCalls'
+import { formatWeightDecimals, formatWeightUnit, getTotalSets, getTotalVolume } from '@/utils/workoutUtils'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { ChevronLeft, Save, Trash } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -35,7 +34,7 @@ const EditRoutine = () => {
   const { id } = useParams();
   const queryClient = useQueryClient();
   const { user } = useUserStore();
-  const { isHydrated, routine, setRoutine, setStoreMode, setIsEditing, emptyRoutine, changeSetType, deleteExercise, selectedExerciseIndex, setSelectedExerciseIndex, updateNoteToExercise, setIntensityToExerciseSet, setRestTimeToExercise, setRoutineTitle } = useWorkoutStore();
+  const { isHydrated, routine, setRoutine, setStoreMode, emptyRoutine, changeSetType, deleteExercise, selectedExerciseIndex, setSelectedExerciseIndex, updateNoteToExercise, setIntensityToExerciseSet, setRestTimeToExercise } = useWorkoutStore();
   const setsDetail: SetCounts = getTotalSets(routine);
   const totalVolume = getTotalVolume(routine, true);
 
@@ -46,14 +45,14 @@ const EditRoutine = () => {
   const [setTypeShown, setSetTypeShown] = useState(false);
   const [showRPEModal, setShowRPEModal] = useState(false);
   const [showRIRModal, setShowRIRModal] = useState(false);
-  
+
   const { isLoading, isError, data: fetchedRoutine, error } = useQuery({
-    queryKey: ['routines', id],
+    queryKey: ['routines', id, user?.unitPreference],
     queryFn: async () => {
       if (!id) throw new Error("No routine ID provided.");
       return await fetchRoutineById(id as string, user?.unitPreference as WeightUnit);
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 30,
     enabled: !!id,
   });
 
@@ -63,9 +62,8 @@ const EditRoutine = () => {
         setRoutine(fetchedRoutine);
       }
       setStoreMode(StoreMode.ROUTINE);
-      setIsEditing(true);
     }
-  }, [fetchedRoutine, routine, isHydrated, setRoutine, setStoreMode, setIsEditing]);
+  }, [fetchedRoutine, routine, isHydrated, setRoutine, setStoreMode]);
 
   const handleSaveRestTime = (seconds: number) => {
     setRestTimeToExercise(selectedExerciseIndex, seconds)
@@ -74,7 +72,7 @@ const EditRoutine = () => {
   }
 
   const handleSaveRoutine = async () => {
-    if (!routine || !fetchedRoutine) return;
+    if (!routine || !fetchedRoutine || !user) return;
     const routineData = {
       title: routine.title,
     };
@@ -85,18 +83,9 @@ const EditRoutine = () => {
       return;
     }
 
-    try {      
-      await editRoutine(routine, fetchedRoutine);
-      await queryClient.invalidateQueries(
-        {
-          queryKey: ["routines"],
-          refetchType: 'active',
-        },
-        {
-          cancelRefetch: true,
-          throwOnError: true,
-        }
-      );
+    try {
+      await editRoutine(routine, fetchedRoutine, user);
+      await queryClient.invalidateQueries({ queryKey: ['routines'] });
 
       toast.success('Routine saved successfully!');
       navigate('/training');
@@ -216,7 +205,7 @@ const EditRoutine = () => {
         </div>
         <div className='flex flex-col gap-2'>
           <Input placeholder='Routine title' className='w-full' value={routine?.title ?? ''}
-            onChange={(e) => setRoutineTitle(e.target.value)} />
+            onChange={(e) => setRoutine({ ...routine!, title: (e.target.value) })} />
         </div>
         <div className='flex flex-row text-center justify-center gap-24'>
           <div>
@@ -225,7 +214,7 @@ const EditRoutine = () => {
           </div>
           <div>
             <div className='font-bold'>Volume</div>
-            <div>{totalVolume} {user ? formatWeightUnit(user.unitPreference) : "Kg"}</div>
+            <div>{formatWeightDecimals(totalVolume)} {user ? formatWeightUnit(user.unitPreference) : "Kg"}</div>
           </div>
         </div>
         <Separator className='h-[2px]' />

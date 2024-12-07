@@ -25,7 +25,6 @@ import EditWorkout from '@/pages/training/workout/EditWorkout';
 import { createBrowserRouter } from "react-router-dom";
 import AuthProtectedRoute from "./AuthProtectedRoute";
 import OAuthCallback from "./OAuthCallback";
-import WorkoutRoutes from "./WorkoutRoutes";
 
 
 const router = createBrowserRouter([
@@ -77,19 +76,14 @@ const router = createBrowserRouter([
 				element: <AuthProtectedRoute />,
 				children: [
 					{
-						element: <WorkoutRoutes />,
+						element: <AppLayout />,
 						children: [
 							{
-								element: <AppLayout />,
-								children: [
-									{
-										path: '',
-										element: <Profile />,
-									},
-								],
-							}
-						]
-					},
+								path: '',
+								element: <Profile />,
+							},
+						],
+					}
 				],
 			},
 			{
@@ -98,63 +92,57 @@ const router = createBrowserRouter([
 				element: <AuthProtectedRoute />,
 				children: [
 					{
-						element: <WorkoutRoutes />,
+						element: <AppLayout />,
 						children: [
 							{
-								element: <AppLayout />,
-								children: [
-									{
-										path: '',
-										element: <TrainingHome />,
-									},
-								],
+								path: '',
+								element: <TrainingHome />,
 							},
-							{
-								path: 'reorder-exercises',
-								element: <ReorderExercises />,
-							},
-							{
-								element: <WorkoutLayout />,
-								children: [
-									{
-										path: 'exercise-overview',
-										element: <ExerciseOverview />,
-									},
-									{
-										path: 'view-workout',
-										element: <ViewWorkout />,
-									},
-									{
-										path: 'create-new-workout',
-										element: <CreateNewWorkout />,
-									},
-									{
-										path: 'create-routine',
-										element: <CreateRoutine />,
-									},
-									{
-										path: 'edit-routine/:id',
-										element: <EditRoutine />,
-									},
-									{
-										path: 'edit-workout',
-										element: <EditWorkout />,
-									},
-								],
-							},
-							{
-								element: <ExerciseListLayout />,
-								children: [
-									{
-										path: 'exercise-list',
-										element: <ExerciseList />,
-									}
-								]
-							}
 						],
+					},
+					{
+						path: 'reorder-exercises',
+						element: <ReorderExercises />,
+					},
+					{
+						element: <WorkoutLayout />,
+						children: [
+							{
+								path: 'exercise-overview',
+								element: <ExerciseOverview />,
+							},
+							{
+								path: 'view-workout',
+								element: <ViewWorkout />,
+							},
+							{
+								path: 'create-new-workout',
+								element: <CreateNewWorkout />,
+							},
+							{
+								path: 'create-routine',
+								element: <CreateRoutine />,
+							},
+							{
+								path: 'edit-routine/:id',
+								element: <EditRoutine />,
+							},
+							{
+								path: 'edit-workout/:id',
+								element: <EditWorkout />,
+							},
+						],
+					},
+					{
+						element: <ExerciseListLayout />,
+						children: [
+							{
+								path: 'exercise-list',
+								element: <ExerciseList />,
+							}
+						]
 					}
-				]
-
+				],
 			},
 		],
 	},

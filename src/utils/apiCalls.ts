@@ -2,14 +2,17 @@ import { User } from "@/models/User";
 import { Routine, SetCounts, Workout } from "@/models/Workout";
 import { WorkoutExerciseType } from "@/models/WorkoutExerciseType";
 import { supabase } from "./supabaseClient";
+import { parseWorkoutData } from "./userDataLoader";
+import { WeightUnit } from "@/models/ExerciseSet";
 
-export const editRoutine = async (routine: Routine, fetchedRoutine: Routine) => {
+export const editRoutine = async (routine: Routine, fetchedRoutine: Routine, user: User) => {
   const routineId = routine.id;
 
   const { error: routineError } = await supabase
     .from('Routines')
     .update({
       title: routine.title,
+      units: user?.unitPreference,
     })
     .eq('id', routineId)
     .select();
@@ -75,6 +78,7 @@ export const createRoutine = async (routine: Routine, user: User) => {
     .insert([{
       title: routine.title,
       userId: user?.id,
+      units: user?.unitPreference,
     }])
     .select();
   if (routineErr) {
@@ -172,13 +176,13 @@ export const createWorkout = async (workout: Workout, workoutTitle: string, work
   }
 }
 
-export const editWorkout = async (workout: Workout, fetchedWorkout: Workout, workoutTitle: string, workoutDescription: string, setsDetail: SetCounts, totalVolume: number, user: User) => {
+export const editWorkout = async (workout: Workout, fetchedWorkout: Workout, setsDetail: SetCounts, totalVolume: number, user: User) => {
   const workoutId = workout!.id;
   const { error: workoutError } = await supabase
     .from('Workouts')
     .update({
-      title: workoutTitle,
-      description: workoutDescription,
+      title: workout.title,
+      description: workout.description,
       sets: setsDetail.done,
       volume: totalVolume,
       units: user?.unitPreference,
@@ -241,3 +245,149 @@ export const editWorkout = async (workout: Workout, fetchedWorkout: Workout, wor
     }
   }
 }
+
+export const fetchWorkoutById = async (workoutId: string | number, userUnits: WeightUnit): Promise<Workout | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('Workouts')
+      .select(`
+      id,
+      title,
+      description,
+      date,
+      duration,
+      sets,
+      volume,
+      units,
+      WorkoutExerciseDetails (
+        ExerciseDetails (
+          id,
+          notes,
+          sets,
+          setInterval,
+          Exercises (
+            *
+          )
+        )
+      )
+    `)
+      .eq('id', workoutId)
+      .single();
+
+    if (error) {
+      throw new Error(`Error fetching workout: ${error.message}`);
+    }
+
+    if (!data) {
+      throw new Error("No workout found with the given ID.");
+    }
+    return data ? parseWorkoutData([data], userUnits, 'WorkoutExerciseDetails')[0] : null;
+  } catch (err) {
+    throw err instanceof Error ? err : new Error('An unexpected error occurred');
+  }
+
+} 
+
+export const fetchWorkoutsWithExercises = async (userId: string | number, userUnits: WeightUnit): Promise<Workout[]> => {
+  const { data, error } = await supabase
+    .from('Workouts')
+    .select(`
+      id,
+      title,
+      description,
+      date,
+      duration,
+      userId,
+      units,
+      WorkoutExerciseDetails (
+        ExerciseDetails (
+          id,
+          notes,
+          sets,
+          setInterval,
+          Exercises (
+            *
+          )
+        )
+      )
+    `)
+    .eq('userId', userId)
+    .order('date', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching workouts with exercises:', error);
+    return [];
+  }
+  return data ? parseWorkoutData(data, userUnits, 'WorkoutExerciseDetails') : [];
+};
+
+export const fetchRoutinesWithExercises = async (userId: string | number, userUnits: WeightUnit): Promise<Routine[]> => {
+  const { data, error } = await supabase
+    .from('Routines')
+    .select(`
+      id,
+      title,
+      userId,
+      createdAt,
+      units,
+      RoutineExerciseDetails (
+        ExerciseDetails (
+          id,
+          notes,
+          sets,
+          setInterval,
+          Exercises (
+            *
+          )
+        )
+      )
+        `)
+    .eq('userId', userId)
+    .order('createdAt', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching routines with exercises:', error);
+    return [];
+  }
+
+  return data ? parseWorkoutData(data, userUnits, 'RoutineExerciseDetails') : [];
+};
+
+export const fetchRoutineById = async (routineId: string | number, userUnits: WeightUnit): Promise<Routine | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('Routines')
+      .select(`
+        id,
+        title,
+        userId,
+        createdAt,
+        units,
+        RoutineExerciseDetails (
+          ExerciseDetails (
+            id,
+            notes,
+            sets,
+            setInterval,
+            Exercises (
+              *
+            )
+          )
+        )
+      `)
+      .eq('id', routineId)
+      .single();
+
+    if (error) {
+      throw new Error(`Error fetching routine: ${error.message}`);
+    }
+
+    if (!data) {
+      throw new Error("No routine found with the given ID.");
+    }
+
+    return parseWorkoutData([data], userUnits, 'RoutineExerciseDetails')[0];
+  } catch (err) {
+    throw err instanceof Error ? err : new Error('An unexpected error occurred');
+  }
+}; 

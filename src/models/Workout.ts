@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import { WorkoutExerciseType } from "./WorkoutExerciseType";
+import { WeightUnit } from "./ExerciseSet";
 
 export interface Routine {
     id: string | null;
@@ -10,6 +11,7 @@ export interface Routine {
     sets: number;
     volume: number;
     workout_exercises: WorkoutExerciseType[];
+    units: WeightUnit
 }
 
 export interface Workout extends Routine {

@@ -3,8 +3,10 @@ import { Input } from '@/components/ui/input'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
-import { ExerciseSetIntensity, IntensityScale, SelectedSet, SetType } from '@/models/ExerciseSet'
+import { ExerciseSetIntensity, IntensityScale, SelectedSet, SetType, WeightUnit } from '@/models/ExerciseSet'
 import { SetCounts } from '@/models/Workout'
+import ErrorPage from '@/pages/ErrorPage'
+import LoadingPage from '@/pages/LoadingPage'
 import NotesModal from '@/shared/modals/NotesModal'
 import { ResponsiveModal } from '@/shared/modals/ResponsiveModal'
 import RestTimeModal from '@/shared/modals/RestTimeModal'
@@ -13,13 +15,13 @@ import RPEModal from '@/shared/modals/RPEModal'
 import SetTypeModal from '@/shared/modals/SetTypeModal'
 import WorkoutExercise from '@/shared/training/workout-exercise/WorkoutExercise'
 import { useUserStore } from '@/stores/userStore'
-import { useWorkoutStore } from '@/stores/workoutStore'
-import { editWorkout } from '@/utils/apiCalls'
-import { formatTime, formatWeightUnit, getTotalSets, getTotalVolume, incompleteSets } from '@/utils/workoutUtils'
-import { useQueryClient } from '@tanstack/react-query'
+import { StoreMode, useWorkoutStore } from '@/stores/workoutStore'
+import { editWorkout, fetchWorkoutById } from '@/utils/apiCalls'
+import { formatTime, formatWeightDecimals, formatWeightUnit, getTotalSets, getTotalVolume, incompleteSets } from '@/utils/workoutUtils'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { ChevronLeft, Save, Trash } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import NoExercises from '../NoExercises'
@@ -31,16 +33,12 @@ const workoutSchema = z.object({
 
 const EditWorkout = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
   const queryClient = useQueryClient();
-
   const { user } = useUserStore();
-  const { workout, fetchedWorkout, changeSetType, deleteExercise, selectedExerciseIndex, setSelectedExerciseIndex, updateNoteToExercise, setIntensityToExerciseSet, setRestTimeToExercise } = useWorkoutStore();
-
-  const setsDetail: SetCounts = getTotalSets(workout);
-  const totalVolume = getTotalVolume(workout);
-
-  const [workoutTitle, setWorkoutTitle] = useState('');
-  const [workoutDescription, setWorkoutDescription] = useState('');
+  const { isHydrated, editingWorkout, setEditingWorkout, setStoreMode, changeSetType, deleteExercise, selectedExerciseIndex, setSelectedExerciseIndex, updateNoteToExercise, setIntensityToExerciseSet, setRestTimeToExercise } = useWorkoutStore();
+  const setsDetail: SetCounts = getTotalSets(editingWorkout);
+  const totalVolume = getTotalVolume(editingWorkout);
   const [showExerciseNotes, setShowExerciseNotes] = useState(false);
   const [showRestTime, setShowRestTime] = useState(false);
   const [removeExerciseOpen, setRemoveExerciseOpen] = useState(false);
@@ -50,11 +48,24 @@ const EditWorkout = () => {
   const [showRIRModal, setShowRIRModal] = useState(false);
   const [showIncompleteExerciseModal, setShowIncompleteExerciseModal] = useState(false);
 
+  const { isLoading, isError, data: fetchedWorkout, error } = useQuery({
+    queryKey: ['workouts', id, user?.unitPreference],
+    queryFn: async () => {
+      if (!id) throw new Error("No workout ID provided.");
+      return await fetchWorkoutById(id as string, user?.unitPreference as WeightUnit);
+    },
+    staleTime: 1000 * 60 * 30,
+    enabled: !!id,
+  });
+
   useEffect(() => {
-    if (workout) {
-      setWorkoutTitle(workout?.title || '');
+    if (isHydrated && fetchedWorkout) {
+      if (!editingWorkout || editingWorkout.id !== fetchedWorkout.id) {
+        setEditingWorkout(fetchedWorkout);
+      }
+      setStoreMode(StoreMode.EDIT_WORKOUT);
     }
-  }, [workout]);
+  }, [isHydrated, fetchedWorkout, setStoreMode, editingWorkout, setEditingWorkout]);
 
   const handleSaveRestTime = (seconds: number) => {
     setRestTimeToExercise(selectedExerciseIndex, seconds)
@@ -63,8 +74,8 @@ const EditWorkout = () => {
   }
 
   const handleSaveWorkoutPress = async () => {
-    if (!workout || !fetchedWorkout) return;
-    if (incompleteSets(workout) || workout?.workout_exercises?.length === 0) {
+    if (!editingWorkout || !fetchedWorkout) return;
+    if (incompleteSets(editingWorkout) || editingWorkout?.workout_exercises?.length === 0) {
       setShowIncompleteExerciseModal(true);
       return;
     }
@@ -74,8 +85,8 @@ const EditWorkout = () => {
 
   const handleSaveWorkout = async () => {
     const workoutData = {
-      title: workoutTitle,
-      description: workoutDescription,
+      title: editingWorkout?.title,
+      description: editingWorkout?.description,
     };
 
     const validation = workoutSchema.safeParse(workoutData);
@@ -85,19 +96,9 @@ const EditWorkout = () => {
     }
 
     try {
-      await editWorkout(workout!, fetchedWorkout!, workoutTitle, workoutDescription, setsDetail, totalVolume, user!);
-
-      await queryClient.invalidateQueries(
-        {
-          queryKey: ["workouts", user?.id],
-          refetchType: 'active',
-        },
-        {
-          cancelRefetch: true,
-          throwOnError: true,
-        }
-      );
-
+      await editWorkout(editingWorkout!, fetchedWorkout!, setsDetail, totalVolume, user!);
+      setEditingWorkout(null);
+      await queryClient.invalidateQueries({ queryKey: ['workouts'] });
       toast.success('Workout saved successfully!');
       navigate('/profile');
     } catch (err: unknown) {
@@ -191,13 +192,20 @@ const EditWorkout = () => {
     setSelectedExerciseIndex(index);
     setShowRestTime(true);
   }
+  if (isLoading) {
+    return <LoadingPage />;
+  }
+
+  if (isError) {
+    return <ErrorPage errorMessage={error?.message} />;
+  }
 
   return (
     <div className='flex flex-col flex-1'>
       <div className='flex flex-col gap-4'>
         <div className='flex flex-row items-center justify-between pt-4'>
           <div className='w-10'>
-            <button onClick={() => {navigate(-1);}}>
+            <button onClick={() => { setEditingWorkout(null);navigate(-1);  }}>
               <ChevronLeft />
             </button>
           </div>
@@ -207,10 +215,10 @@ const EditWorkout = () => {
           </div>
         </div>
         <div className='flex flex-col gap-2'>
-          <Input placeholder='Workout title' className='w-full' value={workoutTitle}
-            onChange={(e) => setWorkoutTitle(e.target.value)} />
-          <Textarea placeholder='Workout description' className='w-full max-h-96' value={workoutDescription}
-            onChange={(e) => setWorkoutDescription(e.target.value)} />
+          <Input placeholder='Workout title' className='w-full' value={editingWorkout?.title ?? ''}
+            onChange={(e) => setEditingWorkout({ ...editingWorkout!, title: (e.target.value) })} />
+          <Textarea placeholder='Workout description' className='w-full max-h-96' value={editingWorkout?.description ?? ''}
+            onChange={(e) => setEditingWorkout({ ...editingWorkout!, description: (e.target.value) })} />
         </div>
         <div className='flex flex-row text-center justify-center gap-24'>
           <div>
@@ -219,20 +227,20 @@ const EditWorkout = () => {
           </div>
           <div>
             <div className='font-bold'>Volume</div>
-            <div>{totalVolume} {user ? formatWeightUnit(user.unitPreference) : "Kg"}</div>
+            <div>{formatWeightDecimals(totalVolume)} {user ? formatWeightUnit(user.unitPreference) : "Kg"}</div>
           </div>
           <div>
             <div className='font-bold'>Time</div>
-            <div>{workout?.duration && (formatTime(workout.duration!))}</div>
+            <div>{editingWorkout?.duration && (formatTime(editingWorkout.duration!))}</div>
           </div>
         </div>
         <Separator className='h-[2px]' />
       </div>
       <div className='flex flex-col flex-grow'>
-        {((workout?.workout_exercises) && (workout.workout_exercises.length > 0)) ? (
+        {((editingWorkout?.workout_exercises) && (editingWorkout.workout_exercises.length > 0)) ? (
           <ScrollArea type="always" className="flex-grow max-h-full h-1">
             <div className="flex flex-col gap-4 flex-grow pt-4">
-              {workout?.workout_exercises?.map((exercise, index) => (
+              {editingWorkout?.workout_exercises?.map((exercise, index) => (
                 <WorkoutExercise
                   id={index}
                   key={`${exercise.id}-${index}`}
@@ -277,9 +285,9 @@ const EditWorkout = () => {
         <p>Are you sure you want to remove this exercise?</p>
       </ResponsiveModal>
 
-      <RPEModal showRPEModal={showRPEModal} setShowRPEModal={setShowRPEModal} onSaveIntensity={handleSaveRPE} onUnsetIntensity={handleUnsetIntensity} workout={workout} selectedSet={selectedSet} />
-      <RIRModal showRIRModal={showRIRModal} setShowRIRModal={setShowRIRModal} onSaveIntensity={handleSaveRIR} onUnsetIntensity={handleUnsetIntensity} workout={workout} selectedSet={selectedSet} />
-      <NotesModal notesShown={showExerciseNotes} exerciseIndex={selectedExerciseIndex} setNotesShown={setShowExerciseNotes} changeNote={changeNoteEvent} workout={workout} />
+      <RPEModal showRPEModal={showRPEModal} setShowRPEModal={setShowRPEModal} onSaveIntensity={handleSaveRPE} onUnsetIntensity={handleUnsetIntensity} workout={editingWorkout} selectedSet={selectedSet} />
+      <RIRModal showRIRModal={showRIRModal} setShowRIRModal={setShowRIRModal} onSaveIntensity={handleSaveRIR} onUnsetIntensity={handleUnsetIntensity} workout={editingWorkout} selectedSet={selectedSet} />
+      <NotesModal notesShown={showExerciseNotes} exerciseIndex={selectedExerciseIndex} setNotesShown={setShowExerciseNotes} changeNote={changeNoteEvent} workout={editingWorkout} />
       <SetTypeModal setTypeShown={setTypeShown} setSetTypeShown={setSetTypeShown} onChangeSetType={onChangeSetType} />
       <RestTimeModal showRestTime={showRestTime} setShowRestTime={setShowRestTime} handleSaveRestTime={handleSaveRestTime} />
 

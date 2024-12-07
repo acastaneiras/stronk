@@ -13,7 +13,7 @@ import SetTypeModal from '@/shared/modals/SetTypeModal'
 import WorkoutExercise from '@/shared/training/workout-exercise/WorkoutExercise'
 import { useUserStore } from '@/stores/userStore'
 import { StoreMode, useWorkoutStore } from '@/stores/workoutStore'
-import { formatWeightUnit, getTotalSets, getTotalVolume } from '@/utils/workoutUtils'
+import { formatWeightDecimals, formatWeightUnit, getTotalSets, getTotalVolume } from '@/utils/workoutUtils'
 import { useQueryClient } from '@tanstack/react-query'
 import { ChevronLeft, Save, Trash } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -31,7 +31,7 @@ const CreateRoutine = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useUserStore();
-  const { routine, emptyRoutine, changeSetType, deleteExercise, storeMode, setStoreMode, selectedExerciseIndex, setSelectedExerciseIndex, updateNoteToExercise, setIntensityToExerciseSet, setRestTimeToExercise, setRoutineTitle } = useWorkoutStore();
+  const { routine, emptyRoutine, changeSetType, deleteExercise, storeMode, setStoreMode, selectedExerciseIndex, setSelectedExerciseIndex, updateNoteToExercise, setIntensityToExerciseSet, setRestTimeToExercise, setRoutine } = useWorkoutStore();
   const [showExerciseNotes, setShowExerciseNotes] = useState(false);
   const [showRestTime, setShowRestTime] = useState(false);
   const [removeExerciseOpen, setRemoveExerciseOpen] = useState(false);
@@ -68,18 +68,7 @@ const CreateRoutine = () => {
 
     try {
       await createRoutine(routine, user);
-      await queryClient.invalidateQueries(
-        {
-          queryKey: ["routines"],
-          refetchType: 'active',
-        },
-        {
-          cancelRefetch: true,
-          throwOnError: true,
-        }
-      );
-
-
+      await queryClient.invalidateQueries({ queryKey: ['routines'] });
       toast.success('Routine saved successfully!');
       emptyRoutine();
       navigate('/training');
@@ -190,8 +179,8 @@ const CreateRoutine = () => {
           </div>
         </div>
         <div className='flex flex-col gap-2'>
-          <Input placeholder='Routine title' className='w-full' value={routine?.title}
-            onChange={(e) => setRoutineTitle(e.target.value)} />
+          <Input placeholder='Routine title' className='w-full' value={routine?.title ?? ''}
+            onChange={(e) => setRoutine({ ...routine!, title: (e.target.value) })} />
         </div>
         <div className='flex flex-row text-center justify-center gap-24'>
           <div>
@@ -200,7 +189,7 @@ const CreateRoutine = () => {
           </div>
           <div>
             <div className='font-bold'>Volume</div>
-            <div>{totalVolume} {user ? formatWeightUnit(user.unitPreference) : "Kg"}</div>
+            <div>{formatWeightDecimals(totalVolume)} {user ? formatWeightUnit(user.unitPreference) : "Kg"}</div>
           </div>
         </div>
         <Separator className='h-[2px]' />
