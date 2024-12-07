@@ -1,27 +1,29 @@
 import { Button } from '@/components/ui/button';
 import { WeightUnit } from '@/models/ExerciseSet';
 import { Routine } from '@/models/Workout';
+import ErrorPage from "@/pages/ErrorPage";
+import { ResponsiveModal } from '@/shared/modals/ResponsiveModal';
 import WelcomeModal from '@/shared/modals/WelcomeModal';
 import CreateNewWorkoutSection from '@/shared/training/CreateNewWorkoutSection';
 import RoutineCard from '@/shared/training/routines/RoutineCard';
 import { useUserStore } from '@/stores/userStore';
 import { StoreMode, useWorkoutStore } from '@/stores/workoutStore';
+import { deleteRoutine, fetchRoutinesWithExercises } from '@/utils/apiCalls';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import LoadingPage from '../LoadingPage';
-import { fetchRoutinesWithExercises, deleteRoutine } from '@/utils/apiCalls';
-import ErrorPage from "@/pages/ErrorPage";
-import { ResponsiveModal } from '@/shared/modals/ResponsiveModal';
-import { useState } from 'react';
 import { toast } from 'sonner';
+import LoadingPage from '../LoadingPage';
 
 const TrainingHome = () => {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 	const { isUserSetupComplete, user } = useUserStore();
-	const { setStoreMode, newRoutine } = useWorkoutStore();
+	const { setStoreMode, newRoutine, workout, startWorkoutFromRoutine, routine, setRoutine } = useWorkoutStore();
 	const [routineToDelete, setRoutineToDelete] = useState<Routine | null>(null);
+	const [selectedRoutine, setSelectedRoutine] = useState<Routine | null>(null);
+	const [userHasPendingWorkout, setUserHasPendingWorkout] = useState(false);
 
 	const { data: routines, isLoading, isError, error } = useQuery<Routine[], Error>({
 		queryKey: ["routines", user?.id, user?.unitPreference, user?.intensitySetting],
@@ -30,13 +32,21 @@ const TrainingHome = () => {
 		staleTime: 1000 * 60 * 30,
 	});
 
+	useEffect(() => {
+		//Clear the routine store when the user navigates away from the page
+		if (routine) {
+			setRoutine(null);
+		}
+	}, [routine, setRoutine]);
+
+
 	const handleNewRoutineClick = () => {
 		setStoreMode(StoreMode.ROUTINE);
 		newRoutine(user!.id);
 		navigate('/training/create-routine');
 	}
 
-	const handleConfirmDeleteROutine = async () => {
+	const handleConfirmDeleteRoutine = async () => {
 		if (routineToDelete) {
 			try {
 				await deleteRoutine(routineToDelete);
@@ -51,6 +61,26 @@ const TrainingHome = () => {
 				}
 			}
 		}
+	}
+
+	const handleStartRoutinePress = (routine: Routine) => () => {
+		setSelectedRoutine(routine);
+		if (workout !== null) {
+			setUserHasPendingWorkout(true);
+			return;
+		}
+		handleConfirmDiscardWorkout(routine);
+	}
+
+	const handleConfirmDiscardWorkout = (routine: Routine | null = null) => {
+		if (selectedRoutine === null && routine === null) return;
+		const routineToStart = routine || selectedRoutine;
+		if (routineToStart === null) return;
+
+		setUserHasPendingWorkout(false);
+		startWorkoutFromRoutine(routineToStart);
+		setSelectedRoutine(null);
+		navigate('/training/create-new-workout');
 	}
 
 	if (isLoading) return <LoadingPage />;
@@ -72,7 +102,7 @@ const TrainingHome = () => {
 						</Button>
 
 						{routines?.map((routine) => (
-							<RoutineCard key={routine.id} routine={routine} onDeleteRoutineClick={() => setRoutineToDelete(routine)} />
+							<RoutineCard key={routine.id} routine={routine} onDeleteRoutineClick={() => setRoutineToDelete(routine)} handleStartRoutinePress={handleStartRoutinePress(routine)} />
 						))}
 					</div>
 				</div>
@@ -81,6 +111,29 @@ const TrainingHome = () => {
 			<WelcomeModal
 				isOpen={isUserSetupComplete === false}
 			/>
+			<ResponsiveModal
+				open={userHasPendingWorkout}
+				onOpenChange={setUserHasPendingWorkout}
+				dismissable={true}
+				title="Discard Ongoing Workout"
+				titleClassName="text-lg font-semibold leading-none tracking-tight"
+				footer={
+					<>
+						<Button
+							variant='destructive'
+							onClick={() => handleConfirmDiscardWorkout(null)}
+						>
+							<Trash /> Yes
+						</Button>
+						<Button variant='outline' onClick={() => setUserHasPendingWorkout(false)}>
+							Cancel
+						</Button>
+					</>
+				}
+			>
+				<p>You already have an ongoing workout, do you want to discard it and start a new one with the selected routine?</p>
+			</ResponsiveModal>
+
 			<ResponsiveModal
 				open={routineToDelete !== null}
 				onOpenChange={() => setRoutineToDelete(null)}
@@ -91,7 +144,7 @@ const TrainingHome = () => {
 					<>
 						<Button
 							variant='destructive'
-							onClick={handleConfirmDeleteROutine}
+							onClick={handleConfirmDeleteRoutine}
 						>
 							<Trash /> Confirm
 						</Button>

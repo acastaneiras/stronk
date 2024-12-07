@@ -16,6 +16,7 @@ export interface Routine {
 
 export interface Workout extends Routine {
     description?: string;
+    routine?: Routine;
 }
 
 export interface SetCounts {

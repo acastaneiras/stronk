@@ -2,10 +2,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import useWorkoutActions from '@/hooks/useWorkoutActions';
 import ErrorPage from '@/pages/ErrorPage';
 import LoadingPage from '@/pages/LoadingPage';
 import NotesModal from '@/shared/modals/NotesModal';
-import { ResponsiveModal } from '@/shared/modals/ResponsiveModal';
+import RemoveExerciseModal from '@/shared/modals/RemoveExerciseModal';
 import RestTimeModal from '@/shared/modals/RestTimeModal';
 import RIRModal from '@/shared/modals/RIRModal';
 import RPEModal from '@/shared/modals/RPEModal';
@@ -16,13 +17,12 @@ import { StoreMode, useWorkoutStore } from '@/stores/workoutStore';
 import { editRoutine, fetchRoutineById } from '@/utils/apiCalls';
 import { formatWeightDecimals, formatWeightUnit, getTotalSets, getTotalVolume } from '@/utils/workoutUtils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ChevronLeft, Save, Trash } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { ChevronLeft, Save } from 'lucide-react';
+import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
-import NoExercises from '../NoExercises';
-import useWorkoutActions from '@/hooks/useWorkoutActions';
 import { z } from 'zod';
+import NoExercises from '../NoExercises';
 
 const workoutSchema = z.object({
   title: z.string().min(1, { message: 'Routine title is required.' }),
@@ -37,7 +37,6 @@ const EditRoutine = () => {
 
   const workoutActions = useWorkoutActions(workoutStore, userStore);
 
-  const [removeExerciseOpen, setRemoveExerciseOpen] = useState(false);
 
   const { isLoading, isError, data: fetchedRoutine, error } = useQuery({
     queryKey: ['routines', id, userStore.user?.unitPreference],
@@ -84,6 +83,11 @@ const EditRoutine = () => {
     }
   };
 
+  const handleGoBack = async () => {
+    //await queryClient.invalidateQueries({ queryKey: ['routines', id, userStore.user?.unitPreference], exact: true });
+    navigate('/training');
+  }
+
   const setsDetail = getTotalSets(workoutStore.routine);
   const totalVolume = getTotalVolume(workoutStore.routine, true);
 
@@ -93,14 +97,14 @@ const EditRoutine = () => {
   return (
     <div className="flex flex-col flex-1">
       <div className="flex flex-col gap-4">
-        <div className="flex flex-row items-center justify-between pt-4">
-          <div className="w-10">
-            <button onClick={() => navigate('/training')}>
+        <div className="flex flex-row items-center justify-between pt-4 relative">
+          <div className="absolute left-0 w-10">
+            <button onClick={handleGoBack}>
               <ChevronLeft />
             </button>
           </div>
           <h1 className="text-xl font-bold tracking-tighter w-full text-center">Edit Routine</h1>
-          <div className="flex gap-2">
+          <div className="absolute right-0 flex gap-2">
             <Button onClick={handleSaveRoutine}>
               <Save />
               <span className="hidden md:block">Save</span>
@@ -156,25 +160,11 @@ const EditRoutine = () => {
         )}
       </div>
 
-      <ResponsiveModal
-        open={removeExerciseOpen}
-        onOpenChange={setRemoveExerciseOpen}
-        dismissable={true}
-        title="Remove Exercise"
-        titleClassName="text-lg font-semibold leading-none tracking-tight"
-        footer={
-          <>
-            <Button variant="destructive" onClick={workoutActions.handleRemoveExercise}>
-              <Trash /> Confirm
-            </Button>
-            <Button variant="outline" onClick={() => setRemoveExerciseOpen(false)}>
-              Cancel
-            </Button>
-          </>
-        }
-      >
-        <p>Are you sure you want to remove this exercise?</p>
-      </ResponsiveModal>
+      <RemoveExerciseModal
+        open={workoutActions.removeExerciseOpen}
+        onOpenChange={workoutActions.setRemoveExerciseOpen}
+        onConfirmRemove={workoutActions.handleRemoveExercise}
+      />
 
       <RPEModal
         showRPEModal={workoutActions.showRPEModal}

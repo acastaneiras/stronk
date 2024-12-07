@@ -7,6 +7,7 @@ import useWorkoutActions from '@/hooks/useWorkoutActions';
 import ErrorPage from '@/pages/ErrorPage';
 import LoadingPage from '@/pages/LoadingPage';
 import NotesModal from '@/shared/modals/NotesModal';
+import RemoveExerciseModal from '@/shared/modals/RemoveExerciseModal';
 import { ResponsiveModal } from '@/shared/modals/ResponsiveModal';
 import RestTimeModal from '@/shared/modals/RestTimeModal';
 import RIRModal from '@/shared/modals/RIRModal';
@@ -18,7 +19,7 @@ import { StoreMode, useWorkoutStore } from '@/stores/workoutStore';
 import { editWorkout, fetchWorkoutById } from '@/utils/apiCalls';
 import { formatTime, formatWeightDecimals, formatWeightUnit, getTotalSets, getTotalVolume, incompleteSets } from '@/utils/workoutUtils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ChevronLeft, Save, Trash } from 'lucide-react';
+import { ChevronLeft, Save } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -39,7 +40,6 @@ const EditWorkout = () => {
 
   const workoutActions = useWorkoutActions(workoutStore, userStore);
 
-  const [removeExerciseOpen, setRemoveExerciseOpen] = useState(false);
   const [showIncompleteExerciseModal, setShowIncompleteExerciseModal] = useState(false);
 
   const { isLoading, isError, data: fetchedWorkout, error } = useQuery({
@@ -105,8 +105,8 @@ const EditWorkout = () => {
   return (
     <div className="flex flex-col flex-1">
       <div className="flex flex-col gap-4">
-        <div className="flex flex-row items-center justify-between pt-4">
-          <div className="w-10">
+        <div className="flex flex-row items-center justify-between pt-4 relative">
+          <div className="absolute w-10 left-0">
             <button
               onClick={() => {
                 workoutStore.setEditingWorkout(null);
@@ -117,7 +117,7 @@ const EditWorkout = () => {
             </button>
           </div>
           <h1 className="text-xl font-bold tracking-tighter w-full text-center">Edit Workout</h1>
-          <div className="flex gap-2">
+          <div className="absolute right-0 flex gap-2">
             <Button onClick={handleSaveWorkoutPress}>
               <Save />
               <span className="hidden md:block">Save</span>
@@ -196,26 +196,11 @@ const EditWorkout = () => {
         )}
       </div>
 
-      <ResponsiveModal
-        open={removeExerciseOpen}
-        onOpenChange={setRemoveExerciseOpen}
-        dismissable={true}
-        title="Remove Exercise"
-        titleClassName="text-lg font-semibold leading-none tracking-tight"
-        footer={
-          <>
-            <Button variant="destructive" onClick={workoutActions.handleRemoveExercise}>
-              <Trash /> Confirm
-            </Button>
-            <Button variant="outline" onClick={() => setRemoveExerciseOpen(false)}>
-              Cancel
-            </Button>
-          </>
-        }
-      >
-        <p>Are you sure you want to remove this exercise?</p>
-      </ResponsiveModal>
-
+      <RemoveExerciseModal
+        open={workoutActions.removeExerciseOpen}
+        onOpenChange={workoutActions.setRemoveExerciseOpen}
+        onConfirmRemove={workoutActions.handleRemoveExercise}
+      />
       <RPEModal
         showRPEModal={workoutActions.showRPEModal}
         setShowRPEModal={workoutActions.setShowRPEModal}

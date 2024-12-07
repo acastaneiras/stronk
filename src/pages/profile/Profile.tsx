@@ -11,13 +11,15 @@ import { formatTime, getAllWorkoutsAverageTime, getUserLastExercisePR, getUserWe
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { Settings, Trash, Trophy } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import LoadingPage from '../LoadingPage'
+import { useWorkoutStore } from '@/stores/workoutStore'
 
 const Profile = () => {
 	const { user } = useUserStore();
 	const [showSettingsModal, setShowSettingsModal] = useState(false);
+	const { editingWorkout, setEditingWorkout } = useWorkoutStore();
 	const queryClient = useQueryClient();
 	const { data: workouts, isLoading, isError, error } = useQuery<Workout[], Error>({
 		queryKey: ["workouts", user?.id, user?.unitPreference, user?.intensitySetting],
@@ -25,6 +27,13 @@ const Profile = () => {
 		enabled: !!user,
     staleTime: 1000 * 60 * 30,
 	});
+
+	useEffect(() => {
+		//Clear the workout store when the user navigates away from the page
+		if (editingWorkout) {
+			setEditingWorkout(null);
+		}
+	}, [editingWorkout, setEditingWorkout]);
 
 	const [workoutToDelete, setWorkoutToDelete] = useState<Workout | null>(null);
 

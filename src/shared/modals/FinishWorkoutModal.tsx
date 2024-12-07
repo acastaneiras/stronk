@@ -3,13 +3,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
-import { SetCounts } from '@/models/Workout';
+import { Routine, SetCounts } from '@/models/Workout';
 import MuscleIcon from '@/shared/icons/MuscleIcon';
 import { ResponsiveModal } from '@/shared/modals/ResponsiveModal';
 import { useUserStore } from '@/stores/userStore';
 import { useWorkoutStore } from '@/stores/workoutStore';
 import { createWorkout } from '@/utils/apiCalls';
-import { calculateElapsedSecondsFromDate, formatTime, getTotalSets, getTotalVolume } from '@/utils/workoutUtils';
+import { calculateElapsedSecondsFromDate, checkRoutineChanges, formatTime, getTotalSets, getTotalVolume } from '@/utils/workoutUtils';
 import { useQueryClient } from '@tanstack/react-query';
 import { Dumbbell, Hash, Hourglass, Loader, Save } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -23,7 +23,7 @@ const workoutSchema = z.object({
   description: z.string().optional(),
 });
 
-const FinishWorkoutModal = ({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) => {
+const FinishWorkoutModal = ({ open, onOpenChange, onChangedRoutine}: { open: boolean, onOpenChange: (open: boolean) => void, onChangedRoutine: ({routine, oldExerciseIds}: {routine: Routine, oldExerciseIds: string[]}) => void }) => {
   const { workout, emptyWorkout } = useWorkoutStore();
   const { user } = useUserStore();
   const [spinner, setSpinner] = useState(false);
@@ -62,13 +62,23 @@ const FinishWorkoutModal = ({ open, onOpenChange }: { open: boolean, onOpenChang
     setSpinner(true);
 
     try {
-      await createWorkout(workout, workoutTitle, workoutDescription, workoutDuration, setsDetail,totalVolume, user );
+      await createWorkout(workout, workoutTitle, workoutDescription, workoutDuration, setsDetail, totalVolume, user);
       await queryClient.invalidateQueries({ queryKey: ['workouts'] });
 
-      toast.success('Workout saved successfully!');
-      onOpenChange(false);
-      navigate('/training');
-      emptyWorkout();
+      if (workout.routine !== null) {
+        //Check if the workout has changed and update the routine if the user wants to
+        const changedRoutine = checkRoutineChanges(workout, user);
+        onOpenChange(false);
+
+        if (changedRoutine !== false) {
+          const { updatedRoutine, oldRoutineExercisesIds } = changedRoutine;
+          onChangedRoutine({routine: updatedRoutine, oldExerciseIds: oldRoutineExercisesIds});
+        }
+      } else {
+        toast.success('Workout saved successfully!');
+        emptyWorkout();
+        navigate('/training');
+      }
     } catch (err: unknown) {
       if (err instanceof Error) {
         toast.error(err.message);
@@ -79,7 +89,6 @@ const FinishWorkoutModal = ({ open, onOpenChange }: { open: boolean, onOpenChang
       setSpinner(false);
     }
   };
-
 
   return (
     <ResponsiveModal open={open} onOpenChange={onOpenChange} title="Finish Workout" titleClassName="text-lg font-semibold leading-none tracking-tight" footer={

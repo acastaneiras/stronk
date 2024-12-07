@@ -67,6 +67,7 @@ export interface WorkoutState {
   emptyRoutine: () => void,
   setRoutine: (routine: Routine | null) => void,
   setEditingWorkout: (workout: Workout | null) => void,
+  startWorkoutFromRoutine: (routine: Routine) => void,
   setHydrated: () => void,
 }
 
@@ -514,6 +515,41 @@ export const useWorkoutStore = create<WorkoutState>()(
         }),
         setRoutine: (routine: Routine | null) => set({ routine }),
         setEditingWorkout: (workout: Workout | null) => set({ editingWorkout: workout }),
+        startWorkoutFromRoutine: (routine: Routine) => set((state) => {
+          const { user } = useUserStore.getState();
+          const date = dayjs();
+          return {
+            ...state,
+            workout: {
+              id: null,
+              userId: routine.userId,
+              title: routine.title,
+              date: date,
+              duration: null,
+              sets: 0,
+              units: user?.unitPreference || WeightUnit.KG,
+              volume: 0,
+              routine, //Store the original routine in the workout, so we can compare it later
+              workout_exercises: routine.workout_exercises.map((routineExercise) => {
+                return {
+                  id: uuidv4(),
+                  exercise: routineExercise.exercise,
+                  sets: routineExercise.sets.map((set) => {
+                    return {
+                      ...set,
+                      completed: false,
+                    };
+                  }),
+                  notes: routineExercise.notes ?? '',
+                  setInterval: routineExercise.setInterval,
+                };
+              }),
+              completed: false,
+            },
+            storeMode: StoreMode.WORKOUT,
+          };
+        }
+        ),
         setHydrated: () => set({ isHydrated: true }),
       }),
       {

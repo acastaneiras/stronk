@@ -1,9 +1,10 @@
+import { WeightUnit } from "@/models/ExerciseSet";
 import { User } from "@/models/User";
 import { Routine, SetCounts, Workout } from "@/models/Workout";
 import { WorkoutExerciseType } from "@/models/WorkoutExerciseType";
+import { v4 as uuidv4 } from 'uuid';
 import { supabase } from "./supabaseClient";
 import { parseWorkoutData } from "./userDataLoader";
-import { WeightUnit } from "@/models/ExerciseSet";
 
 export const editRoutine = async (routine: Routine, fetchedRoutine: Routine, user: User) => {
   const routineId = routine.id;
@@ -90,6 +91,7 @@ export const createRoutine = async (routine: Routine, user: User) => {
   const routineExercises = routine?.workout_exercises;
   if (routineExercises) {
     const exerciseDetailsData = routineExercises.map((exercise, index) => ({
+      id: exercise.id,
       notes: exercise.notes,
       setInterval: exercise.setInterval,
       order: index,
@@ -429,5 +431,62 @@ export const deleteWorkout = async (workout: Workout) => {
 
   if (workoutError) {
     throw new Error('Error deleting workout');
+  }
+}
+
+export const overwriteRoutine = async ({ routine, oldExerciseIds}: { routine: Routine; oldExerciseIds: string[]; }, user: User) => {
+  if (oldExerciseIds.length > 0) {
+    //Delete all old exercise details associated with the routine
+    const { error: exerciseDetailsError } = await supabase
+      .from('ExerciseDetails')
+      .delete()
+      .in('id', oldExerciseIds).select();
+
+    if (exerciseDetailsError) {
+      throw new Error('Error updating routine details');
+    }
+  }
+
+  const { error: routineSaveError } = await supabase
+    .from('Routines')
+    .update({
+      title: routine.title,
+      userId: user.id,
+      units: user.unitPreference,
+    })
+    .eq('id', routine.id);
+
+  if (routineSaveError) {
+    throw new Error('Error saving routine, please try again.');
+  }
+
+  const exerciseDetailsData = routine.workout_exercises.map((exercise, index) => ({
+    id: uuidv4(), //Generate new ID for each exercise detail
+    notes: exercise.notes,
+    setInterval: exercise.setInterval,
+    order: index,
+    exerciseId: exercise.exercise.id,
+    sets: exercise.sets,
+  }));
+
+  const { error: routineDetailsError } = await supabase
+    .from('ExerciseDetails')
+    .insert(exerciseDetailsData);
+
+  if (routineDetailsError) {
+    throw new Error('Error saving exercises, please try again.');
+  }
+
+  const routineExerciseDetails = exerciseDetailsData.map((exerciseDetail) => ({
+    routineId: routine.id,
+    exerciseDetailsId: exerciseDetail.id,
+  }));
+
+  const { error: routineExerciseDetailsError } = await supabase
+    .from('RoutineExerciseDetails')
+    .insert(routineExerciseDetails);
+
+  if (routineExerciseDetailsError) {
+    throw new Error('Error linking exercises to routine, please try again.');
   }
 }

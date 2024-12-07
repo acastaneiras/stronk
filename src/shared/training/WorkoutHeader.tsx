@@ -31,16 +31,19 @@ const WorkoutHeader = ({ onClose, onFinish }: { onClose: () => void; onFinish: (
 
   return (
     <div className='flex flex-col gap-4 sticky top-0 bg-background z-10 pt-4 border-none'>
-      <div className='flex flex-row items-center justify-between'>
-        <div className='w-10'>
+      <div className="flex items-center justify-between relative">
+        <div className="absolute left-0">
           <button onClick={handleClose} className="p-1">
             <ChevronLeft className="w-6 h-6 text-gray-300" />
           </button>
         </div>
-        <h1 className="text-xl font-bold tracking-tighter w-full text-center ">Ongoing Workout</h1>
-        <div className='flex gap-2'>
+        <h1 className="text-xl font-bold tracking-tighter mx-auto">
+          Ongoing Workout
+        </h1>
+        <div className="absolute right-0">
           <Button variant="outline" onClick={beforeOnFinish}>
-            <FlagIcon/><span className='hidden md:block'>Finish</span>
+            <FlagIcon />
+            <span className="hidden md:block">Finish</span>
           </Button>
         </div>
       </div>

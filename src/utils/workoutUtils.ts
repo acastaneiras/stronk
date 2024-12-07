@@ -1,8 +1,10 @@
 import { Exercise } from "@/models/Exercise";
 import { ExerciseSet, IntensityScale, SetWeight, WeightUnit } from "@/models/ExerciseSet";
-import dayjs from "dayjs";
-import { SetCounts, Workout } from "../models/Workout";
+import { User } from "@/models/User";
+import { Routine, SetCounts, Workout } from "@/models/Workout";
 import { WorkoutExerciseType } from "@/models/WorkoutExerciseType";
+import dayjs from "dayjs";
+
 
 //Get the total sets of a workout
 export const getTotalSets = (workout: Workout | null): SetCounts => {
@@ -259,3 +261,83 @@ export const incompleteSets = (workout: Workout) => {
   });
   return incomplete;
 }
+
+export const checkRoutineChanges = (workout: Workout, user: User) => {
+  if (!workout.routine) {
+    return false;
+  }
+
+  const routine = workout.routine;
+  const workoutExercises = workout.workout_exercises;
+
+  //Compare the number of exercises
+  if (routine.workout_exercises.length !== workoutExercises.length) {
+    return resetRoutineWithChanges(routine, workoutExercises, user);
+  }
+
+  //Compare order of exercises and if they are different in any way
+  for (let i = 0; i < routine.workout_exercises.length; i++) {
+    const routineExercise = routine.workout_exercises[i];
+    const workoutExercise = workoutExercises[i];
+
+    if (routineExercise.exercise.id !== workoutExercise.exercise.id) {
+      return resetRoutineWithChanges(routine, workoutExercises, user);
+    }
+
+    if (routineExercise.sets.length !== workoutExercise.sets.length) {
+      return resetRoutineWithChanges(routine, workoutExercises, user);
+    }
+
+    for (let j = 0; j < routineExercise.sets.length; j++) {
+      const routineSet = routineExercise.sets[j];
+      const workoutSet = workoutExercise.sets[j];
+
+      if (
+        routineSet.weight.value !== workoutSet.weight.value ||
+        routineSet.weight.unit !== workoutSet.weight.unit ||
+        routineSet.reps !== workoutSet.reps ||
+        routineSet.type !== workoutSet.type ||
+        routineSet.intensity !== workoutSet.intensity
+      ) {
+        return resetRoutineWithChanges(routine, workoutExercises, user);
+      }
+    }
+
+    if (routineExercise.notes !== workoutExercise.notes || routineExercise.setInterval !== workoutExercise.setInterval) {
+      return resetRoutineWithChanges(routine, workoutExercises, user);
+    }
+  }
+
+  return false;
+};
+
+//Reset the routine with the changes made in the workout
+const resetRoutineWithChanges = (routine: Routine, workoutExercises: WorkoutExerciseType[], user: User) => {
+  const updatedRoutine: Routine = {
+    id: routine.id,
+    userId: routine.userId,
+    title: routine.title,
+    date: routine.date,
+    duration: null,
+    sets: 0, //We don't store the total sets/volume in the routine
+    volume: 0,
+    workout_exercises: workoutExercises.map((exercise) => ({
+      id: exercise.id,
+      exercise: exercise.exercise,
+      sets: exercise.sets.map((set) => ({
+        ...set,
+        completed: false,
+      })),
+      notes: exercise.notes,
+      setInterval: exercise.setInterval,
+    })),
+    units: user.unitPreference ?? WeightUnit.KG,
+  };
+
+  const oldRoutineExercisesIds = routine.workout_exercises.map((exercise) => exercise.id.toString());
+
+  return {
+    updatedRoutine,
+    oldRoutineExercisesIds,
+  };
+};  

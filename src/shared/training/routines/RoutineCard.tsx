@@ -8,7 +8,7 @@ import { Edit, EllipsisVertical, Play, Trash } from 'lucide-react';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const RoutineCard = ({ routine, onDeleteRoutineClick }: { routine: Routine, onDeleteRoutineClick: () => void }) => {
+const RoutineCard = ({ routine, onDeleteRoutineClick, handleStartRoutinePress }: { routine: Routine, onDeleteRoutineClick: () => void, handleStartRoutinePress: () => void }) => {
   const navigate = useNavigate();
   const categories = useMemo(
     () => Array.from(new Set(routine.workout_exercises.map((we) => we.exercise.category).filter(Boolean))),
@@ -88,7 +88,7 @@ const RoutineCard = ({ routine, onDeleteRoutineClick }: { routine: Routine, onDe
         </div>
       </CardHeader>
       <CardFooter>
-        <Button className="w-full">
+        <Button className="w-full" onClick={handleStartRoutinePress}>
           <Play /> Start Routine</Button>
       </CardFooter>
     </Card>

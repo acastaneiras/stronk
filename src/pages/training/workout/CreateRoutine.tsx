@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import useWorkoutActions from '@/hooks/useWorkoutActions';
 import NotesModal from '@/shared/modals/NotesModal';
 import { ResponsiveModal } from '@/shared/modals/ResponsiveModal';
 import RestTimeModal from '@/shared/modals/RestTimeModal';
@@ -11,16 +12,15 @@ import SetTypeModal from '@/shared/modals/SetTypeModal';
 import WorkoutExercise from '@/shared/training/workout-exercise/WorkoutExercise';
 import { useUserStore } from '@/stores/userStore';
 import { StoreMode, useWorkoutStore } from '@/stores/workoutStore';
+import { createRoutine } from '@/utils/apiCalls';
 import { formatWeightDecimals, formatWeightUnit, getTotalSets, getTotalVolume } from '@/utils/workoutUtils';
 import { useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, Save, Trash } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import NoExercises from '../NoExercises';
-import useWorkoutActions from '@/hooks/useWorkoutActions';
 import { z } from 'zod';
-import { createRoutine } from '@/utils/apiCalls';
+import NoExercises from '../NoExercises';
 
 const workoutSchema = z.object({
   title: z.string().min(1, { message: 'Routine title is required.' }),
@@ -69,14 +69,14 @@ const CreateRoutine = () => {
   return (
     <div className="flex flex-col flex-1">
       <div className="flex flex-col gap-4">
-        <div className="flex flex-row items-center justify-between pt-4">
-          <div className="w-10">
+        <div className="flex flex-row items-center justify-between pt-4 relative">
+          <div className="absolute left-0 w-10">
             <button onClick={() => navigate(-1)}>
               <ChevronLeft />
             </button>
           </div>
           <h1 className="text-xl font-bold tracking-tighter w-full text-center">New Routine</h1>
-          <div className="flex gap-2">
+          <div className="absolute right-0 flex gap-2">
             <Button onClick={handleSaveRoutine}>
               <Save />
               <span className="hidden md:block">Save</span>

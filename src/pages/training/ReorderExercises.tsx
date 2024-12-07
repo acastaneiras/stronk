@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { WorkoutExerciseType } from "@/models/WorkoutExerciseType";
 import { SortableItem } from "@/shared/SortableItem";
-import { useWorkoutStore } from "@/stores/workoutStore";
+import { StoreMode, useWorkoutStore } from "@/stores/workoutStore";
 import { closestCenter, DndContext, DragEndEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { ChevronLeft, SaveIcon } from "lucide-react";
@@ -14,20 +14,24 @@ interface ReorderItem {
 }
 
 const ReorderExercises = () => {
-  const { workout, routine, reorderExercises, storeMode } = useWorkoutStore();
+  const { workout, routine, reorderExercises, storeMode, editingWorkout } = useWorkoutStore();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const exercises = storeMode === "ROUTINE"
-      ? routine?.workout_exercises || []
-      : workout?.workout_exercises || [];
-
+    const exercises =
+      storeMode === StoreMode.ROUTINE
+        ? routine?.workout_exercises || []
+        : storeMode === StoreMode.EDIT_WORKOUT
+        ? editingWorkout?.workout_exercises || []
+        : workout?.workout_exercises || [];
+  
     const initialItems = exercises.map((exercise, index) => ({
       id: `${exercise.id.toString()}-${index}`,
       exercise: exercise,
     }));
+    
     setItems(initialItems);
-  }, [workout, routine, storeMode]);
+  }, [workout, routine, editingWorkout, storeMode]);
 
   const [items, setItems] = useState<ReorderItem[]>([]);
 
