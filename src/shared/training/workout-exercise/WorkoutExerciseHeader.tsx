@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 
 type WorkoutExerciseHeaderProps = {
   index: number;
+  isViewing?: boolean;
   currentExercise: WorkoutExerciseType;
   onCallRemoveExercise: () => void;
   onCallExerciseNotes: () => void;
@@ -21,7 +22,7 @@ type WorkoutExerciseHeaderProps = {
 
 const MAX_CHARACTERS_TO_SHOW = 80;
 
-const WorkoutExerciseHeader = ({ index, currentExercise, onCallRemoveExercise, onCallExerciseNotes, onCallRestTimeExercise }: WorkoutExerciseHeaderProps) => {
+const WorkoutExerciseHeader = ({ index, isViewing = false, currentExercise, onCallRemoveExercise, onCallExerciseNotes, onCallRestTimeExercise }: WorkoutExerciseHeaderProps) => {
   const navigate = useNavigate();
   const { setExerciseSearchMode, setSelectedExerciseIndex } = useWorkoutStore();
   const [expandNotes, setExpandNotes] = useState(false);
@@ -95,39 +96,41 @@ const WorkoutExerciseHeader = ({ index, currentExercise, onCallRemoveExercise, o
           )}
         </div>
       </div>
-      <div className='px-4 py-3'>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost">
-              <Settings2 className="h-5" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 flex flex-col gap-1">
-            <DropdownMenuLabel>Exercise Settings</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Button variant="ghost" className="w-full justify-start border-none cursor-pointer" onClick={onCallExerciseNotes}>
-                <FileText className="h-4 w-4 mr-2" /> Notes
+      {!isViewing && (
+        <div className='px-4 py-3'>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost">
+                <Settings2 className="h-5" />
               </Button>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Button variant="ghost" className="w-full justify-start border-none cursor-pointer" onClick={onCallRestTimeExercise}>
-                <Clock className="h-4 w-4 mr-2" /> Rest time
-              </Button>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Button variant="ghost" className="w-full justify-start border-none cursor-pointer" onClick={navigateToReplaceExercise}>
-                <Replace className="h-4 w-4 mr-2" /> Replace exercise
-              </Button>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Button variant="destructive" onClick={onCallRemoveExercise} className="w-full justify-start border-none cursor-pointer">
-                <Trash className="h-4 w-4 mr-2" /> Remove exercise
-              </Button>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 flex flex-col gap-1">
+              <DropdownMenuLabel>Exercise Settings</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Button variant="ghost" className="w-full justify-start border-none cursor-pointer" onClick={onCallExerciseNotes}>
+                  <FileText className="h-4 w-4 mr-2" /> Notes
+                </Button>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Button variant="ghost" className="w-full justify-start border-none cursor-pointer" onClick={onCallRestTimeExercise}>
+                  <Clock className="h-4 w-4 mr-2" /> Rest time
+                </Button>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Button variant="ghost" className="w-full justify-start border-none cursor-pointer" onClick={navigateToReplaceExercise}>
+                  <Replace className="h-4 w-4 mr-2" /> Replace exercise
+                </Button>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Button variant="destructive" onClick={onCallRemoveExercise} className="w-full justify-start border-none cursor-pointer">
+                  <Trash className="h-4 w-4 mr-2" /> Remove exercise
+                </Button>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )}
     </div>
   );
 }

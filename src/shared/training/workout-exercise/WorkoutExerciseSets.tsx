@@ -8,15 +8,17 @@ import { formatWeightUnit } from '@/utils/workoutUtils';
 import { clsx } from 'clsx';
 import { CheckCheckIcon, Hash, Plus, Weight, Zap } from 'lucide-react';
 import { GoNumber } from "react-icons/go";
+import WorkoutExerciseSingleSetView from '@/shared/training/workout-exercise/WorkoutExerciseSingleSetView';
 
 
 type WorkoutExerciseSetsProps = {
   currentExercise: WorkoutExerciseType;
+  isViewing?: boolean;
   onChangeSetTypePressEvent: (exerciseId: string | number[], index: number) => void;
   onCallShowIntensityModalEvent: (exerciseId: string | number[], index: number) => void;
 };
 
-function WorkoutExerciseSets({ currentExercise, onChangeSetTypePressEvent, onCallShowIntensityModalEvent }: WorkoutExerciseSetsProps) {
+function WorkoutExerciseSets({ currentExercise, isViewing = false, onChangeSetTypePressEvent, onCallShowIntensityModalEvent }: WorkoutExerciseSetsProps) {
   const { user } = useUserStore();
   const { addSetToExercise, storeMode } = useWorkoutStore();
 
@@ -25,7 +27,7 @@ function WorkoutExerciseSets({ currentExercise, onChangeSetTypePressEvent, onCal
       {currentExercise.sets.length > 0 && (
         <div className={clsx(
           "grid text-center text-gray-500",
-          storeMode !== StoreMode.ROUTINE
+          storeMode !== StoreMode.ROUTINE && !isViewing
             ? user?.intensitySetting !== "none" ? "grid-cols-5" : "grid-cols-4"
             : user?.intensitySetting !== "none" ? "grid-cols-4" : "grid-cols-3"
         )}>
@@ -39,30 +41,41 @@ function WorkoutExerciseSets({ currentExercise, onChangeSetTypePressEvent, onCal
             </span>
           )}
           {
-            storeMode !== StoreMode.ROUTINE && (
+            (storeMode !== StoreMode.ROUTINE && !isViewing) && (
               <span className='flex gap-1 items-center justify-center'><CheckCheckIcon className='w-4' /></span>
             )
           }
         </div>
       )}
-      {currentExercise.sets.map((set, index) => (
-        <WorkoutExerciseSingleSet
-          key={index}
-          set={set}
-          setIndex={index}
-          currentExercise={currentExercise}
-          onChangeSetType={() => onChangeSetTypePressEvent(currentExercise.id, index)}
-          callShowIntensityModal={() => onCallShowIntensityModalEvent(currentExercise.id, index)}
-        />
-      ))}
-      <Button
-        variant="secondary"
-        onClick={() => addSetToExercise(currentExercise.id)}
-        className="mt-4 px-4 py-2 w-full border"
-      >
-        <Plus className="h-6 w-6" />
-        Add Set
-      </Button>
+      {currentExercise.sets.map((set, index) =>
+        isViewing ? (
+          <WorkoutExerciseSingleSetView
+            key={index}
+            set={set}
+            setIndex={index}
+            currentExercise={currentExercise}
+          />
+        ) : (
+          <WorkoutExerciseSingleSet
+            key={index}
+            set={set}
+            setIndex={index}
+            currentExercise={currentExercise}
+            onChangeSetType={() => onChangeSetTypePressEvent(currentExercise.id, index)}
+            callShowIntensityModal={() => onCallShowIntensityModalEvent(currentExercise.id, index)}
+          />
+        )
+      )}
+      {!isViewing && (
+        <Button
+          variant="secondary"
+          onClick={() => addSetToExercise(currentExercise.id)}
+          className="mt-4 px-4 py-2 w-full border"
+        >
+          <Plus className="h-6 w-6" />
+          Add Set
+        </Button>
+      )}
     </div>
   );
 }

@@ -7,9 +7,10 @@ type RepsInputProps = {
   set: ExerciseSet;
   setIndex: number;
   currentExercise: WorkoutExerciseType;
+  readOnly?: boolean;
 };
 
-const RepsInput = ({ set, setIndex, currentExercise }: RepsInputProps) => {
+const RepsInput = ({ set, setIndex, currentExercise, readOnly = false }: RepsInputProps) => {
   const { changeRepsFromExercise } = useWorkoutStore();
 
   const handleEditRepsEvent = (
@@ -52,6 +53,7 @@ const RepsInput = ({ set, setIndex, currentExercise }: RepsInputProps) => {
           set.reps.toString().length
         )
       }
+      readOnly={readOnly}
     />
   );
 };

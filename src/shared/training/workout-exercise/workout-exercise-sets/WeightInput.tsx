@@ -8,9 +8,10 @@ type WeightInputProps = {
   set: ExerciseSet;
   setIndex: number;
   currentExercise: WorkoutExerciseType;
+  readOnly?: boolean;
 };
 
-const WeightInput = ({ set, setIndex, currentExercise }: WeightInputProps) => {
+const WeightInput = ({ set, setIndex, currentExercise, readOnly = false }: WeightInputProps) => {
   const { changeWeightFromExercise } = useWorkoutStore();
 
   //Only allow numbers and a dot for decimal numbers for the weight input
@@ -70,6 +71,7 @@ const WeightInput = ({ set, setIndex, currentExercise }: WeightInputProps) => {
           displayWeight(set.weight).length
         )
       }
+      readOnly={readOnly}
     />
   );
 };

@@ -91,7 +91,7 @@ const CreateRoutine = () => {
             onChange={(e) => workoutStore.setRoutine({ ...workoutStore.routine!, title: e.target.value })}
           />
         </div>
-        <div className="flex flex-row text-center justify-center gap-24">
+        <div className="flex flex-row text-center justify-center gap-14 md:gap-24">
           <div>
             <div className="font-bold">Sets</div>
             <div>{setsDetail.total}</div>

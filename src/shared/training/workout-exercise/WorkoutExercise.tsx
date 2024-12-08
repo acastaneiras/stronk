@@ -5,6 +5,7 @@ import WorkoutExerciseSets from '@/shared/training/workout-exercise/WorkoutExerc
 type WorkoutExerciseProps = {
   id: number;
   currentExercise: WorkoutExerciseType;
+  isViewing?: boolean;
   onChangeSetTypePress: (exerciseId: string | number[], index: number) => void;
   onCallExerciseNotes: () => void;
   onCallRemoveExercise: () => void;
@@ -12,11 +13,12 @@ type WorkoutExerciseProps = {
   onCallShowIntensityModal: (exerciseId: string | number[], index: number) => void;
 };
 
-const WorkoutExercise = ({ id, currentExercise, onChangeSetTypePress, onCallExerciseNotes, onCallRemoveExercise, onCallShowIntensityModal, onCallRestTimeExercise }: WorkoutExerciseProps) => {
+const WorkoutExercise = ({ id, currentExercise, isViewing = false, onChangeSetTypePress, onCallExerciseNotes, onCallRemoveExercise, onCallShowIntensityModal, onCallRestTimeExercise }: WorkoutExerciseProps) => {
   return (
     <div key={id} className='flex flex-col pb-4'>
       <WorkoutExerciseHeader
         index={id}
+        isViewing={isViewing}
         currentExercise={currentExercise}
         onCallRemoveExercise={onCallRemoveExercise}
         onCallExerciseNotes={onCallExerciseNotes}
@@ -24,6 +26,7 @@ const WorkoutExercise = ({ id, currentExercise, onChangeSetTypePress, onCallExer
       />
       <div className="relative">
         <WorkoutExerciseSets
+          isViewing={isViewing}
           currentExercise={currentExercise}
           onChangeSetTypePressEvent={onChangeSetTypePress}
           onCallShowIntensityModalEvent={onCallShowIntensityModal}

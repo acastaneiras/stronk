@@ -17,7 +17,7 @@ import WorkoutExercise from '@/shared/training/workout-exercise/WorkoutExercise'
 import { useUserStore } from '@/stores/userStore';
 import { StoreMode, useWorkoutStore } from '@/stores/workoutStore';
 import { editWorkout, fetchWorkoutById } from '@/utils/apiCalls';
-import { formatTime, formatWeightDecimals, formatWeightUnit, getTotalSets, getTotalVolume, incompleteSets } from '@/utils/workoutUtils';
+import { formatTime, formatWeightDecimals, formatWeightUnit, getTotalSets, getTotalVolume, incompleteSets, validateWorkoutInputs } from '@/utils/workoutUtils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, Save } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -25,6 +25,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import NoExercises from '../NoExercises';
+import { validate as uuidValidate } from 'uuid';
 
 const workoutSchema = z.object({
   title: z.string().nonempty('Workout title is required.'),
@@ -39,7 +40,7 @@ const EditWorkout = () => {
   const { id } = useParams();
 
   const workoutActions = useWorkoutActions(workoutStore, userStore);
-
+  
   const [showIncompleteExerciseModal, setShowIncompleteExerciseModal] = useState(false);
 
   const { isLoading, isError, data: fetchedWorkout, error } = useQuery({
@@ -47,10 +48,12 @@ const EditWorkout = () => {
     queryFn: async () => {
       if (!id) throw new Error('No workout ID provided.');
       if (!userStore.user) throw new Error('User not authenticated to fetch workout.');
+      if (!uuidValidate(id)) throw new Error('Invalid workout ID provided.');
+
       return await fetchWorkoutById(id, userStore.user?.unitPreference);
     },
     staleTime: 1000 * 60 * 30,
-    enabled: !!id,
+    enabled: !!id && !!userStore.user,
   });
 
   useEffect(() => {
@@ -99,8 +102,14 @@ const EditWorkout = () => {
   const setsDetail = getTotalSets(workoutStore.editingWorkout);
   const totalVolume = getTotalVolume(workoutStore.editingWorkout);
 
+  try {
+    validateWorkoutInputs(id, userStore.user);
+  } catch (error: unknown) {
+    return <ErrorPage errorMessage={(error as Error).message} />;
+  }
+
   if (isLoading) return <LoadingPage />;
-  if (isError) return <ErrorPage errorMessage={error?.message} />;
+  if (isError) return <ErrorPage errorMessage={error.message} />;
 
   return (
     <div className="flex flex-col flex-1">
@@ -148,7 +157,7 @@ const EditWorkout = () => {
             }
           />
         </div>
-        <div className="flex flex-row text-center justify-center gap-24">
+        <div className="flex flex-row text-center justify-center gap-14 md:gap-24">
           <div>
             <div className="font-bold">Sets</div>
             <div>

@@ -275,8 +275,8 @@ export const fetchWorkoutById = async (workoutId: string | number, userUnits: We
     `)
       .eq('id', workoutId)
       .single();
-
     if (error) {
+      console.log(`Error fetching workout: ${error.message}`);
       throw new Error(`Error fetching workout: ${error.message}`);
     }
 
@@ -287,7 +287,6 @@ export const fetchWorkoutById = async (workoutId: string | number, userUnits: We
   } catch (err) {
     throw err instanceof Error ? err : new Error('An unexpected error occurred');
   }
-
 }
 
 export const fetchWorkoutsWithExercises = async (userId: string | number, userUnits: WeightUnit): Promise<Workout[]> => {

@@ -15,7 +15,7 @@ import WorkoutExercise from '@/shared/training/workout-exercise/WorkoutExercise'
 import { useUserStore } from '@/stores/userStore';
 import { StoreMode, useWorkoutStore } from '@/stores/workoutStore';
 import { editRoutine, fetchRoutineById } from '@/utils/apiCalls';
-import { formatWeightDecimals, formatWeightUnit, getTotalSets, getTotalVolume } from '@/utils/workoutUtils';
+import { formatWeightDecimals, formatWeightUnit, getTotalSets, getTotalVolume, validateWorkoutInputs } from '@/utils/workoutUtils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, Save } from 'lucide-react';
 import { useEffect } from 'react';
@@ -23,6 +23,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import NoExercises from '../NoExercises';
+import { validate as uuidValidate } from 'uuid';
 
 const workoutSchema = z.object({
   title: z.string().min(1, { message: 'Routine title is required.' }),
@@ -34,19 +35,18 @@ const EditRoutine = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { id } = useParams();
-
   const workoutActions = useWorkoutActions(workoutStore, userStore);
-
 
   const { isLoading, isError, data: fetchedRoutine, error } = useQuery({
     queryKey: ['routines', id, userStore.user?.unitPreference],
     queryFn: async () => {
       if (!id) throw new Error('No routine ID provided.');
       if (!userStore.user) throw new Error('User not authenticated to fetch routine.');
+      if (!uuidValidate(id)) throw new Error('Invalid routine ID provided.');
       return await fetchRoutineById(id, userStore.user?.unitPreference);
     },
     staleTime: 1000 * 60 * 30,
-    enabled: !!id,
+    enabled: !!id && !!userStore.user,
   });
 
   useEffect(() => {
@@ -84,12 +84,17 @@ const EditRoutine = () => {
   };
 
   const handleGoBack = async () => {
-    //await queryClient.invalidateQueries({ queryKey: ['routines', id, userStore.user?.unitPreference], exact: true });
     navigate('/training');
   }
 
   const setsDetail = getTotalSets(workoutStore.routine);
   const totalVolume = getTotalVolume(workoutStore.routine, true);
+
+  try {
+    validateWorkoutInputs(id, userStore.user, 'routine');
+  } catch (error: unknown) {
+    return <ErrorPage errorMessage={(error as Error).message} />;
+  }
 
   if (isLoading) return <LoadingPage />;
   if (isError) return <ErrorPage errorMessage={error.message} />;
@@ -119,7 +124,7 @@ const EditRoutine = () => {
             onChange={(e) => workoutStore.setRoutine({ ...workoutStore.routine!, title: e.target.value })}
           />
         </div>
-        <div className="flex flex-row text-center justify-center gap-24">
+        <div className="flex flex-row text-center justify-center gap-14 md:gap-24">
           <div>
             <div className="font-bold">Sets</div>
             <div>{setsDetail.total}</div>

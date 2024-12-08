@@ -8,17 +8,17 @@ import { useUserStore } from '@/stores/userStore'
 import { useWorkoutStore } from '@/stores/workoutStore'
 import { formatTime, formatWeightDecimals, getCategoryColor } from '@/utils/workoutUtils'
 import { Edit, EllipsisVertical, Eye, ImageIcon, Trash } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
-const PastWorkoutCard = ({pastWorkout, handleDeleteWorkoutPress}: {pastWorkout: Workout, handleDeleteWorkoutPress: (pastWorkout: Workout) => void}) => {
+const PastWorkoutCard = ({ pastWorkout, handleDeleteWorkoutPress }: { pastWorkout: Workout, handleDeleteWorkoutPress: (pastWorkout: Workout) => void }) => {
   const navigate = useNavigate();
-  const {setEditingWorkout} = useWorkoutStore();
-  const {user} = useUserStore();
+  const { setEditingWorkout } = useWorkoutStore();
+  const { user } = useUserStore();
 
   const handleEditWorkoutClick = () => {
     setEditingWorkout(null);
-		navigate(`/training/edit-workout/${pastWorkout.id}`);
-	}
+    navigate(`/training/edit-workout/${pastWorkout.id}`);
+  }
   return (
     <Card className="shadow-none bg-secondary/80">
       <CardHeader>
@@ -45,7 +45,7 @@ const PastWorkoutCard = ({pastWorkout, handleDeleteWorkoutPress}: {pastWorkout: 
                   </Button>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Button variant="destructive" onClick={() =>handleDeleteWorkoutPress(pastWorkout)} className="w-full justify-start border-none cursor-pointer">
+                  <Button variant="destructive" onClick={() => handleDeleteWorkoutPress(pastWorkout)} className="w-full justify-start border-none cursor-pointer">
                     <Trash className="h-4 w-4 mr-2" /> Delete workout
                   </Button>
                 </DropdownMenuItem>
@@ -92,7 +92,9 @@ const PastWorkoutCard = ({pastWorkout, handleDeleteWorkoutPress}: {pastWorkout: 
         </div>
       </CardContent>
       <CardFooter>
-        <Button><Eye /> View Details</Button>
+        <Button asChild>
+          <Link to={`/training/view-workout/${pastWorkout.id}`}><Eye /> View Details</Link>
+        </Button>
       </CardFooter>
     </Card>
   )

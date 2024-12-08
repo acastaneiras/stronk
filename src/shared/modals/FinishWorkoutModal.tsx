@@ -23,7 +23,7 @@ const workoutSchema = z.object({
   description: z.string().optional(),
 });
 
-const FinishWorkoutModal = ({ open, onOpenChange, onChangedRoutine}: { open: boolean, onOpenChange: (open: boolean) => void, onChangedRoutine: ({routine, oldExerciseIds}: {routine: Routine, oldExerciseIds: string[]}) => void }) => {
+const FinishWorkoutModal = ({ open, onOpenChange, onChangedRoutine }: { open: boolean, onOpenChange: (open: boolean) => void, onChangedRoutine: ({ routine, oldExerciseIds }: { routine: Routine, oldExerciseIds: string[] }) => void }) => {
   const { workout, emptyWorkout } = useWorkoutStore();
   const { user } = useUserStore();
   const [spinner, setSpinner] = useState(false);
@@ -65,20 +65,20 @@ const FinishWorkoutModal = ({ open, onOpenChange, onChangedRoutine}: { open: boo
       await createWorkout(workout, workoutTitle, workoutDescription, workoutDuration, setsDetail, totalVolume, user);
       await queryClient.invalidateQueries({ queryKey: ['workouts'] });
 
-      if (workout.routine !== null) {
+      if (workout.routine) {
         //Check if the workout has changed and update the routine if the user wants to
         const changedRoutine = checkRoutineChanges(workout, user);
         onOpenChange(false);
 
         if (changedRoutine !== false) {
           const { updatedRoutine, oldRoutineExercisesIds } = changedRoutine;
-          onChangedRoutine({routine: updatedRoutine, oldExerciseIds: oldRoutineExercisesIds});
+          onChangedRoutine({ routine: updatedRoutine, oldExerciseIds: oldRoutineExercisesIds });
+          return;
         }
-      } else {
-        toast.success('Workout saved successfully!');
-        emptyWorkout();
-        navigate('/training');
       }
+      toast.success('Workout saved successfully!');
+      emptyWorkout();
+      navigate('/training');
     } catch (err: unknown) {
       if (err instanceof Error) {
         toast.error(err.message);

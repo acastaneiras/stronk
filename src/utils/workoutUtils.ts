@@ -4,7 +4,7 @@ import { User } from "@/models/User";
 import { Routine, SetCounts, Workout } from "@/models/Workout";
 import { WorkoutExerciseType } from "@/models/WorkoutExerciseType";
 import dayjs from "dayjs";
-
+import { validate as uuidValidate } from 'uuid';
 
 //Get the total sets of a workout
 export const getTotalSets = (workout: Workout | null): SetCounts => {
@@ -341,3 +341,9 @@ const resetRoutineWithChanges = (routine: Routine, workoutExercises: WorkoutExer
     oldRoutineExercisesIds,
   };
 };  
+
+export const validateWorkoutInputs = (id: string | undefined, user: User | null, type: string = "workout") => {
+  if (!id) throw new Error(`No ${type} ID provided.`);
+  if (!user) throw new Error(`User not authenticated to fetch ${type}.`);
+  if (!uuidValidate(id)) throw new Error(`Invalid ${type} ID provided.`);
+};

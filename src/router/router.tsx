@@ -25,6 +25,7 @@ import EditWorkout from '@/pages/training/workout/EditWorkout';
 import { createBrowserRouter } from "react-router-dom";
 import AuthProtectedRoute from "./AuthProtectedRoute";
 import OAuthCallback from "./OAuthCallback";
+import ViewWorkoutLayout from "@/layouts/ViewWorkoutLayout";
 
 
 const router = createBrowserRouter([
@@ -112,10 +113,6 @@ const router = createBrowserRouter([
 								element: <ExerciseOverview />,
 							},
 							{
-								path: 'view-workout',
-								element: <ViewWorkout />,
-							},
-							{
 								path: 'create-new-workout',
 								element: <CreateNewWorkout />,
 							},
@@ -130,6 +127,15 @@ const router = createBrowserRouter([
 							{
 								path: 'edit-workout/:id',
 								element: <EditWorkout />,
+							},
+						],
+					},
+					{
+						element: <ViewWorkoutLayout />,
+						children: [
+							{
+								path: 'view-workout/:id',
+								element: <ViewWorkout />,
 							},
 						],
 					},
