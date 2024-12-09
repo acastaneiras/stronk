@@ -30,7 +30,7 @@ interface WelcomeModalProps {
 
 function WelcomeModal({ isOpen }: WelcomeModalProps) {
   const { setTheme } = useTheme();
-  const {setIsUserSetupComplete, setUser } = useUserStore();
+  const { setIsUserSetupComplete, setUser } = useUserStore();
   const { session } = useSession();
   const form = useForm<UserFormInputs>({
     resolver: zodResolver(schema),
@@ -145,8 +145,10 @@ function WelcomeModal({ isOpen }: WelcomeModalProps) {
             name="unitPreference"
             render={() => (
               <FormItem className="flex flex-col space-y-1.5">
-                <FormLabel>
-                  Unit System <span className="text-red-600">*</span>
+                <FormLabel asChild>
+                  <div>
+                    Unit System <span className="text-red-600">*</span>
+                  </div>
                 </FormLabel>
                 <Tabs defaultValue="kg">
                   <TabsList>
@@ -167,7 +169,7 @@ function WelcomeModal({ isOpen }: WelcomeModalProps) {
             name="intensitySetting"
             render={() => (
               <FormItem className="flex flex-col space-y-1.5">
-                <FormLabel>Intensity Setting</FormLabel>
+                <FormLabel asChild>Intensity Setting</FormLabel>
                 <Tabs defaultValue="none">
                   <TabsList>
                     <TabsTrigger value="rpe" onClick={() => form.setValue('intensitySetting', 'rpe')}>
@@ -189,7 +191,7 @@ function WelcomeModal({ isOpen }: WelcomeModalProps) {
             name="theme"
             render={() => (
               <FormItem className="flex flex-col space-y-1.5">
-                <FormLabel>Theme</FormLabel>
+                <FormLabel asChild>Theme</FormLabel>
                 <Tabs defaultValue="system">
                   <TabsList>
                     <TabsTrigger value="light" onClick={() => setTheme('light')}>

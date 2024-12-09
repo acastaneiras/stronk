@@ -3,14 +3,11 @@ import { Exercise } from "@/models/Exercise";
 import { getCategoryColor } from "@/utils/workoutUtils";
 import clsx from "clsx";
 import { CheckCircle, ImageIcon } from "lucide-react";
-import { memo } from "react";
+import { memo, useState } from "react";
 
 const ExerciseListItem = ({ exercise, onPress, selected }: { exercise: Exercise; onPress: () => void; selected: boolean }) => {
-  /*const imgSource = exercise.images
-    ? `/storage/exercises/${exercise.images[0]}`
-    : "/images/NoExercise.png";*/
-
-  const imgSource = "/default-image.webp";
+  const [imageError, setImageError] = useState(false);
+  const imgSource = `https://raw.githubusercontent.com/yuhonas/free-exercise-db/refs/heads/main/exercises/${exercise.images?.[0]}`;
 
   return (
     <div
@@ -27,8 +24,14 @@ const ExerciseListItem = ({ exercise, onPress, selected }: { exercise: Exercise;
           )}
           <div className="flex px-1 py-2 space-x-4">
             <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
-              {imgSource ? (
-                <img src={imgSource} alt={exercise.name} className="w-full h-full object-cover" />
+              {!imageError && imgSource ? (
+                <img
+                  src={imgSource}
+                  alt={exercise.name}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                  onError={() => setImageError(true)}
+                />
               ) : (
                 <ImageIcon className="text-muted-foreground w-8 h-8" />
               )}

@@ -7,7 +7,7 @@ import { Workout } from '@/models/Workout'
 import { useUserStore } from '@/stores/userStore'
 import { useWorkoutStore } from '@/stores/workoutStore'
 import { formatTime, formatWeightDecimals, getCategoryColor } from '@/utils/workoutUtils'
-import { Edit, EllipsisVertical, Eye, ImageIcon, Trash } from 'lucide-react'
+import { Edit, EllipsisVertical, Eye, Trash } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 
 const PastWorkoutCard = ({ pastWorkout, handleDeleteWorkoutPress }: { pastWorkout: Workout, handleDeleteWorkoutPress: (pastWorkout: Workout) => void }) => {
@@ -73,7 +73,6 @@ const PastWorkoutCard = ({ pastWorkout, handleDeleteWorkoutPress }: { pastWorkou
           {pastWorkout.workout_exercises.slice(0, 2).map((exercise, index) => (
             <div key={`${exercise.id.toString()}-${index}`} className="flex flex-row items-center justify-between">
               <div className="flex flex-row items-center gap-4">
-                <ImageIcon />
                 <div>
                   <h1 className="text-xl font-bold">{exercise.exercise.name}</h1>
                   <p className="text-gray-500 dark:text-gray-100">{exercise.sets.length} {exercise.sets.length > 1 ? 'sets' : 'set'}</p>

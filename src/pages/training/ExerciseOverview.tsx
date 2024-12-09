@@ -4,6 +4,7 @@ import { Workout } from '@/models/Workout'
 import ErrorPage from '@/pages/ErrorPage'
 import LoadingPage from '@/pages/LoadingPage'
 import ExerciseHistoryChart from '@/shared/charts/ExerciseHistoryChart'
+import { ImageCarousel } from '@/shared/training/workout-exercise/ImageCarousel'
 import { useExercisesStore } from '@/stores/exerciseStore'
 import { useUserStore } from '@/stores/userStore'
 import { fetchWorkoutsWithExercises } from '@/utils/apiCalls'
@@ -72,9 +73,9 @@ const ExerciseOverview = () => {
         <span className='text-sm'><strong>Primary Muscles:</strong> {exerciseMuscles.primary}</span>
         <span className='text-sm'><strong>Secondary Muscles:</strong> {exerciseMuscles.secondary}</span>
       </div>
-      <div className='flex flex-row text-center justify-center h-32 items-center border-2 rounded'>
-        Exercise Image
-      </div>
+      {exercise?.images && (
+        <ImageCarousel images={exercise.images} />
+      )}
       <h1 className='text-lg font-bold tracking-tighter'>Instructions</h1>
       <div className='flex flex-col gap-4'>
         {exercise?.instructions ? (

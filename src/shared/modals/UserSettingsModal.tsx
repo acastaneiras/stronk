@@ -171,8 +171,10 @@ function UserSettingsModal({ isOpen, setShowUserSettingsModal }: UserSettingsMod
             name="unitPreference"
             render={() => (
               <FormItem className="flex flex-col space-y-1.5">
-                <FormLabel>
-                  Unit System <span className="text-red-600">*</span>
+                <FormLabel asChild>
+                  <div>
+                    Unit System <span className="text-red-600">*</span>
+                  </div>
                 </FormLabel>
                 <Tabs
                   defaultValue={form.getValues('unitPreference')}
@@ -192,7 +194,7 @@ function UserSettingsModal({ isOpen, setShowUserSettingsModal }: UserSettingsMod
             name="intensitySetting"
             render={() => (
               <FormItem className="flex flex-col space-y-1.5">
-                <FormLabel>Intensity Setting</FormLabel>
+                <FormLabel asChild>Intensity Setting</FormLabel>
                 <Tabs
                   defaultValue={form.getValues('intensitySetting')}
                   onValueChange={(value) => form.setValue('intensitySetting', value as IntensityScale)}
@@ -211,7 +213,7 @@ function UserSettingsModal({ isOpen, setShowUserSettingsModal }: UserSettingsMod
             name="theme"
             render={() => (
               <FormItem className="flex flex-col space-y-1.5">
-                <FormLabel>Theme</FormLabel>
+                <FormLabel asChild>Theme</FormLabel>
                 <Tabs defaultValue={theme}>
                   <TabsList>
                     <TabsTrigger value="light" onClick={() => setTheme('light')}>

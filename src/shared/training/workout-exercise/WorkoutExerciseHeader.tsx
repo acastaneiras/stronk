@@ -7,7 +7,7 @@ import { useWorkoutStore } from '@/stores/workoutStore';
 import { getCategoryColor } from '@/utils/workoutUtils';
 import clsx from 'clsx';
 import dayjs from 'dayjs';
-import { Clock, FileText, Replace, Settings2, Trash } from 'lucide-react';
+import { Clock, FileText, ImageIcon, Replace, Settings2, Trash } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -21,11 +21,14 @@ type WorkoutExerciseHeaderProps = {
 };
 
 const MAX_CHARACTERS_TO_SHOW = 80;
+const EXERCISE_PICTURES_URL = import.meta.env.VITE_EXERCISE_PICTURES_URL;
 
 const WorkoutExerciseHeader = ({ index, isViewing = false, currentExercise, onCallRemoveExercise, onCallExerciseNotes, onCallRestTimeExercise }: WorkoutExerciseHeaderProps) => {
   const navigate = useNavigate();
+
   const { setExerciseSearchMode, setSelectedExerciseIndex } = useWorkoutStore();
   const [expandNotes, setExpandNotes] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const categoryColor = getCategoryColor(currentExercise.exercise.category!);
 
@@ -39,18 +42,23 @@ const WorkoutExerciseHeader = ({ index, isViewing = false, currentExercise, onCa
       <div
         className="flex items-center space-x-4 px-4 py-2"
       >
-        <img
-          //src={currentExercise.exercise.images![0] || 'default-image.webp'}
-          src='/default-image.webp'
-          alt="Exercise"
-          className={`w-16 h-16 rounded border-2`}
-          style={{ borderColor: `${categoryColor}` }}
-        />
+        {!imageError ? (
+          <img
+            src={`${EXERCISE_PICTURES_URL}${currentExercise.exercise.images?.[0]}`}
+            alt="Exercise"
+            className={`w-16 h-16 rounded border-2`}
+            style={{ borderColor: `${categoryColor}` }}
+            onError={() => setImageError(true)}
+          />
+        ) : (
+          <ImageIcon className="text-muted-foreground w-8 h-8" />
+        )}
+
         <div className="flex flex-col flex-1 gap-1 items-start">
           <div className="flex flex-col gap-1 items-start justify-between">
             <h2 className="font-bold text-lg text-primary">
               <Link to={`/training/exercise-overview/${currentExercise.exercise.id}`}>
-              {currentExercise.exercise.name}
+                {currentExercise.exercise.name}
               </Link>
             </h2>
             <div className='flex flex-row gap-2'>
