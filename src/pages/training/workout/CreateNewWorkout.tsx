@@ -21,6 +21,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import NoExercises from '../NoExercises';
+import ExerciseTimer from '@/shared/training/ExerciseTimer';
 
 const CreateNewWorkout = () => {
   const workoutStore = useWorkoutStore();
@@ -51,7 +52,7 @@ const CreateNewWorkout = () => {
 
   const handleChangeRoutineTrigger = async ({ routine, oldExerciseIds }: { routine: Routine; oldExerciseIds: string[]; }) => {
     setConfirmSaveRoutineDialog(true);
-    setRoutineToChange({ routine, oldExerciseIds});
+    setRoutineToChange({ routine, oldExerciseIds });
   }
 
   const handleSaveRoutine = async (saveRoutine: boolean) => {
@@ -100,6 +101,8 @@ const CreateNewWorkout = () => {
                   onCallRestTimeExercise={() => workoutActions.handleRestTimeExercise(index)}
                 />
               ))}
+              <ExerciseTimer workoutExercises={workoutStore.workout.workout_exercises} />
+
             </div>
             <ScrollBar />
           </ScrollArea>

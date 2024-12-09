@@ -26,7 +26,6 @@ const useWorkoutActions = (workoutStore: WorkoutState, userStore: UserState) => 
   const handleSaveRestTime = (seconds: number) => {
     setRestTimeToExercise(selectedExerciseIndex, seconds);
     setShowRestTime(false);
-    /*ToDo: Handle timer pop up and notification...*/
   };
 
   const onChangeSetTypePress = (exerciseIndex: string | number[], setIndex: number) => {
