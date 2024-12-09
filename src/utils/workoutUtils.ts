@@ -1,9 +1,9 @@
 import { Exercise } from "@/models/Exercise";
-import { ExerciseSet, IntensityScale, SetWeight, WeightUnit } from "@/models/ExerciseSet";
+import { ExerciseSet, IntensityScale, SetType, SetWeight, WeightUnit } from "@/models/ExerciseSet";
 import { User } from "@/models/User";
 import { Routine, SetCounts, Workout } from "@/models/Workout";
 import { WorkoutExerciseType } from "@/models/WorkoutExerciseType";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { validate as uuidValidate } from 'uuid';
 
 //Get the total sets of a workout
@@ -186,6 +186,39 @@ export const getUserWeeklyVolume = (workouts: Workout[], userUnits: WeightUnit):
 
   return parseFloat(totalVolume.toFixed(2));
 }
+
+export const getExerciseHistory = (workouts: Workout[] | undefined, exerciseId: string | undefined, userUnits: WeightUnit | undefined): { maxWeightLifted: ExerciseSet, bestSetVolume: ExerciseSet, history: { set: ExerciseSet; date: Dayjs }[] } => {
+  const initialAssignation = { id: -1, reps: 0, weight: { unit: userUnits ?? WeightUnit.KG, value: 0 }, type: SetType.NormalSet, intensity: undefined, completed: false };
+  if (!workouts || !userUnits || !exerciseId ) return { maxWeightLifted: initialAssignation, bestSetVolume: initialAssignation, history: [] };
+  const history: { set: ExerciseSet; date: Dayjs }[] = [];
+  let maxWeightLifted: ExerciseSet = { ...initialAssignation };
+  let bestSetVolume: ExerciseSet = { ...initialAssignation };
+
+  for (const workout of workouts) {
+    for (const workoutExercise of workout.workout_exercises) {
+      if (workoutExercise.exercise.id === exerciseId) {
+        for (const set of workoutExercise.sets) {
+          const setWeight = parseFloat(WeightConvert(set.weight, userUnits));
+          const setReps = parseInt(set.reps.toString());
+          const totalWeight = setWeight * setReps;
+
+          if (totalWeight > (parseFloat(bestSetVolume.weight.value.toString()) * parseInt(bestSetVolume.reps.toString()))) {
+            bestSetVolume = { ...set, weight: { ...set.weight, unit: userUnits, value: parseFloat(formatWeightDecimals(setWeight)) } };
+          }
+
+          if (setWeight > parseFloat(maxWeightLifted.weight.value.toString())) {
+            maxWeightLifted = { ...set, weight: { ...set.weight, unit: userUnits, value: parseFloat(formatWeightDecimals(setWeight)) } };
+          }
+
+          history.push({set:{ ...set, weight: { ...set.weight, unit: userUnits, value: parseFloat(formatWeightDecimals(setWeight)) } }, date: workout.date });
+        }
+      }
+    }
+  }
+
+  return { maxWeightLifted, bestSetVolume, history };
+}
+
 
 //Returns the user's last exercise PR with the {date, weight,  reps} format
 export const getUserLastExercisePR = (workouts: Workout[], userUnits: WeightUnit): { date: dayjs.Dayjs, exercise: Exercise, set: ExerciseSet } | null => {

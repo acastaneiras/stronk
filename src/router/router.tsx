@@ -4,6 +4,7 @@ import AppLayout from '@/layouts/AppLayout';
 import AuthLayout from '@/layouts/AuthLayout';
 import ExerciseListLayout from "@/layouts/ExerciseListLayout";
 import HomeLayout from '@/layouts/HomeLayout';
+import SingleViewLayout from "@/layouts/SingleViewLayout";
 import WorkoutLayout from '@/layouts/WorkoutLayout';
 import Home from '@/pages/Home';
 import NotFound from '@/pages/NotFound';
@@ -25,7 +26,6 @@ import EditWorkout from '@/pages/training/workout/EditWorkout';
 import { createBrowserRouter } from "react-router-dom";
 import AuthProtectedRoute from "./AuthProtectedRoute";
 import OAuthCallback from "./OAuthCallback";
-import ViewWorkoutLayout from "@/layouts/ViewWorkoutLayout";
 
 
 const router = createBrowserRouter([
@@ -109,10 +109,6 @@ const router = createBrowserRouter([
 						element: <WorkoutLayout />,
 						children: [
 							{
-								path: 'exercise-overview',
-								element: <ExerciseOverview />,
-							},
-							{
 								path: 'create-new-workout',
 								element: <CreateNewWorkout />,
 							},
@@ -131,11 +127,15 @@ const router = createBrowserRouter([
 						],
 					},
 					{
-						element: <ViewWorkoutLayout />,
+						element: <SingleViewLayout />,
 						children: [
 							{
 								path: 'view-workout/:id',
 								element: <ViewWorkout />,
+							},
+							{
+								path: 'exercise-overview/:id',
+								element: <ExerciseOverview />,
 							},
 						],
 					},

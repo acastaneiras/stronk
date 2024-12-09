@@ -226,7 +226,6 @@ export const editWorkout = async (workout: Workout, fetchedWorkout: Workout, set
       .upsert(workoutExerciseDetailsData);
 
     if (workoutExerciseDetailsError) {
-      console.log(workoutExerciseDetailsError);
       throw new Error('Error linking exercises to workout, please try again.');
     }
     //Find deleted exercises;
@@ -276,7 +275,6 @@ export const fetchWorkoutById = async (workoutId: string | number, userUnits: We
       .eq('id', workoutId)
       .single();
     if (error) {
-      console.log(`Error fetching workout: ${error.message}`);
       throw new Error(`Error fetching workout: ${error.message}`);
     }
 

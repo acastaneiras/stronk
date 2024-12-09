@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 
-export default function ViewWorkoutLayout() {
+//Layout used for 'view' pages that display a single item
+export default function SingleViewLayout() {
   return (
     <main className="min-h-screen flex flex-col">
       <div className="flex-grow flex flex-col w-full max-w-full lg:max-w-screen-lg mx-auto px-4 py-0">

@@ -27,7 +27,7 @@ const PastWorkoutCard = ({ pastWorkout, handleDeleteWorkoutPress }: { pastWorkou
             <h1 className="text-2xl flex flex-row items-center gap-2">
               {pastWorkout.title}
             </h1>
-            <h3 className="text-sm font-extralight text-gray-500 dark:text-gray-100">
+            <h3 className="text-sm font-extralight text-gray-800 dark:text-gray-100">
               {user?.firstName} {user?.lastName} {`(${user?.alias})`}
             </h3>
           </div>

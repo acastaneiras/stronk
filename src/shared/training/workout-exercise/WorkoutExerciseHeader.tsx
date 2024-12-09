@@ -9,7 +9,7 @@ import clsx from 'clsx';
 import dayjs from 'dayjs';
 import { Clock, FileText, Replace, Settings2, Trash } from 'lucide-react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 type WorkoutExerciseHeaderProps = {
   index: number;
@@ -49,7 +49,9 @@ const WorkoutExerciseHeader = ({ index, isViewing = false, currentExercise, onCa
         <div className="flex flex-col flex-1 gap-1 items-start">
           <div className="flex flex-col gap-1 items-start justify-between">
             <h2 className="font-bold text-lg text-primary">
+              <Link to={`/training/exercise-overview/${currentExercise.exercise.id}`}>
               {currentExercise.exercise.name}
+              </Link>
             </h2>
             <div className='flex flex-row gap-2'>
               {currentExercise.exercise.category && (

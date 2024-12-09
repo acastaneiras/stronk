@@ -15,7 +15,7 @@ import { validate as uuidValidate } from 'uuid';
 const ViewWorkout = () => {
   const { id } = useParams();
   const { user } = useUserStore();
-  
+
   const { isLoading, isError, data: fetchedWorkout, error } = useQuery({
     queryKey: ['workouts', id, user?.unitPreference],
     queryFn: async () => {
@@ -58,7 +58,7 @@ const ViewWorkout = () => {
         <h1 className='text-2xl text-center line-clamp-2'>
           {fetchedWorkout?.title}
         </h1>
-        <h3 className="text-sm font-extralight text-gray-500 dark:text-gray-100 line-clamp-2">
+        <h3 className="text-sm font-extralight text-gray-800 dark:text-gray-100 line-clamp-2">
           {user?.firstName} {user?.lastName} {`(${user?.alias})`} - {fetchedWorkout?.date.format("dddd, MMMM D, YYYY")} at {fetchedWorkout?.date.format("h:mm A")}
         </h3>
 
