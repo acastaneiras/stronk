@@ -42,11 +42,11 @@ export default function WorkoutLayout() {
   const isReorderDisabled = exercisesLength <= 1 || isAddDisabled;
 
   return (
-    <main className="min-h-screen flex flex-col">
-      <div className="flex-grow flex flex-col w-full max-w-full lg:max-w-screen-lg mx-auto px-4 py-0">
+    <main className="min-h-screen flex flex-col ">
+      <div className="flex-grow flex flex-col w-full max-w-full lg:max-w-screen-lg mx-auto px-4 py-0 pb-safe">
         <Outlet />
       </div>
-      <div className="sticky bottom-0 left-0 w-full bg-background text-center p-4 border-t border-border z-10">
+      <div className="sticky bottom-safe left-0 w-full bg-background text-center p-4 border-t border-border z-10">
         <div className="flex flex-row items-center max-w-screen-lg mx-auto gap-4">
           <Button
             className='w-full'

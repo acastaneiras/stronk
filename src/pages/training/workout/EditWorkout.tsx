@@ -23,9 +23,9 @@ import { ChevronLeft, Save } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
+import { validate as uuidValidate } from 'uuid';
 import { z } from 'zod';
 import NoExercises from '../NoExercises';
-import { validate as uuidValidate } from 'uuid';
 
 const workoutSchema = z.object({
   title: z.string().nonempty('Workout title is required.'),
@@ -40,7 +40,7 @@ const EditWorkout = () => {
   const { id } = useParams();
 
   const workoutActions = useWorkoutActions(workoutStore, userStore);
-  
+
   const [showIncompleteExerciseModal, setShowIncompleteExerciseModal] = useState(false);
 
   const { isLoading, isError, data: fetchedWorkout, error } = useQuery({
@@ -89,7 +89,7 @@ const EditWorkout = () => {
     }
 
     try {
-      await editWorkout( workoutStore.editingWorkout!, fetchedWorkout!, getTotalSets(workoutStore.editingWorkout), getTotalVolume(workoutStore.editingWorkout), userStore.user!);
+      await editWorkout(workoutStore.editingWorkout!, fetchedWorkout!, getTotalSets(workoutStore.editingWorkout), getTotalVolume(workoutStore.editingWorkout), userStore.user!);
       await queryClient.invalidateQueries({ queryKey: ['workouts'] });
       toast.success('Workout saved successfully!');
       workoutStore.setEditingWorkout(null);
@@ -181,7 +181,7 @@ const EditWorkout = () => {
       </div>
       <div className="flex flex-col flex-grow">
         {(!!workoutStore.editingWorkout && workoutStore.editingWorkout?.workout_exercises?.length > 0) ? (
-          <ScrollArea type="always" className="flex-grow max-h-full h-1">
+          <ScrollArea type="always" className="flex-grow max-h-full md:h-1">
             <div className="flex flex-col gap-4 flex-grow pt-4">
               {workoutStore.editingWorkout.workout_exercises.map((exercise, index) => (
                 <WorkoutExercise

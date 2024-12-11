@@ -21,7 +21,6 @@ const ExerciseList = () => {
   const navigate = useNavigate();
   const { allExercises } = useExercisesStore();
   const { exerciseSearchMode, addExercisesToWorkout, selectedExerciseIndex, replaceExerciseInWorkout, setExerciseSearchMode } = useWorkoutStore();
-
   const [selectedExercises, setSelectedExercises] = useState<Exercise[]>([]);
   const [filteredExercises, setFilteredExercises] = useState<Exercise[] | null>(null);
   const [groupDrawerOpen, setGroupDrawerOpen] = useState(false);
@@ -142,7 +141,7 @@ const ExerciseList = () => {
   }
 
   return (
-    <>
+    <main className='mb-safe pb-safe'>
       <div className="flex-grow flex flex-col w-full max-w-full lg:max-w-screen-lg mx-auto px-4 py-0">
         <div className='flex flex-col gap-4 justify-center flex-grow'>
           <ExerciseListHeader
@@ -166,7 +165,7 @@ const ExerciseList = () => {
                 <LoadingAnimation />
               </div>
             ) : filteredExercises && filteredExercises.length > 0 ? (
-              <ScrollArea type="always" className="flex-grow max-h-full h-1">
+              <ScrollArea type="always" className="flex-grow max-h-full md:h-1">
                 <div className="flex flex-col flex-grow">
                   {filteredExercises.map((filteredExercise) => {
                     const isSelected = selectedExercises.some(
@@ -183,6 +182,7 @@ const ExerciseList = () => {
                   })}
                 </div>
                 <ScrollBar orientation="vertical" className="h-full" />
+
               </ScrollArea>
             ) : (
               <div className="flex justify-center items-center flex-grow">
@@ -205,7 +205,7 @@ const ExerciseList = () => {
           </Button>
         </div>
       </div>
-    </>
+    </main>
   )
 }
 

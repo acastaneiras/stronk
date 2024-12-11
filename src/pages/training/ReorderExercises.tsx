@@ -96,7 +96,7 @@ const ReorderExercises = () => {
           </div>
         </div>
       </div>
-      <div className="sticky bottom-0 left-0 w-full bg-background text-center p-4 border-t border-border">
+      <div className="sticky bottom-safe left-0 w-full bg-background text-center p-4 border-t border-border">
         <div className="flex flex-row items-center max-w-screen-lg mx-auto gap-4">
           <Button className='w-full' onClick={handleReorderExercises}>
             <SaveIcon />

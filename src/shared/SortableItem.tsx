@@ -18,7 +18,8 @@ export const SortableItem: React.FC<SortableItemProps> = ({ id, name }) => {
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition
+    transition,
+    touchAction: 'none',
   };
 
   return (
@@ -31,7 +32,7 @@ export const SortableItem: React.FC<SortableItemProps> = ({ id, name }) => {
     >
       <div className="flex flex-row items-center gap-4">
         <GripVertical className="cursor-move" />
-        <span className="text-xl font-bold">{name}</span>
+        <span className="text-xl font-bold select-none">{name}</span>
       </div>
     </div>
   );

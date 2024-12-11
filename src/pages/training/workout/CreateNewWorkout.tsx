@@ -10,6 +10,7 @@ import RestTimeModal from '@/shared/modals/RestTimeModal';
 import RIRModal from '@/shared/modals/RIRModal';
 import RPEModal from '@/shared/modals/RPEModal';
 import SetTypeModal from '@/shared/modals/SetTypeModal';
+import ExerciseTimer from '@/shared/training/ExerciseTimer';
 import WorkoutExercise from '@/shared/training/workout-exercise/WorkoutExercise';
 import WorkoutHeader from '@/shared/training/WorkoutHeader';
 import { useUserStore } from '@/stores/userStore';
@@ -21,7 +22,6 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import NoExercises from '../NoExercises';
-import ExerciseTimer from '@/shared/training/ExerciseTimer';
 
 const CreateNewWorkout = () => {
   const workoutStore = useWorkoutStore();
@@ -87,7 +87,7 @@ const CreateNewWorkout = () => {
       <WorkoutHeader onClose={handleGoBack} onFinish={handleOpenFinishDrawer} />
       <div className="flex flex-col flex-grow">
         {(!!workoutStore.workout && workoutStore.workout?.workout_exercises?.length > 0) ? (
-          <ScrollArea type="always" className="flex-grow max-h-full h-1">
+          <ScrollArea type="always" className="flex-grow max-h-full md:h-1">
             <div className="flex flex-col gap-4 flex-grow pt-4">
               {workoutStore.workout?.workout_exercises.map((exercise, index) => (
                 <WorkoutExercise
@@ -112,7 +112,6 @@ const CreateNewWorkout = () => {
           </div>
         )}
       </div>
-
       <RemoveExerciseModal
         open={workoutActions.removeExerciseOpen}
         onOpenChange={workoutActions.setRemoveExerciseOpen}

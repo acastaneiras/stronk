@@ -108,7 +108,7 @@ const CreateRoutine = () => {
 
       <div className="flex flex-col flex-grow">
         {(!!workoutStore.routine && workoutStore.routine?.workout_exercises?.length > 0) ? (
-          <ScrollArea type="always" className="flex-grow max-h-full h-1">
+          <ScrollArea type="always" className="flex-grow max-h-full md:h-1">
             <div className="flex flex-col gap-4 flex-grow pt-4">
               {workoutStore.routine?.workout_exercises.map((exercise, index) => (
                 <WorkoutExercise

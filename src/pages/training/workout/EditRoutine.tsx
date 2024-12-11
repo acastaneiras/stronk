@@ -24,6 +24,8 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 import NoExercises from '../NoExercises';
 import { validate as uuidValidate } from 'uuid';
+import clsx from 'clsx';
+import useUserAgent from '@/hooks/useUserAgent';
 
 const workoutSchema = z.object({
   title: z.string().min(1, { message: 'Routine title is required.' }),
@@ -36,6 +38,7 @@ const EditRoutine = () => {
   const queryClient = useQueryClient();
   const { id } = useParams();
   const workoutActions = useWorkoutActions(workoutStore, userStore);
+  const { userAgent } = useUserAgent();
 
   const { isLoading, isError, data: fetchedRoutine, error } = useQuery({
     queryKey: ['routines', id, userStore.user?.unitPreference],
@@ -141,7 +144,7 @@ const EditRoutine = () => {
 
       <div className="flex flex-col flex-grow">
         {(!!workoutStore.routine && workoutStore.routine?.workout_exercises?.length > 0) ? (
-          <ScrollArea type="always" className="flex-grow max-h-full h-1">
+          <ScrollArea type="always"  className={clsx("flex-grow max-h-full", { "h-1": userAgent !== 'Safari' })}>
             <div className="flex flex-col gap-4 flex-grow pt-4">
               {workoutStore.routine.workout_exercises.map((exercise, index) => (
                 <WorkoutExercise

@@ -9,8 +9,8 @@ import { formatTime, formatWeightDecimals, formatWeightUnit, getTotalSets, getTo
 import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
-import NoExercises from './NoExercises';
 import { validate as uuidValidate } from 'uuid';
+import NoExercises from './NoExercises';
 
 const ViewWorkout = () => {
   const { id } = useParams();
@@ -88,7 +88,7 @@ const ViewWorkout = () => {
 
       <div className="flex flex-col flex-grow">
         {(!!fetchedWorkout && fetchedWorkout?.workout_exercises?.length > 0) ? (
-          <ScrollArea type="always" className="flex-grow max-h-full h-1">
+          <ScrollArea type="always" className="flex-grow max-h-full md:h-1">
             <div className="flex flex-col gap-4 flex-grow py-4">
               {fetchedWorkout.workout_exercises.map((exercise, index) => (
                 <WorkoutExerciseView

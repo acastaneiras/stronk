@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "clean": "rmdir /s /q dist"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",
@@ -34,6 +35,7 @@
     "dayjs": "^1.11.13",
     "embla-carousel-react": "^8.5.1",
     "idb-keyval": "^6.2.1",
+    "js-cookie": "^3.0.5",
     "lucide-react": "^0.453.0",
     "motion": "^11.11.17",
     "next-themes": "^0.3.0",
@@ -46,13 +48,16 @@
     "sonner": "^1.5.0",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
+    "tailwindcss-safe-area": "^0.6.0",
     "uuid": "^11.0.3",
     "vaul": "^1.1.0",
+    "vite-plugin-pwa": "^0.21.1",
     "zod": "^3.23.8",
     "zustand": "^5.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.11.1",
+    "@types/js-cookie": "^3.0.6",
     "@types/node": "^22.7.7",
     "@types/react": "^18.3.10",
     "@types/react-dom": "^18.3.0",
