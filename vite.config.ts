@@ -6,10 +6,10 @@ import { StronkManifest } from "./manifest";
 
 export default defineConfig({
   plugins: [react(), VitePWA(StronkManifest)],
-  server: {
+  /*server: {
     host: true,
     port: 3000,
-  },
+  },*/
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

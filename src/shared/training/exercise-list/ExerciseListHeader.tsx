@@ -4,6 +4,7 @@ import { Separator } from '@/components/ui/separator';
 import ExerciseFilterButton from '@/shared/buttons/ExerciseFilterButton';
 import MuscleIcon from '@/shared/icons/MuscleIcon';
 import { getCategoryColor } from '@/utils/workoutUtils';
+import { useMediaQuery } from '@uidotdev/usehooks';
 import { ChevronLeft, DumbbellIcon, Search } from 'lucide-react';
 import { MdOutlineFilterList } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
@@ -26,7 +27,7 @@ type ExerciseListHeaderProps = {
 
 const ExerciseListHeader = ({ searchValue, categoryFilter, equipmentFilter, muscleGroupFilter, setSearchValue, setCategoryDrawerOpen, setEquipmentDrawerOpen, setGroupDrawerOpen, setCategoryFilter, setEquipmentFilter, setMuscleGroupFilter }: ExerciseListHeaderProps) => {
   const navigate = useNavigate();
-
+  const isDesktop = useMediaQuery("(min-width: 768px)");
   return (
     <div className="flex flex-col gap-4 sticky top-0 bg-background z-10 pt-4 border-none">
       <div className="flex flex-row items-center justify-between">
@@ -47,13 +48,13 @@ const ExerciseListHeader = ({ searchValue, categoryFilter, equipmentFilter, musc
       </div>
 
       <div className="flex justify-center gap-1">
-        <Button className="w-full" onClick={() => setCategoryDrawerOpen(true)}>
+        <Button className="w-full" onClick={() => setCategoryDrawerOpen(true)} size={isDesktop ? 'default' : 'sm'}>
           <MdOutlineFilterList /> Category
         </Button>
-        <Button className="w-full" onClick={() => setEquipmentDrawerOpen(true)}>
+        <Button className="w-full" onClick={() => setEquipmentDrawerOpen(true)} size={isDesktop ? 'default' : 'sm'}>
           <DumbbellIcon /> Equipment
         </Button>
-        <Button className="w-full" onClick={() => setGroupDrawerOpen(true)}>
+        <Button className="w-full" onClick={() => setGroupDrawerOpen(true)} size={isDesktop ? 'default' : 'sm'}>
           <MuscleIcon className="stroke-white" /> M. Group
         </Button>
       </div>

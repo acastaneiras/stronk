@@ -141,7 +141,7 @@ const ExerciseList = () => {
   }
 
   return (
-    <main className='mb-safe pb-safe'>
+    <div className='flex flex-col flex-grow mb-safe pb-safe'>
       <div className="flex-grow flex flex-col w-full max-w-full lg:max-w-screen-lg mx-auto px-4 py-0">
         <div className='flex flex-col gap-4 justify-center flex-grow'>
           <ExerciseListHeader
@@ -158,7 +158,6 @@ const ExerciseList = () => {
             muscleGroupFilter={muscleGroupFilter}
             setMuscleGroupFilter={setMuscleGroupFilter}
           />
-
           <div className="flex flex-col flex-grow overflow-hidden">
             {isLoading ? (
               <div className="flex justify-center items-center flex-grow">
@@ -205,7 +204,7 @@ const ExerciseList = () => {
           </Button>
         </div>
       </div>
-    </main>
+    </div>
   )
 }
 
