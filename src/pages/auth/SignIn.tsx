@@ -16,7 +16,7 @@ const schema = z.object({
   password: z.string(),
 });
 
-export default function LoginPage() {
+export default function SignIn() {
   const navigate = useNavigate();
   const { state } = useLocation();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);

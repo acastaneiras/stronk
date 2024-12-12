@@ -26,3 +26,5 @@ dist-ssr
 .env*.local
 
 dev-dist
+
+vite.config.ts.*

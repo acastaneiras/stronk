@@ -3,9 +3,10 @@ import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 import { VitePWA } from "vite-plugin-pwa";
 import { StronkManifest } from "./manifest";
+import tsconfigPaths from "vite-tsconfig-paths"
 
 export default defineConfig({
-  plugins: [react(), VitePWA(StronkManifest)],
+  plugins: [react(), VitePWA(StronkManifest), tsconfigPaths()],
   /*server: {
     host: true,
     port: 3000,
@@ -14,5 +15,5 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
-  },
+  }
 })

@@ -22,9 +22,7 @@ export const handleGoogleSignIn = async (setErrorMessage: (message: string | nul
 
 export const handleSignIn = async ( email: string, password: string, setErrorMessage: (message: string | null) => void) => {
   setErrorMessage(null);
-
   const { error } = await supabase.auth.signInWithPassword({ email, password });
-
   if (error) {
     setErrorMessage(error.message);
   } else {
