@@ -95,6 +95,7 @@ function WorkoutExerciseSingleSet({ set, setIndex, currentExercise, callShowInte
               onClick={onChangeSetType}
               variant="ghost"
               className="px-4 py-1 rounded"
+              aria-label={`set-type-${currentExercise.id}-${set.id}`}
             >
               <IconSet setType={set.type} setNumber={set.number} />
             </Button>
@@ -149,6 +150,7 @@ function WorkoutExerciseSingleSet({ set, setIndex, currentExercise, callShowInte
               <Button
                 onClick={() => handleSetCompleted(setIndex)}
                 variant={set.completed ? "default" : "outline"}
+                aria-label={`complete-set-${currentExercise.id}-${set.id}`}
               >
                 <Check className="h-4 w-4" />
               </Button>

@@ -18,7 +18,7 @@ const AuthProtectedRoute = () => {
 	if (!session) {
 		//redirect to sign in with react router
 		return <Navigate to="/sign-in" />;
-	}
+	} 	
 	return <Outlet />;
 };
 

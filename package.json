@@ -36,6 +36,7 @@
     "clsx": "^2.1.1",
     "dayjs": "^1.11.13",
     "embla-carousel-react": "^8.5.1",
+    "fake-indexeddb": "^6.0.0",
     "idb-keyval": "^6.2.1",
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.453.0",

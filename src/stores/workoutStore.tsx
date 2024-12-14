@@ -474,11 +474,11 @@ export const useWorkoutStore = create<WorkoutState>()(
             const newSets = workoutExercise.sets.map((set) => {
               //Convert the weight to the user's preference
               const currentIntensity: ExerciseSetIntensity = set.intensity as ExerciseSetIntensity;
-
               let convertedIntensity = currentIntensity;
               if (currentIntensity) {
                 convertedIntensity = {
                   ...currentIntensity,
+                  scale: userIntensityScale,
                   value: convertIntensity(currentIntensity.value, currentIntensity.scale, userIntensityScale)
                 };
               }

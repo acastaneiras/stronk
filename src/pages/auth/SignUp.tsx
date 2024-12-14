@@ -76,7 +76,7 @@ export default function SignUpPage() {
               className="mb-4"
             />
           )}
-          <Button className='flex w-full justify-center gap-3' onClick={() => handleGoogleSignIn(setErrorMessage)}>
+          <Button variant={`secondary`} className='flex w-full justify-center gap-3' onClick={() => handleGoogleSignIn(setErrorMessage)}>
             <img src="/google_logo.png" alt="Google logo" width={20} height={20} />
             Continue with Google
           </Button>

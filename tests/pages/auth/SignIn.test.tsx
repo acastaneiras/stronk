@@ -14,7 +14,7 @@ vi.mock("react-router-dom", async () => {
   const actual = await vi.importActual("react-router-dom");
   return {
     ...actual,
-    useNavigate: () => mockNavigate, //Usenavigate mock
+    useNavigate: () => mockNavigate, // useNavigate mock
   };
 });
 

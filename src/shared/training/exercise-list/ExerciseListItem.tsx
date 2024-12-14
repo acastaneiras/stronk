@@ -33,7 +33,7 @@ const ExerciseListItem = ({ exercise, onPress, selected }: { exercise: Exercise;
                   onError={() => setImageError(true)}
                 />
               ) : (
-                <ImageIcon className="text-muted-foreground w-8 h-8" />
+                <ImageIcon className="text-muted-foreground w-8 h-8" data-testid="image-icon" />
               )}
             </div>
             <div className="flex-1">

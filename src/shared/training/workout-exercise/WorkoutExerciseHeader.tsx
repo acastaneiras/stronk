@@ -51,7 +51,7 @@ const WorkoutExerciseHeader = ({ index, isViewing = false, currentExercise, onCa
             onError={() => setImageError(true)}
           />
         ) : (
-          <ImageIcon className="text-muted-foreground w-8 h-8" />
+          <ImageIcon className="text-muted-foreground w-8 h-8" data-testid="image-icon" />
         )}
 
         <div className="flex flex-col flex-1 gap-1 items-start">
@@ -110,7 +110,7 @@ const WorkoutExerciseHeader = ({ index, isViewing = false, currentExercise, onCa
         <div className='px-4 py-3'>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost">
+              <Button variant="ghost" aria-label={`exercise-settings-${currentExercise.id}-${index}`}>
                 <Settings2 className="h-5" />
               </Button>
             </DropdownMenuTrigger>
@@ -118,22 +118,22 @@ const WorkoutExerciseHeader = ({ index, isViewing = false, currentExercise, onCa
               <DropdownMenuLabel>Exercise Settings</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Button variant="ghost" className="w-full justify-start border-none cursor-pointer" onClick={onCallExerciseNotes}>
+                <Button variant="ghost" className="w-full justify-start border-none cursor-pointer" onClick={onCallExerciseNotes} aria-label={`exercise-notes-${currentExercise.id}-${index}`}>
                   <FileText className="h-4 w-4 mr-2" /> Notes
                 </Button>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Button variant="ghost" className="w-full justify-start border-none cursor-pointer" onClick={onCallRestTimeExercise}>
+                <Button variant="ghost" className="w-full justify-start border-none cursor-pointer" onClick={onCallRestTimeExercise} aria-label={`exercise-rest-${currentExercise.id}-${index}`}>
                   <Clock className="h-4 w-4 mr-2" /> Rest time
                 </Button>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Button variant="ghost" className="w-full justify-start border-none cursor-pointer" onClick={navigateToReplaceExercise}>
+                <Button variant="ghost" className="w-full justify-start border-none cursor-pointer" onClick={navigateToReplaceExercise} aria-label={`exercise-replace-${currentExercise.id}-${index}`}>
                   <Replace className="h-4 w-4 mr-2" /> Replace exercise
                 </Button>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Button variant="destructive" onClick={onCallRemoveExercise} className="w-full justify-start border-none cursor-pointer">
+                <Button variant="destructive" onClick={onCallRemoveExercise} className="w-full justify-start border-none cursor-pointer" aria-label={`exercise-remove-${currentExercise.id}-${index}`}>
                   <Trash className="h-4 w-4 mr-2" /> Remove exercise
                 </Button>
               </DropdownMenuItem>

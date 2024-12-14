@@ -7,10 +7,10 @@ import tsconfigPaths from "vite-tsconfig-paths"
 
 export default defineConfig({
   plugins: [react(), VitePWA(StronkManifest), tsconfigPaths()],
-  /*server: {
+  server: {
     host: true,
-    port: 3000,
-  },*/
+    port: 5173,
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
