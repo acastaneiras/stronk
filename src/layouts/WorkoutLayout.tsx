@@ -52,6 +52,7 @@ export default function WorkoutLayout() {
             className='w-full'
             onClick={handleAddExercise}
             disabled={isAddDisabled}
+            aria-label={`add-workout-exercise`}
           >
             <Plus className='w-6 h-6' />
             Add Exercise

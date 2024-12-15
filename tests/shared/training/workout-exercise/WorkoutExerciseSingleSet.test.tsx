@@ -134,6 +134,7 @@ describe('WorkoutExerciseSingleSet', () => {
     const user = userEvent.setup();
     renderComponent();
 
+    // Click intensity button
     const intensityButton = screen.getByText('@ 8.0');
     await user.click(intensityButton);
 
@@ -144,6 +145,7 @@ describe('WorkoutExerciseSingleSet', () => {
     const user = userEvent.setup();
     renderComponent();
 
+    // Click change type
     const changeTypeButton = screen.getByLabelText(`set-type-${mockCurrentExercise.id}-${mockCurrentExercise.sets[0].id}`)
     await user.click(changeTypeButton);
 
@@ -155,10 +157,9 @@ describe('WorkoutExerciseSingleSet', () => {
       ...mockProps,
       set: { ...mockSet, completed: true },
     });
-
-    screen.debug()
-
+    
     const completeButton = screen.getByLabelText(`complete-set-${mockCurrentExercise.id}-${mockCurrentExercise.sets[0].id}`)
+    // Check the button is with the proper style
     expect(completeButton).toHaveClass('bg-primary');
   });
 });

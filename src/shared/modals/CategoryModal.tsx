@@ -34,6 +34,7 @@ const CategoryModal = ({ categoryDrawerOpen, setCategoryDrawerOpen, currentCateg
               filterCategory(item.category);
               setCategoryDrawerOpen(false);
             }}
+            aria-label={`category-filter-${item.label.toLowerCase()}-button`}
           >
             {item.label}
           </Button>
