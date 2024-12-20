@@ -5,15 +5,13 @@ import { VitePWA } from "vite-plugin-pwa";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { StronkManifest } from "./manifest";
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(() => {
   return {
     plugins: [react(), VitePWA(StronkManifest), tsconfigPaths()],
     server: {
       host: true,
       port: 1111,
     },
-    base: mode === "production" ? "/stronk" : "/"
-    ,
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),

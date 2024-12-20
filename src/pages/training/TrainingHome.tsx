@@ -107,9 +107,8 @@ const TrainingHome = () => {
 					</div>
 				</div>
 			</div>
-
 			<WelcomeModal
-				isOpen={!!isUserSetupComplete === false}
+				isOpen={!!user && !isUserSetupComplete && user.firstName === ""}
 			/>
 			<ResponsiveModal
 				open={userHasPendingWorkout}
