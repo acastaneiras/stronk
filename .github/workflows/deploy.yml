@@ -1,0 +1,47 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '21.6.2'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Set environment variables
+        run: echo "Setting environment variables"
+        env:
+          VITE_APP_URL: ${{ secrets.APP_URL }}
+          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          VITE_EXERCISES_VERSION: ${{ secrets.EXERCISES_VERSION }}
+          VITE_EXERCISE_PICTURES_URL: ${{ secrets.EXERCISE_PICTURES_URL }}
+
+      - name: Build project
+        run: npm run build
+        env:
+          VITE_APP_URL: ${{ secrets.APP_URL }}
+          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          VITE_EXERCISES_VERSION: ${{ secrets.EXERCISES_VERSION }}
+          VITE_EXERCISE_PICTURES_URL: ${{ secrets.EXERCISE_PICTURES_URL }}
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist

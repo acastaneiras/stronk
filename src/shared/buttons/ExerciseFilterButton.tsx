@@ -14,7 +14,7 @@ const ExerciseFilterButton = ({ filter, filterColor, icon, onClose }: ExerciseFi
     <Badge
       variant="outline"
       className={clsx(
-        'border justify-around flex flex-row',
+        'border justify-around flex flex-row dark:bg-secondary',
         { 'border-primary': !filterColor }
       )}
       style={filterColor ? { borderColor: filterColor } : {}}

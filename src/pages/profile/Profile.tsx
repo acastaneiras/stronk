@@ -21,6 +21,7 @@ const Profile = () => {
 	const [showSettingsModal, setShowSettingsModal] = useState(false);
 	const { editingWorkout, setEditingWorkout } = useWorkoutStore();
 	const queryClient = useQueryClient();
+	
 	const { data: workouts, isLoading, isError, error } = useQuery<Workout[], Error>({
 		queryKey: ["workouts", user?.id, user?.unitPreference, user?.intensitySetting],
 		queryFn: () => fetchWorkoutsWithExercises(user?.id as string, user?.unitPreference as WeightUnit),

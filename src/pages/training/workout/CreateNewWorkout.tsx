@@ -66,6 +66,7 @@ const CreateNewWorkout = () => {
     }
     if (!routineToChange || !userStore.user) return;
     try {
+      //Calls the API to save the routine from the workout
       await overwriteRoutine(routineToChange, userStore.user);
       await queryClient.invalidateQueries({ queryKey: ['routines'], refetchType: 'all' });
       setConfirmSaveRoutineDialog(false);

@@ -109,7 +109,7 @@ const TrainingHome = () => {
 			</div>
 
 			<WelcomeModal
-				isOpen={isUserSetupComplete === false}
+				isOpen={!!isUserSetupComplete === false}
 			/>
 			<ResponsiveModal
 				open={userHasPendingWorkout}
@@ -138,7 +138,7 @@ const TrainingHome = () => {
 				open={routineToDelete !== null}
 				onOpenChange={() => setRoutineToDelete(null)}
 				dismissable={true}
-				title="Delete Workout"
+				title="Delete Routine"
 				titleClassName="text-lg font-semibold leading-none tracking-tight"
 				footer={
 					<>

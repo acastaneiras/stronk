@@ -13,6 +13,8 @@ const OAuthCallback = () => {
       if (user) {
         useUserStore.getState().setUser(user);
         navigate('/training');
+      } else {
+        navigate('/sign-in', { state: { oauthError: 'Failed to sign in with Google. Please try again.' } });
       }
     };
 

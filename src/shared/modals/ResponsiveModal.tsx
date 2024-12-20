@@ -58,7 +58,7 @@ export function ResponsiveModal({
         <DrawerHeader>
           <DrawerTitle className={titleClassName ? titleClassName : `text-3xl font-bold text-center`}>{title}</DrawerTitle>
           <DrawerDescription>
-            {description}
+            {description || ''}
           </DrawerDescription>
         </DrawerHeader>
         <Separator orientation="horizontal" />

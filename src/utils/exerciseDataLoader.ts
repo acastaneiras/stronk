@@ -1,6 +1,6 @@
-import { supabase } from "../utils/supabaseClient";
 import { Exercise } from "../models/Exercise";
 import { ExercisesState } from "../stores/exerciseStore";
+import { supabase } from "../utils/supabaseClient";
 
 const EXERCISES_VERSION = import.meta.env.VITE_EXERCISES_VERSION;
 
@@ -13,7 +13,9 @@ export const loadData = (store: ExercisesState) => {
   loadEquipment(versionChange, store.addEquipment, store.allEquipment);
   loadCategories(versionChange, store.addCategories, store.allCategories);
 
-  store.setVersion(Number(EXERCISES_VERSION));
+  if (versionChange) {
+    store.setVersion(Number(EXERCISES_VERSION));
+  }
 };
 
 async function loadEquipment(versionChange: boolean, addEquipment: (equipment: string[]) => void, allEquipment: string[] | null) {

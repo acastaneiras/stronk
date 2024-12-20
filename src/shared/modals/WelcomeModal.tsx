@@ -67,10 +67,7 @@ function WelcomeModal({ isOpen }: WelcomeModalProps) {
   const onSubmit = async (userData: UserFormInputs) => {
     if (!session?.user.id) return;
 
-    const { data, error } = await supabase
-      .from('Users')
-      .update({ ...userData })
-      .eq('id', session.user.id).select();
+    const { data, error } = await supabase.from('Users').update({ ...userData }).eq('id', session.user.id).select();
 
     if (error) {
       toast.error('An error occurred while saving user details');
@@ -169,7 +166,11 @@ function WelcomeModal({ isOpen }: WelcomeModalProps) {
             name="intensitySetting"
             render={() => (
               <FormItem className="flex flex-col space-y-1.5">
-                <FormLabel asChild>Intensity Setting</FormLabel>
+                <FormLabel asChild>
+                  <div>
+                    Intensity Setting
+                  </div>
+                </FormLabel>
                 <Tabs defaultValue="none">
                   <TabsList>
                     <TabsTrigger value="rpe" onClick={() => form.setValue('intensitySetting', 'rpe')}>
@@ -191,7 +192,11 @@ function WelcomeModal({ isOpen }: WelcomeModalProps) {
             name="theme"
             render={() => (
               <FormItem className="flex flex-col space-y-1.5">
-                <FormLabel asChild>Theme</FormLabel>
+                <FormLabel asChild>
+                  <div>
+                    Theme
+                  </div>
+                </FormLabel>
                 <Tabs defaultValue="system">
                   <TabsList>
                     <TabsTrigger value="light" onClick={() => setTheme('light')}>

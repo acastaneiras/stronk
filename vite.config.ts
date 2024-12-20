@@ -1,19 +1,23 @@
-import path from "path"
-import react from "@vitejs/plugin-react"
-import { defineConfig } from "vite"
+import react from "@vitejs/plugin-react";
+import path from "path";
+import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
+import tsconfigPaths from "vite-tsconfig-paths";
 import { StronkManifest } from "./manifest";
-import tsconfigPaths from "vite-tsconfig-paths"
 
-export default defineConfig({
-  plugins: [react(), VitePWA(StronkManifest), tsconfigPaths()],
-  server: {
-    host: true,
-    port: 5173,
-  },
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
+export default defineConfig(({ mode }) => {
+  return {
+    plugins: [react(), VitePWA(StronkManifest), tsconfigPaths()],
+    server: {
+      host: true,
+      port: 1111,
     },
+    base: mode === "production" ? "/stronk" : "/"
+    ,
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "./src"),
+      },
+    }
   }
 })

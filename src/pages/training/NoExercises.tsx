@@ -11,7 +11,7 @@ const NoExercises = ({ type = "workout" }: { type?: string }) => {
       </div>
       <p className="text-center">
         You can add new exercises to the {type} by clicking the{' '}
-        <span className="font-semibold text-primary">"Add Exercises"</span> button.
+        <span className="font-semibold text-primary">"Add Exercise"</span> button.
       </p>
     </div>
   );
