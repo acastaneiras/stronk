@@ -8,7 +8,7 @@ import { MdAddToHomeScreen } from 'react-icons/md';
 const InstallPWAButton: React.FC = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<any | null>(null);
   const [isVisible, setIsVisible] = useState(false);
-  const { isMobile, isIOS, isStandalone } = useUserAgent();
+  const { isIOS, isStandalone } = useUserAgent();
 
 
   useEffect(() => {
@@ -51,8 +51,8 @@ const InstallPWAButton: React.FC = () => {
     );
   }
 
-  //If the user is not on a mobile device, the button is not visible
-  if (!isVisible || !isMobile || isStandalone) {
+  //If the user doesn't have the app already installed, show the install button
+  if (!isVisible || isStandalone) {
     return null;
   }
 

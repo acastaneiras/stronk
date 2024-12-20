@@ -17,7 +17,7 @@ function Home() {
 
   return (
     <div className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white p-6">
-      <img src="/stronk-logo-white.svg" alt="Stronk Logo" className="my-8" />
+      <img src="stronk-logo-white.svg" alt="Stronk Logo" className="my-8" />
       <p className="text-lg max-w-2xl mb-8">
         A simple application to help you track your fitness progress and stay on top of your goals.
       </p>

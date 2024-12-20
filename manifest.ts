@@ -3,10 +3,12 @@ export const StronkManifest = {
   registerType: "autoUpdate" as const,
   devOptions: { enabled: true },
   injectRegister: 'auto' as const,
+  base: "/stronk/",
+  scope: "/stronk/",
   manifest: {
     name: "Stronk",
     short_name: "Stronk",
-    start_url: "/",
+    start_url: "/stronk/",
     display: "standalone" as const,
     background_color: "#ffffff",
     theme_color: "#ffffff",

@@ -155,7 +155,7 @@ const router = createBrowserRouter([
 	{
 		path: '*',
 		element: <NotFound />,
-	},
-]);
+	}
+], { basename: '/stronk' });
 
 export default router;

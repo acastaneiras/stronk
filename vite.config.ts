@@ -12,6 +12,7 @@ export default defineConfig(() => {
       host: true,
       port: 1111,
     },
+    base: "/stronk/",
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),

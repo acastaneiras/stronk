@@ -59,7 +59,7 @@ export default function SignIn() {
         )}
         <div className='flex flex-col gap-4 '>
           <Button variant={`secondary`} className='flex w-full justify-center gap-3' onClick={() => handleGoogleSignIn(setErrorMessage)}>
-            <img src="/google_logo.png" alt="Google logo" width={20} height={20} />
+            <img src="google_logo.png" alt="Google logo" width={20} height={20} />
             Continue with Google
           </Button>
         </div>
