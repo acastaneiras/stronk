@@ -4,7 +4,7 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import useWorkoutActions from '@/hooks/useWorkoutActions';
 import NotesModal from '@/shared/modals/NotesModal';
-import { ResponsiveModal } from '@/shared/modals/ResponsiveModal';
+import RemoveExerciseModal from '@/shared/modals/RemoveExerciseModal';
 import RestTimeModal from '@/shared/modals/RestTimeModal';
 import RIRModal from '@/shared/modals/RIRModal';
 import RPEModal from '@/shared/modals/RPEModal';
@@ -15,8 +15,8 @@ import { StoreMode, useWorkoutStore } from '@/stores/workoutStore';
 import { createRoutine } from '@/utils/apiCalls';
 import { formatWeightDecimals, formatWeightUnit, getTotalSets, getTotalVolume } from '@/utils/workoutUtils';
 import { useQueryClient } from '@tanstack/react-query';
-import { ChevronLeft, Save, Trash } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { ChevronLeft, Save } from 'lucide-react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -33,8 +33,6 @@ const CreateRoutine = () => {
   const queryClient = useQueryClient();
 
   const workoutActions = useWorkoutActions(workoutStore, userStore);
-
-  const [removeExerciseOpen, setRemoveExerciseOpen] = useState(false);
 
   const setsDetail = getTotalSets(workoutStore.routine);
   const totalVolume = getTotalVolume(workoutStore.routine, true);
@@ -132,25 +130,11 @@ const CreateRoutine = () => {
         )}
       </div>
 
-      <ResponsiveModal
-        open={removeExerciseOpen}
-        onOpenChange={setRemoveExerciseOpen}
-        dismissable={true}
-        title="Remove Exercise"
-        titleClassName="text-lg font-semibold leading-none tracking-tight"
-        footer={
-          <>
-            <Button variant="destructive" onClick={workoutActions.handleRemoveExercise}>
-              <Trash /> Confirm
-            </Button>
-            <Button variant="outline" onClick={() => setRemoveExerciseOpen(false)}>
-              Cancel
-            </Button>
-          </>
-        }
-      >
-        <p>Are you sure you want to remove this exercise?</p>
-      </ResponsiveModal>
+      <RemoveExerciseModal
+        open={workoutActions.removeExerciseOpen}
+        onOpenChange={workoutActions.setRemoveExerciseOpen}
+        onConfirmRemove={workoutActions.handleRemoveExercise}
+      />
 
       <RPEModal
         showRPEModal={workoutActions.showRPEModal}
