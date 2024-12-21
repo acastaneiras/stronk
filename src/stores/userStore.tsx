@@ -6,8 +6,9 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 export interface UserState {
   user: User | null;
   isUserSetupComplete: boolean | null;
-  setUser: (user: User) => void;
+  setUser: (user: User | null) => void;
   setIsUserSetupComplete: (status: boolean) => void;
+  resetUserStore: () => void;
 }
 
 export const useUserStore = create<UserState>()(
@@ -17,6 +18,7 @@ export const useUserStore = create<UserState>()(
       isUserSetupComplete: null,
       setUser: (user) => set({ user }),
       setIsUserSetupComplete: (status) => set({ isUserSetupComplete: status }),
+      resetUserStore: () => set({ user: null, isUserSetupComplete: null }),
     }),
     {
       name: 'userStore',

@@ -32,7 +32,7 @@ interface UserSettingsModalProps {
 }
 
 function UserSettingsModal({ isOpen, setShowUserSettingsModal }: UserSettingsModalProps) {
-  const { user, setUser } = useUserStore();
+  const { user, setUser, resetUserStore } = useUserStore();
   const { workout, convertAllWorkoutUnits, setEditingWorkout, setRoutine } = useWorkoutStore();
   const { setTheme, theme } = useTheme();
   const queryClient = useQueryClient();
@@ -93,6 +93,7 @@ function UserSettingsModal({ isOpen, setShowUserSettingsModal }: UserSettingsMod
       toast.error('An error occurred while logging out.');
       return;
     }
+    resetUserStore();
     queryClient.clear();
   };
 
