@@ -10,7 +10,7 @@ export default defineConfig(() => {
     plugins: [react(), VitePWA(StronkManifest), tsconfigPaths()],
     server: {
       host: true,
-      port: 5173,
+      port: 9173,
     },
     preview: {
       port: 1111,
