@@ -29,7 +29,8 @@ export default function ForgotPasswordPage() {
     const { email } = data;
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${import.meta.env.VITE_APP_URL}/reset-password`
+      redirectTo: `${window.location.origin}/stronk/reset-password`,
+      
     });
 
     if (error) {

@@ -11,7 +11,7 @@ export const handleGoogleSignIn = async (setErrorMessage: (message: string | nul
         access_type: 'offline',
         prompt: 'consent',
       },
-      redirectTo: `${import.meta.env.VITE_APP_URL}/oauth-callback`,
+      redirectTo: `${window.location.origin}/stronk/oauth-callback`,
     }
   });
   

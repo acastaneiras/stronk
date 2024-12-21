@@ -44,7 +44,7 @@ export default function SignUpPage() {
       email,
       password,
       options: {
-        emailRedirectTo: `${import.meta.env.VITE_APP_URL}/confirm-email`,
+        emailRedirectTo: `${window.location.origin}/stronk/confirm-email`,
       }
     });
 

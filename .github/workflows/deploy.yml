@@ -25,7 +25,6 @@ jobs:
       - name: Set environment variables
         run: echo "Setting environment variables"
         env:
-          VITE_APP_URL: ${{ secrets.APP_URL }}
           VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
           VITE_EXERCISES_VERSION: ${{ secrets.EXERCISES_VERSION }}
@@ -34,7 +33,6 @@ jobs:
       - name: Build project
         run: npm run build
         env:
-          VITE_APP_URL: ${{ secrets.APP_URL }}
           VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
           VITE_EXERCISES_VERSION: ${{ secrets.EXERCISES_VERSION }}
