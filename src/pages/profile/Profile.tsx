@@ -28,7 +28,7 @@ const Profile = () => {
 		enabled: !!user,
     staleTime: 1000 * 60 * 30,
 	});
-
+	
 	useEffect(() => {
 		//Clear the workout store when the user navigates away from the page
 		if (editingWorkout) {

@@ -266,6 +266,7 @@ export const fetchWorkoutById = async (workoutId: string | number, userUnits: We
           notes,
           sets,
           setInterval,
+          order,
           Exercises (
             *
           )
@@ -304,6 +305,7 @@ export const fetchWorkoutsWithExercises = async (userId: string | number, userUn
           notes,
           sets,
           setInterval,
+          order,
           Exercises (
             *
           )
@@ -335,6 +337,7 @@ export const fetchRoutinesWithExercises = async (userId: string | number, userUn
           notes,
           sets,
           setInterval,
+          order,
           Exercises (
             *
           )
@@ -368,6 +371,7 @@ export const fetchRoutineById = async (routineId: string | number, userUnits: We
             notes,
             sets,
             setInterval,
+            order,
             Exercises (
               *
             )

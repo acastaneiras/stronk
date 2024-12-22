@@ -5,6 +5,7 @@ import { WorkoutExerciseType } from "@/models/WorkoutExerciseType";
 import dayjs from "dayjs";
 import { WeightConvert } from "./workoutUtils";
 
+type DbDetail = { ExerciseDetails: { id: any; Exercises: { id: any; name: any; guid: any; instructions: any; images: any; isCustom: any; category: any; equipment: any; primaryMuscles: any; secondaryMuscles: any; createdAt: Date | null; }; sets: any[]; setInterval: any; notes: any; order: number }; }
 
 //Function that parses the data from the database into the Workout or Routine model
 export const parseWorkoutData = ( data: any[], userUnits: WeightUnit, detailsKey: 'WorkoutExerciseDetails' | 'RoutineExerciseDetails'): Routine[] | Workout[] => {
@@ -31,7 +32,9 @@ export const parseWorkoutData = ( data: any[], userUnits: WeightUnit, detailsKey
         }, 0),
       0
     ),
-    workout_exercises: rawItem[detailsKey].map((detail: { ExerciseDetails: { id: any; Exercises: { id: any; name: any; guid: any; instructions: any; images: any; isCustom: any; category: any; equipment: any; primaryMuscles: any; secondaryMuscles: any; createdAt: Date | null; }; sets: any[]; setInterval: any; notes: any; }; }): WorkoutExerciseType => ({
+    workout_exercises: [...rawItem[detailsKey]]
+    .sort((a:DbDetail, b: DbDetail) => a.ExerciseDetails.order - b.ExerciseDetails.order)
+    .map((detail: DbDetail): WorkoutExerciseType => ({
       id: detail.ExerciseDetails.id,
       exercise: {
         id: detail.ExerciseDetails.Exercises.id,
@@ -61,7 +64,6 @@ export const parseWorkoutData = ( data: any[], userUnits: WeightUnit, detailsKey
             userUnits,
           });
         }
-      
         return {
           id: set.id,
           reps: set.reps,

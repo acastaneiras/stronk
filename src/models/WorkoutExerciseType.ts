@@ -7,4 +7,5 @@ export interface WorkoutExerciseType {
     sets: ExerciseSet[];
     setInterval: number | null;
     notes: string;
+    order?: number;
 }
