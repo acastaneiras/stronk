@@ -18,7 +18,8 @@ const ExerciseTimer = ({ workoutExercises }: ExerciseTimerProps) => {
   const currentExercise = workoutExercises.find((exercise) => exercise.id === activeExerciseId);
 
   const playSound = () => {
-    const audio = new Audio('/sounds/notification.mp3');
+    
+    const audio = new Audio('/stronk/sounds/notification.mp3');
     audio.play().catch((error) => {
       toast.error('Error playing sound: ' + error.message);
     });
