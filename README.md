@@ -63,6 +63,6 @@
 ## Exercise Database
 The exercise database is sourced from [Free Exercise DB](https://github.com/yuhonas/free-exercise-db), which offers a comprehensive collection of +800 exercises categorized by muscle groups and equipment.
 
-## License 📜
+## License
 You can view the full legal code of the license at:
 https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode.en
