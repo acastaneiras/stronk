@@ -1,50 +1,68 @@
-# React + TypeScript + Vite
+# Stronk
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Stronk**, is a web and Progressive Web Application (PWA) that works as a fitness tracker, helping you monitor and optimize your workouts.
 
-Currently, two official plugins are available:
+[Website](https://acastaneiras.github.io/stronk/)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Screenshots
 
-## Expanding the ESLint configuration
+<div align="center">
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+<table>
+  <tr>
+    <td><img src="https://i.imgur.com/EPzm8tp.png" alt="Screenshot 1" width="263"></td>
+    <td><img src="https://i.imgur.com/IihzbXi.png" alt="Screenshot 2" width="263"></td>
+    <td rowspan="2"><img src="https://i.imgur.com/cwhnkw9.png" alt="Screenshot 5" width="263"></td>
+  </tr>
+  <tr>
+    <td><img src="https://i.imgur.com/DAt7EPh.png" alt="Screenshot 3" width="263"></td>
+    <td><img src="https://i.imgur.com/FXGVWqC.png" alt="Screenshot 4" width="263"></td>
+  </tr>
+</table>
 
-- Configure the top-level `parserOptions` property like this:
+</div>
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## Features
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+1. **Comprehensive Fitness Tracker**:
+   - Track workouts, exercises, sets, reps, and weights.
+   - Add notes, rest times, and intensity ratings (RPE & RIR).
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+2. **Customizable Routines**:
+   - Create, edit, and organize your workout routines.
+   - Add exercises from a rich database.
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+3. **Analytics & History**:
+   - See progress with detailed workout summaries.
+   - View statistics for specific exercises, including graphs of weight over time.
+
+4. **Exercise Filtering**:
+   - Filter exercises by category, muscle group, or required equipment.
+   - Search exercises by name for quick access.
+
+5. **Cloud Storage**:
+   - Data is securely stored using **Supabase**, ensuring seamless synchronization across devices.
+
+6. **Built-in Timer**:
+   - Rest interval countdowns with notifications.
+
+7. **Theming**:
+   - Supports dark mode, light mode and system theme.
+
+## Technology Stack
+
+- **Frontend**: React + TypeScript + Vite
+- **State Management**: Zustand
+- **API Integration**: Supabase
+- **Styling**: shadcn/ui & TailwindCSS
+- **PWA Features**: vite-plugin-pwa
+- **Charts & Data Visualization**: Recharts
+- **Drag-and-Drop**: @dnd-kit/core
+- **Form Handling**: React Hook Form + Zod
+
+## Exercise Database
+The exercise database is sourced from [Free Exercise DB](https://github.com/yuhonas/free-exercise-db), which offers a comprehensive collection of +800 exercises categorized by muscle groups and equipment.
+
+## License 📜
+You can view the full legal code of the license at:
+https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode.en
