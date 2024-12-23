@@ -41,6 +41,7 @@ This project is both a web application and a Progressive Web Application (PWA) t
 - **Charts**: [Recharts](https://recharts.org/en-US/)
 - **Drag-and-Drop**: [dnd-kit](https://dndkit.com/)
 - **Form Handling**: [React Hook Form](https://www.react-hook-form.com/) + [Zod](https://zod.dev/)
+- **Testing**: [Vitest](https://vitest.dev/) + [Testing Library](https://testing-library.com/)
 
 ## Exercise Database
 The exercise database is sourced from [Free Exercise DB](https://github.com/yuhonas/free-exercise-db), which offers a collection of more than 800 exercises categorized by muscle groups and equipment.
