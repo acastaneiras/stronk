@@ -50,35 +50,36 @@ The exercise database is sourced from [Free Exercise DB](https://github.com/yuho
 If you want to run this yourself the only requirement is to have [Node.js](https://nodejs.org/en) >= 21.6.2 installed:
 
 1. Clone the repository:
-```bash
-git clone https://github.com/acastaneiras/stronk.git
-cd stronk
-```
+   ```bash
+   git clone https://github.com/acastaneiras/stronk.git
+   cd stronk
+   ```
 
-2. Fill the Envoirement Variables
-Copy the ```.env.default``` file and renamte it to ```.env```. Fill in the required variables with your own values.
+2. Fill the Environment Variables:
+
+   Copy the ```.env.default``` file and renamte it to ```.env```. Fill in the required variables with your own values.
 
 3. Install dependencies:
-```bash
-npm install
-```
+   ```bash
+   npm install
+   ```
 
 4. Start the development server:
-```bash
-npm run dev
-```
-or if you want to build the project:
+   ```bash
+   npm run dev
+   ```
+   or if you want to build the project:
 
-```bash
-npm run build
-```
+   ```bash
+   npm run build
+   ```
 
-```bash
-npm run preview
-```
+   ```bash
+   npm run preview
+   ```
 
 5. Populate Database:
-Since this project uses Supabase as the backend you'll need to create a project with the schema provided in ```schema.sql``` and populate the database with your own data.
+   Since this project uses Supabase as the backend you'll need to create a project with the schema provided in ```schema.sql``` and populate the database with your own data.
 
 ## License
 This project is licensed under a Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
