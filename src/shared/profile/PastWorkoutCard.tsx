@@ -28,7 +28,7 @@ const PastWorkoutCard = ({ pastWorkout, handleDeleteWorkoutPress }: { pastWorkou
               {pastWorkout.title}
             </h1>
             <h3 className="text-sm font-extralight text-gray-800 dark:text-gray-100">
-              {user?.firstName} {user?.lastName} {`(${user?.alias})`}
+              {user?.firstName} {user?.lastName} {user?.alias && ( `(${user?.alias})` )}
             </h3>
           </div>
           <div className='pl-4 py-3'>

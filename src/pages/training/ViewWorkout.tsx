@@ -59,7 +59,7 @@ const ViewWorkout = () => {
           {fetchedWorkout?.title}
         </h1>
         <h3 className="text-sm font-extralight text-gray-800 dark:text-gray-100 line-clamp-2">
-          {user?.firstName} {user?.lastName} {`(${user?.alias})`} - {fetchedWorkout?.date.format("dddd, MMMM D, YYYY")} at {fetchedWorkout?.date.format("h:mm A")}
+          {user?.firstName} {user?.lastName} {user?.alias && ( `(${user?.alias})` )} - {fetchedWorkout?.date.format("dddd, MMMM D, YYYY")} at {fetchedWorkout?.date.format("h:mm A")}
         </h3>
 
       </div>
