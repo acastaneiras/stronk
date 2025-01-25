@@ -28,7 +28,7 @@ import clsx from 'clsx';
 import useUserAgent from '@/hooks/useUserAgent';
 
 const workoutSchema = z.object({
-  title: z.string().min(1, { message: 'Routine title is required.' }),
+  title: z.string().trim().min(1, { message: 'Routine title is required.' }),
 });
 
 const EditRoutine = () => {

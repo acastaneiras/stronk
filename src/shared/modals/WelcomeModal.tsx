@@ -15,9 +15,9 @@ import { toast } from "sonner";
 import { z } from 'zod';
 
 const schema = z.object({
-  firstName: z.string().min(1, 'First Name is required'),
-  lastName: z.string().min(1, 'Last Name is required'),
-  alias: z.string().optional(),
+  firstName: z.string().trim().min(1, 'First Name is required'),
+  lastName: z.string().trim().min(1, 'Last Name is required'),
+  alias: z.string().trim().optional(),
   unitPreference: z.enum(['kg', 'lb']),
   intensitySetting: z.enum(['rpe', 'rir', 'none']),
 });

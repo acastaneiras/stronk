@@ -28,7 +28,7 @@ import { z } from 'zod';
 import NoExercises from '../NoExercises';
 
 const workoutSchema = z.object({
-  title: z.string().nonempty('Workout title is required.'),
+  title: z.string().trim().min(1, { message: 'Workout title is required.' }),
   description: z.string().optional(),
 });
 

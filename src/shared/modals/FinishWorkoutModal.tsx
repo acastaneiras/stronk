@@ -19,7 +19,7 @@ import { z } from 'zod';
 import FinishExerciseSummary from './FinishExerciseSummary';
 
 const workoutSchema = z.object({
-  title: z.string().nonempty("Workout title is required."),
+  title: z.string().trim().min(1, {message: "Workout title is required."}),
   description: z.string().optional(),
 });
 
@@ -36,8 +36,6 @@ const FinishWorkoutModal = ({ open, onOpenChange, onChangedRoutine }: { open: bo
   const setsDetail: SetCounts = getTotalSets(workout);
   const totalVolume = getTotalVolume(workout);
   const [workoutDuration, setWorkoutDuration] = useState(0);
-
-
 
   useEffect(() => {
     if (workout) {
